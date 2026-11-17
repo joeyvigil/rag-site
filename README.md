@@ -4,6 +4,10 @@ Upload documents (PDF, DOCX, TXT, MD, CSV, JSON, HTML), then ask questions and g
 streamed answers with citations. Built from scratch, without LangChain/LlamaIndex,
 so every step of the pipeline is visible and explainable.
 
+> 📘 **Learning guide:** [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) explains in detail
+> how every part works, the trade-offs, and likely interview questions. It is updated
+> at the end of each phase.
+
 ## Quick start
 
 ```bash
