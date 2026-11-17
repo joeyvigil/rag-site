@@ -40,19 +40,38 @@ def _get_client() -> AsyncOpenAI:
     return _client
 
 
-async def stream_chat(messages: list[dict[str, str]]) -> AsyncIterator[str]:
+async def stream_chat(
+    messages: list[dict[str, str]],
+    *,
+    meta: dict | None = None,
+    models: list[str] | None = None,
+) -> AsyncIterator[str]:
     """Yield the answer as text fragments as they're generated.
 
-    Tries LLM_MODEL, then each of LLM_FALLBACK_MODELS in order. Falling back is
-    only possible before the first token is sent: once the user has seen
-    part of an answer, switching models mid-stream would garble it.
+    Tries LLM_MODEL, then each of LLM_FALLBACK_MODELS in order (or exactly
+    `models`, if given; the eval harness passes a single model so results
+    aren't silently mixed across models). Falling back is only possible
+    before the first token is sent: once the user has seen part of an
+    answer, switching models mid-stream would garble it.
+
+    If `meta` is given, it's filled with the model that actually answered
+    and token usage: {"model": ..., "usage": {"prompt_tokens", "completion_tokens"}}.
     """
+    meta = meta if meta is not None else {}
+
     if settings.llm_provider == "fake":
+        meta["model"] = "fake"
+        count = 0
         async for token in _fake_stream(messages):
+            count += 1
             yield token
+        meta["usage"] = {
+            "prompt_tokens": sum(len(m["content"]) for m in messages) // 4,
+            "completion_tokens": count,
+        }
         return
 
-    models = [settings.llm_model, *settings.llm_fallback_model_list]
+    models = models or [settings.llm_model, *settings.llm_fallback_model_list]
     last_error: Exception | None = None
     for model in models:
         started = False
@@ -62,11 +81,20 @@ async def stream_chat(messages: list[dict[str, str]]) -> AsyncIterator[str]:
                 messages=messages,
                 temperature=settings.llm_temperature,
                 stream=True,
+                stream_options={"include_usage": True},  # final chunk carries token counts
             )
             async for chunk in stream:
+                if chunk.usage:
+                    meta["usage"] = {
+                        "prompt_tokens": chunk.usage.prompt_tokens,
+                        "completion_tokens": chunk.usage.completion_tokens,
+                    }
                 if chunk.choices and chunk.choices[0].delta.content:
-                    started = True
+                    if not started:
+                        started = True
+                        meta["model"] = model
                     yield chunk.choices[0].delta.content
+            meta.setdefault("model", model)
             return
         except Exception as e:
             if started:

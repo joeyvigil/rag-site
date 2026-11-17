@@ -1,0 +1,16 @@
+Halcyon Robotics Customer FAQ
+
+Q: What is the warranty on Halcyon robotic arms?
+A: All robotic arms include a 2-year limited warranty covering parts and labor. Extended warranties of up to 5 years can be purchased at checkout.
+
+Q: How do I return a product?
+A: Products can be returned within 45 days of delivery in their original packaging. A restocking fee of 15% applies to opened items.
+
+Q: What are your support hours?
+A: Phone support is available Monday to Friday, 7:00 to 19:00 Pacific Time. Emails to support@halcyon-robotics.example are answered within 1 business day.
+
+Q: Do you ship internationally?
+A: We ship to the United States, Canada, and the European Union. Customers elsewhere can order through an authorized reseller.
+
+Q: How often should gripper pads be replaced?
+A: Gripper pads should be replaced every 50,000 cycles or every 6 months, whichever comes first.

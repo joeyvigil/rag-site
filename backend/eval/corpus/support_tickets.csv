@@ -1,0 +1,401 @@
+ticket_id,date,customer,subject,status
+T-20348,2026-07-01,Kestrel Foods,Camera image is blurry,pending
+T-20111,2026-07-01,Bluewater Freight,Battery not charging,closed
+T-21120,2026-07-01,Redline Retail,Dashboard login issue,closed
+T-21336,2026-07-01,Bluewater Freight,Camera image is blurry,open
+T-20296,2026-07-01,Bluewater Freight,VPN will not connect,closed
+T-20590,2026-07-01,Maple Logistics,Warranty claim for actuator,open
+T-20882,2026-07-02,Bluewater Freight,Battery not charging,pending
+T-20174,2026-07-02,Kestrel Foods,Battery not charging,closed
+T-21473,2026-07-02,Redline Retail,Warranty claim for actuator,closed
+T-20159,2026-07-02,Tidewater Imports,Request for extended warranty,pending
+T-20266,2026-07-02,Kestrel Foods,Battery not charging,pending
+T-21980,2026-07-02,Maple Logistics,Camera image is blurry,pending
+T-21850,2026-07-02,Northgate Supply,Request for extended warranty,open
+T-20416,2026-07-02,Northgate Supply,Replacement cable request,open
+T-20992,2026-07-02,Summit Parts,Dashboard login issue,pending
+T-20127,2026-07-03,Summit Parts,Warranty claim for actuator,closed
+T-21990,2026-07-03,Orion Distribution,Invoice copy needed,open
+T-21289,2026-07-03,Kestrel Foods,Battery not charging,pending
+T-21936,2026-07-03,Bluewater Freight,Return request for opened item,closed
+T-21317,2026-07-03,Summit Parts,Request for extended warranty,pending
+T-21508,2026-07-03,Maple Logistics,Arm calibration drift,open
+T-20125,2026-07-03,Redline Retail,Shipping delay,closed
+T-21123,2026-07-03,Tidewater Imports,Arm calibration drift,closed
+T-20175,2026-07-04,Maple Logistics,Dashboard login issue,closed
+T-21430,2026-07-04,Bluewater Freight,Invoice copy needed,closed
+T-20906,2026-07-04,Northgate Supply,VPN will not connect,closed
+T-20049,2026-07-04,Tidewater Imports,Dashboard login issue,pending
+T-21895,2026-07-04,Redline Retail,Warranty claim for actuator,closed
+T-20359,2026-07-04,Orion Distribution,Arm calibration drift,open
+T-20169,2026-07-05,Summit Parts,Battery not charging,closed
+T-20354,2026-07-05,Redline Retail,Warranty claim for actuator,closed
+T-20502,2026-07-05,Orion Distribution,Camera image is blurry,closed
+T-21612,2026-07-05,Maple Logistics,Camera image is blurry,open
+T-20114,2026-07-05,Maple Logistics,Replacement cable request,open
+T-21921,2026-07-06,Orion Distribution,Gripper pad wear question,closed
+T-20905,2026-07-06,Northgate Supply,Invoice copy needed,closed
+T-20380,2026-07-06,Northgate Supply,Replacement cable request,open
+T-20693,2026-07-06,Redline Retail,VPN will not connect,open
+T-21476,2026-07-06,Northgate Supply,Invoice copy needed,closed
+T-20113,2026-07-07,Tidewater Imports,Battery not charging,pending
+T-21346,2026-07-07,Bluewater Freight,Battery not charging,closed
+T-21979,2026-07-07,Bluewater Freight,Return request for opened item,pending
+T-21603,2026-07-08,Kestrel Foods,Return request for opened item,open
+T-21602,2026-07-08,Northgate Supply,Battery not charging,closed
+T-21568,2026-07-08,Tidewater Imports,Arm calibration drift,closed
+T-21530,2026-07-08,Kestrel Foods,Invoice copy needed,pending
+T-21581,2026-07-08,Redline Retail,Camera image is blurry,closed
+T-21855,2026-07-09,Kestrel Foods,Shipping delay,closed
+T-21645,2026-07-09,Northgate Supply,Gripper pad wear question,open
+T-20913,2026-07-09,Maple Logistics,Firmware update failed,closed
+T-20217,2026-07-09,Summit Parts,Return request for opened item,closed
+T-21305,2026-07-09,Orion Distribution,Shipping delay,pending
+T-21140,2026-07-10,Redline Retail,Return request for opened item,open
+T-20500,2026-07-10,Summit Parts,Firmware update failed,closed
+T-20761,2026-07-10,Orion Distribution,Shipping delay,closed
+T-20962,2026-07-11,Summit Parts,Warranty claim for actuator,open
+T-20162,2026-07-11,Summit Parts,Return request for opened item,pending
+T-21280,2026-07-11,Bluewater Freight,Battery not charging,closed
+T-20677,2026-07-11,Orion Distribution,Return request for opened item,open
+T-21860,2026-07-12,Summit Parts,Request for extended warranty,closed
+T-20445,2026-07-12,Maple Logistics,Return request for opened item,open
+T-20137,2026-07-12,Redline Retail,Firmware update failed,open
+T-21889,2026-07-12,Kestrel Foods,Dashboard login issue,open
+T-21632,2026-07-12,Kestrel Foods,Battery not charging,pending
+T-20663,2026-07-13,Northgate Supply,VPN will not connect,open
+T-20853,2026-07-13,Tidewater Imports,Firmware update failed,open
+T-21201,2026-07-13,Northgate Supply,Invoice copy needed,closed
+T-21965,2026-07-13,Tidewater Imports,Request for extended warranty,open
+T-21836,2026-07-13,Redline Retail,Battery not charging,pending
+T-20000,2026-07-13,Tidewater Imports,Warranty claim for actuator,closed
+T-21048,2026-07-13,Kestrel Foods,Arm calibration drift,pending
+T-20668,2026-07-13,Orion Distribution,Arm calibration drift,closed
+T-21680,2026-07-13,Maple Logistics,Warranty claim for actuator,closed
+T-20407,2026-07-13,Kestrel Foods,Battery not charging,closed
+T-21606,2026-07-13,Redline Retail,Request for extended warranty,open
+T-21999,2026-07-13,Redline Retail,Battery not charging,pending
+T-20008,2026-07-14,Maple Logistics,Camera image is blurry,closed
+T-21374,2026-07-14,Bluewater Freight,Arm calibration drift,closed
+T-21489,2026-07-14,Maple Logistics,Shipping delay,closed
+T-20426,2026-07-14,Tidewater Imports,Dashboard login issue,pending
+T-21929,2026-07-14,Kestrel Foods,Shipping delay,open
+T-21093,2026-07-14,Orion Distribution,Camera image is blurry,closed
+T-21780,2026-07-14,Bluewater Freight,Battery not charging,open
+T-20618,2026-07-14,Northgate Supply,Firmware update failed,open
+T-21283,2026-07-14,Northgate Supply,Gripper pad wear question,open
+T-21556,2026-07-15,Maple Logistics,Camera image is blurry,closed
+T-21766,2026-07-15,Northgate Supply,Firmware update failed,pending
+T-20600,2026-07-15,Kestrel Foods,Return request for opened item,closed
+T-21127,2026-07-15,Maple Logistics,Replacement cable request,pending
+T-20872,2026-07-15,Kestrel Foods,Invoice copy needed,open
+T-21267,2026-07-16,Redline Retail,Replacement cable request,closed
+T-20638,2026-07-16,Northgate Supply,Invoice copy needed,pending
+T-20692,2026-07-16,Orion Distribution,Camera image is blurry,closed
+T-21835,2026-07-16,Redline Retail,Battery not charging,open
+T-20396,2026-07-16,Orion Distribution,Replacement cable request,closed
+T-21432,2026-07-16,Kestrel Foods,VPN will not connect,open
+T-21141,2026-07-16,Tidewater Imports,Return request for opened item,pending
+T-21089,2026-07-17,Northgate Supply,Warranty claim for actuator,closed
+T-20086,2026-07-17,Tidewater Imports,Request for extended warranty,open
+T-21420,2026-07-17,Orion Distribution,Warranty claim for actuator,open
+T-21930,2026-07-17,Maple Logistics,Battery not charging,open
+T-20762,2026-07-18,Bluewater Freight,Camera image is blurry,open
+T-21160,2026-07-18,Bluewater Freight,Firmware update failed,open
+T-20831,2026-07-18,Tidewater Imports,Dashboard login issue,closed
+T-20875,2026-07-18,Summit Parts,Arm calibration drift,open
+T-21443,2026-07-18,Summit Parts,Dashboard login issue,open
+T-20104,2026-07-18,Maple Logistics,Dashboard login issue,pending
+T-20144,2026-07-20,Redline Retail,Return request for opened item,closed
+T-21303,2026-07-20,Summit Parts,Replacement cable request,closed
+T-21570,2026-07-20,Summit Parts,VPN will not connect,closed
+T-20736,2026-07-20,Orion Distribution,VPN will not connect,closed
+T-21311,2026-07-20,Redline Retail,Camera image is blurry,closed
+T-21702,2026-07-20,Orion Distribution,Camera image is blurry,pending
+T-20550,2026-07-21,Bluewater Freight,Replacement cable request,closed
+T-21285,2026-07-21,Summit Parts,Warranty claim for actuator,closed
+T-21971,2026-07-21,Orion Distribution,Request for extended warranty,pending
+T-21330,2026-07-21,Tidewater Imports,Gripper pad wear question,open
+T-20401,2026-07-21,Bluewater Freight,Invoice copy needed,closed
+T-21262,2026-07-21,Bluewater Freight,Arm calibration drift,open
+T-21156,2026-07-21,Bluewater Freight,Battery not charging,pending
+T-21417,2026-07-22,Tidewater Imports,Invoice copy needed,closed
+T-21626,2026-07-23,Summit Parts,VPN will not connect,closed
+T-21951,2026-07-23,Northgate Supply,Warranty claim for actuator,pending
+T-21316,2026-07-23,Orion Distribution,Request for extended warranty,closed
+T-21009,2026-07-23,Maple Logistics,Dashboard login issue,pending
+T-20179,2026-07-23,Tidewater Imports,Arm calibration drift,closed
+T-20028,2026-07-23,Kestrel Foods,Warranty claim for actuator,open
+T-20706,2026-07-23,Northgate Supply,Gripper pad wear question,open
+T-21870,2026-07-23,Northgate Supply,Gripper pad wear question,open
+T-20652,2026-07-24,Maple Logistics,Gripper pad wear question,closed
+T-20526,2026-07-24,Bluewater Freight,Camera image is blurry,closed
+T-20306,2026-07-24,Summit Parts,Gripper pad wear question,open
+T-21996,2026-07-24,Maple Logistics,Camera image is blurry,closed
+T-21246,2026-07-25,Kestrel Foods,Return request for opened item,closed
+T-21605,2026-07-25,Kestrel Foods,Dashboard login issue,closed
+T-20336,2026-07-25,Bluewater Freight,Replacement cable request,closed
+T-21713,2026-07-26,Tidewater Imports,Shipping delay,open
+T-20986,2026-07-26,Orion Distribution,Firmware update failed,closed
+T-20755,2026-07-26,Orion Distribution,Request for extended warranty,closed
+T-21579,2026-07-26,Tidewater Imports,Invoice copy needed,open
+T-21706,2026-07-26,Kestrel Foods,Invoice copy needed,pending
+T-20188,2026-07-26,Orion Distribution,Firmware update failed,closed
+T-21785,2026-07-27,Summit Parts,Gripper pad wear question,closed
+T-20617,2026-07-27,Northgate Supply,Warranty claim for actuator,closed
+T-20997,2026-07-28,Redline Retail,VPN will not connect,open
+T-20247,2026-08-01,Maple Logistics,Replacement cable request,closed
+T-21607,2026-08-01,Redline Retail,Request for extended warranty,closed
+T-20867,2026-08-01,Maple Logistics,Invoice copy needed,closed
+T-20988,2026-08-01,Redline Retail,Request for extended warranty,closed
+T-20183,2026-08-02,Kestrel Foods,Shipping delay,open
+T-20025,2026-08-02,Tidewater Imports,Invoice copy needed,open
+T-20083,2026-08-02,Tidewater Imports,VPN will not connect,open
+T-20417,2026-08-02,Summit Parts,Gripper pad wear question,closed
+T-20795,2026-08-02,Northgate Supply,Shipping delay,pending
+T-21749,2026-08-02,Bluewater Freight,Camera image is blurry,closed
+T-20598,2026-08-02,Maple Logistics,Camera image is blurry,open
+T-20888,2026-08-03,Summit Parts,VPN will not connect,pending
+T-21877,2026-08-03,Kestrel Foods,Warranty claim for actuator,pending
+T-21955,2026-08-03,Summit Parts,VPN will not connect,closed
+T-21011,2026-08-03,Tidewater Imports,Battery not charging,closed
+T-21041,2026-08-03,Orion Distribution,Battery not charging,open
+T-20503,2026-08-04,Redline Retail,Battery not charging,pending
+T-21718,2026-08-04,Summit Parts,Dashboard login issue,open
+T-21557,2026-08-04,Tidewater Imports,Camera image is blurry,closed
+T-20329,2026-08-04,Bluewater Freight,Invoice copy needed,open
+T-20129,2026-08-04,Redline Retail,Battery not charging,closed
+T-21367,2026-08-04,Redline Retail,Camera image is blurry,pending
+T-21063,2026-08-04,Tidewater Imports,Request for extended warranty,closed
+T-21188,2026-08-04,Summit Parts,Invoice copy needed,pending
+T-20816,2026-08-04,Northgate Supply,Gripper pad wear question,closed
+T-21573,2026-08-05,Summit Parts,Shipping delay,pending
+T-21125,2026-08-05,Redline Retail,Request for extended warranty,closed
+T-20292,2026-08-05,Tidewater Imports,Arm calibration drift,open
+T-21475,2026-08-05,Orion Distribution,Dashboard login issue,closed
+T-21812,2026-08-06,Summit Parts,Return request for opened item,pending
+T-20271,2026-08-06,Northgate Supply,Replacement cable request,closed
+T-21698,2026-08-06,Summit Parts,Gripper pad wear question,pending
+T-21176,2026-08-06,Redline Retail,Gripper pad wear question,closed
+T-20504,2026-08-06,Northgate Supply,Return request for opened item,closed
+T-20967,2026-08-07,Maple Logistics,Warranty claim for actuator,closed
+T-20470,2026-08-07,Kestrel Foods,Shipping delay,closed
+T-21109,2026-08-07,Maple Logistics,Firmware update failed,pending
+T-21511,2026-08-07,Tidewater Imports,Arm calibration drift,closed
+T-20483,2026-08-07,Orion Distribution,Dashboard login issue,open
+T-21732,2026-08-08,Summit Parts,Arm calibration drift,pending
+T-20794,2026-08-08,Northgate Supply,Gripper pad wear question,closed
+T-20166,2026-08-08,Redline Retail,Firmware update failed,closed
+T-20082,2026-08-08,Bluewater Freight,Gripper pad wear question,closed
+T-21002,2026-08-08,Tidewater Imports,Replacement cable request,pending
+T-20347,2026-08-08,Summit Parts,Return request for opened item,closed
+T-20541,2026-08-08,Kestrel Foods,Warranty claim for actuator,pending
+T-20700,2026-08-09,Northgate Supply,Invoice copy needed,closed
+T-20658,2026-08-09,Redline Retail,Return request for opened item,open
+T-21892,2026-08-10,Northgate Supply,Dashboard login issue,open
+T-20298,2026-08-10,Kestrel Foods,Request for extended warranty,closed
+T-21075,2026-08-11,Tidewater Imports,Invoice copy needed,open
+T-21055,2026-08-11,Redline Retail,Arm calibration drift,closed
+T-20943,2026-08-11,Summit Parts,Warranty claim for actuator,closed
+T-20743,2026-08-11,Northgate Supply,Invoice copy needed,closed
+T-20393,2026-08-11,Summit Parts,Shipping delay,pending
+T-21340,2026-08-11,Tidewater Imports,Warranty claim for actuator,pending
+T-21446,2026-08-12,Redline Retail,Arm calibration drift,closed
+T-20542,2026-08-12,Kestrel Foods,Firmware update failed,closed
+T-21589,2026-08-12,Kestrel Foods,Arm calibration drift,pending
+T-21721,2026-08-12,Redline Retail,Shipping delay,open
+T-20815,2026-08-13,Bluewater Freight,Warranty claim for actuator,pending
+T-20002,2026-08-13,Bluewater Freight,Warranty claim for actuator,closed
+T-21391,2026-08-13,Kestrel Foods,Replacement cable request,closed
+T-20194,2026-08-13,Bluewater Freight,Shipping delay,open
+T-20727,2026-08-13,Maple Logistics,Request for extended warranty,closed
+T-20311,2026-08-14,Northgate Supply,Battery not charging,open
+T-20349,2026-08-14,Maple Logistics,Invoice copy needed,closed
+T-20165,2026-08-14,Bluewater Freight,Request for extended warranty,closed
+T-21068,2026-08-14,Tidewater Imports,Arm calibration drift,closed
+T-20236,2026-08-15,Tidewater Imports,Warranty claim for actuator,closed
+T-21418,2026-08-15,Tidewater Imports,Request for extended warranty,closed
+T-21134,2026-08-15,Northgate Supply,Shipping delay,closed
+T-20951,2026-08-15,Bluewater Freight,Request for extended warranty,closed
+T-20377,2026-08-15,Maple Logistics,Dashboard login issue,open
+T-20671,2026-08-15,Maple Logistics,Replacement cable request,open
+T-20258,2026-08-15,Summit Parts,Request for extended warranty,closed
+T-21387,2026-08-15,Summit Parts,Invoice copy needed,open
+T-21934,2026-08-16,Bluewater Freight,Gripper pad wear question,closed
+T-20473,2026-08-16,Redline Retail,Gripper pad wear question,closed
+T-21319,2026-08-16,Northgate Supply,Request for extended warranty,closed
+T-20435,2026-08-17,Summit Parts,Replacement cable request,closed
+T-20593,2026-08-17,Kestrel Foods,Invoice copy needed,closed
+T-21118,2026-08-17,Orion Distribution,Dashboard login issue,closed
+T-21643,2026-08-17,Northgate Supply,Gripper pad wear question,closed
+T-20063,2026-08-17,Bluewater Freight,Firmware update failed,pending
+T-21469,2026-08-17,Northgate Supply,Battery not charging,closed
+T-20657,2026-08-17,Summit Parts,Arm calibration drift,closed
+T-21169,2026-08-18,Kestrel Foods,VPN will not connect,closed
+T-20616,2026-08-18,Redline Retail,VPN will not connect,closed
+T-20357,2026-08-18,Bluewater Freight,Firmware update failed,closed
+T-20788,2026-08-18,Bluewater Freight,Request for extended warranty,closed
+T-21217,2026-08-19,Tidewater Imports,VPN will not connect,open
+T-20601,2026-08-19,Orion Distribution,Firmware update failed,closed
+T-20243,2026-08-19,Redline Retail,Warranty claim for actuator,open
+T-20647,2026-08-19,Tidewater Imports,Warranty claim for actuator,closed
+T-20225,2026-08-20,Northgate Supply,VPN will not connect,open
+T-21956,2026-08-20,Maple Logistics,Warranty claim for actuator,open
+T-21897,2026-08-20,Kestrel Foods,Gripper pad wear question,closed
+T-20325,2026-08-20,Orion Distribution,Warranty claim for actuator,closed
+T-20418,2026-08-20,Tidewater Imports,Return request for opened item,closed
+T-21743,2026-08-20,Northgate Supply,Replacement cable request,pending
+T-20290,2026-08-20,Redline Retail,Gripper pad wear question,closed
+T-21683,2026-08-20,Northgate Supply,Replacement cable request,pending
+T-21392,2026-08-20,Kestrel Foods,Warranty claim for actuator,pending
+T-20413,2026-08-21,Orion Distribution,Request for extended warranty,closed
+T-20679,2026-08-21,Orion Distribution,Camera image is blurry,closed
+T-20037,2026-08-21,Summit Parts,Shipping delay,pending
+T-21838,2026-08-22,Redline Retail,Request for extended warranty,closed
+T-20007,2026-08-22,Tidewater Imports,Shipping delay,closed
+T-20065,2026-08-22,Redline Retail,Firmware update failed,closed
+T-20839,2026-08-22,Orion Distribution,Shipping delay,open
+T-21442,2026-08-22,Orion Distribution,Shipping delay,closed
+T-21519,2026-08-22,Bluewater Freight,Request for extended warranty,open
+T-21859,2026-08-23,Redline Retail,Arm calibration drift,closed
+T-20404,2026-08-23,Summit Parts,Request for extended warranty,open
+T-21675,2026-08-24,Summit Parts,Arm calibration drift,pending
+T-20948,2026-08-24,Bluewater Freight,Dashboard login issue,closed
+T-20784,2026-08-24,Summit Parts,Shipping delay,closed
+T-20768,2026-08-24,Tidewater Imports,VPN will not connect,pending
+T-20252,2026-08-24,Orion Distribution,Dashboard login issue,open
+T-20303,2026-08-24,Orion Distribution,Shipping delay,closed
+T-20036,2026-08-24,Summit Parts,Warranty claim for actuator,closed
+T-20778,2026-08-25,Orion Distribution,Replacement cable request,pending
+T-20547,2026-08-25,Kestrel Foods,Dashboard login issue,closed
+T-20699,2026-08-25,Summit Parts,Invoice copy needed,pending
+T-20976,2026-08-25,Tidewater Imports,Invoice copy needed,closed
+T-21863,2026-08-26,Summit Parts,Warranty claim for actuator,closed
+T-20006,2026-08-26,Bluewater Freight,Dashboard login issue,open
+T-20754,2026-08-26,Summit Parts,Gripper pad wear question,pending
+T-21953,2026-08-26,Orion Distribution,Shipping delay,pending
+T-20024,2026-08-27,Kestrel Foods,Invoice copy needed,closed
+T-20186,2026-08-27,Bluewater Freight,Return request for opened item,pending
+T-20009,2026-08-27,Summit Parts,Warranty claim for actuator,closed
+T-20804,2026-08-28,Bluewater Freight,Firmware update failed,pending
+T-21547,2026-08-28,Northgate Supply,Invoice copy needed,open
+T-20884,2026-08-28,Northgate Supply,Return request for opened item,open
+T-21010,2026-08-28,Bluewater Freight,Firmware update failed,pending
+T-20374,2026-08-28,Kestrel Foods,Firmware update failed,closed
+T-20728,2026-09-01,Northgate Supply,Replacement cable request,closed
+T-21848,2026-09-01,Northgate Supply,Invoice copy needed,pending
+T-20748,2026-09-02,Summit Parts,Gripper pad wear question,open
+T-21808,2026-09-02,Summit Parts,Arm calibration drift,closed
+T-20132,2026-09-02,Tidewater Imports,Request for extended warranty,closed
+T-20235,2026-09-02,Maple Logistics,Warranty claim for actuator,open
+T-21350,2026-09-03,Tidewater Imports,Invoice copy needed,open
+T-21513,2026-09-03,Summit Parts,Warranty claim for actuator,closed
+T-21309,2026-09-03,Kestrel Foods,Shipping delay,closed
+T-21276,2026-09-03,Maple Logistics,Return request for opened item,closed
+T-20710,2026-09-03,Tidewater Imports,Replacement cable request,pending
+T-20121,2026-09-04,Summit Parts,Battery not charging,open
+T-20344,2026-09-04,Tidewater Imports,Gripper pad wear question,closed
+T-20337,2026-09-04,Summit Parts,Shipping delay,closed
+T-20371,2026-09-04,Tidewater Imports,Shipping delay,closed
+T-20512,2026-09-04,Kestrel Foods,Arm calibration drift,closed
+T-21651,2026-09-05,Tidewater Imports,Battery not charging,closed
+T-21943,2026-09-05,Redline Retail,Gripper pad wear question,closed
+T-20048,2026-09-05,Redline Retail,Gripper pad wear question,open
+T-20130,2026-09-05,Orion Distribution,Shipping delay,closed
+T-21122,2026-09-05,Tidewater Imports,Firmware update failed,closed
+T-20980,2026-09-06,Northgate Supply,Arm calibration drift,closed
+T-21922,2026-09-06,Redline Retail,Firmware update failed,open
+T-21621,2026-09-06,Bluewater Freight,Battery not charging,closed
+T-21493,2026-09-06,Tidewater Imports,Camera image is blurry,open
+T-21029,2026-09-07,Summit Parts,Request for extended warranty,open
+T-21229,2026-09-07,Bluewater Freight,Firmware update failed,closed
+T-20605,2026-09-07,Bluewater Freight,Request for extended warranty,open
+T-20200,2026-09-07,Orion Distribution,Firmware update failed,closed
+T-20631,2026-09-08,Redline Retail,Shipping delay,closed
+T-21405,2026-09-08,Bluewater Freight,Firmware update failed,closed
+T-21261,2026-09-08,Maple Logistics,Firmware update failed,open
+T-21957,2026-09-08,Orion Distribution,Replacement cable request,closed
+T-20776,2026-09-08,Tidewater Imports,Return request for opened item,open
+T-21924,2026-09-08,Redline Retail,Warranty claim for actuator,closed
+T-20410,2026-09-08,Orion Distribution,Camera image is blurry,open
+T-21431,2026-09-09,Summit Parts,Warranty claim for actuator,closed
+T-20919,2026-09-09,Northgate Supply,VPN will not connect,closed
+T-21960,2026-09-09,Kestrel Foods,Invoice copy needed,closed
+T-21059,2026-09-10,Bluewater Freight,VPN will not connect,closed
+T-21846,2026-09-10,Orion Distribution,Firmware update failed,open
+T-20105,2026-09-10,Kestrel Foods,Arm calibration drift,closed
+T-21616,2026-09-11,Bluewater Freight,Replacement cable request,pending
+T-20893,2026-09-11,Summit Parts,Replacement cable request,closed
+T-20168,2026-09-11,Bluewater Freight,Gripper pad wear question,pending
+T-20713,2026-09-11,Kestrel Foods,Warranty claim for actuator,closed
+T-21831,2026-09-11,Northgate Supply,Shipping delay,pending
+T-21397,2026-09-11,Bluewater Freight,Request for extended warranty,pending
+T-21816,2026-09-12,Northgate Supply,Warranty claim for actuator,closed
+T-20981,2026-09-12,Bluewater Freight,Battery not charging,open
+T-20837,2026-09-12,Kestrel Foods,Camera image is blurry,closed
+T-20855,2026-09-12,Northgate Supply,Return request for opened item,pending
+T-20005,2026-09-12,Orion Distribution,VPN will not connect,closed
+T-20369,2026-09-12,Northgate Supply,Gripper pad wear question,open
+T-21787,2026-09-12,Summit Parts,Battery not charging,pending
+T-21181,2026-09-13,Northgate Supply,Arm calibration drift,open
+T-20742,2026-09-13,Summit Parts,Gripper pad wear question,closed
+T-21801,2026-09-13,Bluewater Freight,Arm calibration drift,closed
+T-20931,2026-09-14,Acme Logistics,Arm HR-9 stops mid-pick with error E-77,escalated
+T-20241,2026-09-14,Kestrel Foods,Replacement cable request,closed
+T-20531,2026-09-14,Kestrel Foods,Gripper pad wear question,closed
+T-20062,2026-09-14,Summit Parts,Replacement cable request,pending
+T-20953,2026-09-15,Maple Logistics,Invoice copy needed,closed
+T-20156,2026-09-15,Orion Distribution,Shipping delay,closed
+T-20915,2026-09-15,Kestrel Foods,Gripper pad wear question,open
+T-21366,2026-09-15,Kestrel Foods,VPN will not connect,closed
+T-20520,2026-09-16,Summit Parts,Camera image is blurry,closed
+T-20419,2026-09-16,Summit Parts,Invoice copy needed,closed
+T-20667,2026-09-17,Tidewater Imports,Replacement cable request,open
+T-20089,2026-09-17,Redline Retail,Dashboard login issue,closed
+T-20257,2026-09-17,Summit Parts,VPN will not connect,closed
+T-20300,2026-09-18,Northgate Supply,Replacement cable request,closed
+T-20319,2026-09-18,Kestrel Foods,Gripper pad wear question,open
+T-21501,2026-09-18,Summit Parts,Request for extended warranty,pending
+T-20544,2026-09-18,Redline Retail,Battery not charging,closed
+T-21004,2026-09-18,Bluewater Freight,Battery not charging,closed
+T-20960,2026-09-18,Summit Parts,Return request for opened item,closed
+T-21565,2026-09-19,Maple Logistics,Firmware update failed,closed
+T-21072,2026-09-19,Northgate Supply,Battery not charging,closed
+T-20639,2026-09-19,Maple Logistics,Shipping delay,pending
+T-20801,2026-09-19,Bluewater Freight,Camera image is blurry,closed
+T-20958,2026-09-19,Tidewater Imports,Battery not charging,closed
+T-21159,2026-09-19,Northgate Supply,Warranty claim for actuator,open
+T-20182,2026-09-20,Maple Logistics,Dashboard login issue,closed
+T-20408,2026-09-20,Redline Retail,Camera image is blurry,closed
+T-20574,2026-09-20,Northgate Supply,VPN will not connect,open
+T-21637,2026-09-21,Bluewater Freight,Request for extended warranty,closed
+T-20109,2026-09-21,Redline Retail,VPN will not connect,closed
+T-20516,2026-09-21,Redline Retail,Dashboard login issue,closed
+T-20465,2026-09-21,Northgate Supply,Gripper pad wear question,open
+T-20283,2026-09-21,Northgate Supply,Dashboard login issue,open
+T-21689,2026-09-21,Orion Distribution,Warranty claim for actuator,open
+T-21325,2026-09-22,Tidewater Imports,Invoice copy needed,pending
+T-21782,2026-09-22,Orion Distribution,Camera image is blurry,closed
+T-21254,2026-09-22,Summit Parts,Return request for opened item,pending
+T-20030,2026-09-22,Bluewater Freight,Shipping delay,closed
+T-21928,2026-09-23,Tidewater Imports,VPN will not connect,open
+T-20966,2026-09-23,Northgate Supply,Gripper pad wear question,pending
+T-20532,2026-09-23,Bluewater Freight,Shipping delay,closed
+T-20819,2026-09-23,Kestrel Foods,Invoice copy needed,pending
+T-21287,2026-09-23,Tidewater Imports,Warranty claim for actuator,closed
+T-20969,2026-09-24,Bluewater Freight,Request for extended warranty,open
+T-20523,2026-09-24,Orion Distribution,Shipping delay,closed
+T-21232,2026-09-24,Tidewater Imports,Arm calibration drift,closed
+T-20870,2026-09-25,Tidewater Imports,Camera image is blurry,pending
+T-21685,2026-09-25,Kestrel Foods,Camera image is blurry,closed
+T-21126,2026-09-25,Orion Distribution,Battery not charging,pending
+T-20099,2026-09-25,Maple Logistics,Firmware update failed,pending
+T-20898,2026-09-25,Orion Distribution,Camera image is blurry,closed
+T-20803,2026-09-25,Bluewater Freight,Dashboard login issue,closed
+T-21821,2026-09-26,Tidewater Imports,Dashboard login issue,open
+T-21006,2026-09-26,Kestrel Foods,Warranty claim for actuator,closed
+T-21364,2026-09-27,Redline Retail,Warranty claim for actuator,closed
+T-20171,2026-09-28,Summit Parts,VPN will not connect,closed
+T-21531,2026-09-28,Bluewater Freight,Replacement cable request,closed
+T-20635,2026-09-28,Maple Logistics,Dashboard login issue,open
+T-20824,2026-09-28,Kestrel Foods,Arm calibration drift,open

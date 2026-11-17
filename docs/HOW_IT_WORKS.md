@@ -8,7 +8,7 @@ It is updated at the end of every phase, so it always describes the code as it i
 > reading it. Then open the linked code and trace it. The "Interview angle" boxes are
 > the questions you should be able to answer without notes.
 
-**Current state:** Phase 1 (naive RAG MVP). See [Phase log](#10-phase-log).
+**Current state:** Phase 2 (evaluation harness + baseline numbers). See [Phase log](#11-phase-log).
 
 ---
 
@@ -22,11 +22,12 @@ It is updated at the end of every phase, so it always describes the code as it i
    - 5.1 Parsing · 5.2 Chunking · 5.3 Embeddings · 5.4 Vector search & HNSW ·
      5.5 Prompting · 5.6 Generation & streaming · 5.7 Auth & multi-tenancy ·
      5.8 Async architecture & the job queue · 5.9 Data model
-6. [Scaling: what breaks first and how to fix it](#6-scaling-what-breaks-first-and-how-to-fix-it)
-7. [Known limitations (and which phase fixes them)](#7-known-limitations-and-which-phase-fixes-them)
-8. [Interview question bank](#8-interview-question-bank)
-9. [Glossary](#9-glossary)
-10. [Phase log: what we built, what broke, what we learned](#10-phase-log)
+6. [Evaluation: measuring a RAG system](#6-evaluation)
+7. [Scaling: what breaks first and how to fix it](#7-scaling-what-breaks-first-and-how-to-fix-it)
+8. [Known limitations (and which phase fixes them)](#8-known-limitations-and-which-phase-fixes-them)
+9. [Interview question bank](#9-interview-question-bank)
+10. [Glossary](#10-glossary)
+11. [Phase log: what we built, what broke, what we learned](#11-phase-log)
 
 ---
 
@@ -526,7 +527,187 @@ embedding_cache (key = sha256, embedding)   ← independent, shared across users
 
 ---
 
-## 6. Scaling: what breaks first and how to fix it
+## 6. Evaluation
+
+> "If you can't measure it, you can't improve it." Without evaluation, every change
+> to chunking, prompts or models is a guess, and "it seemed better on my 3 test
+> questions" is how RAG systems quietly get worse.
+
+Code: `backend/eval/`. How to run it: see the README's *Evaluation* section.
+
+### 6.1 The pieces
+
+| Piece | File | Purpose |
+|---|---|---|
+| Corpus | `eval/build_corpus.py` → `eval/corpus/` | 10 documents for a fictional company (Halcyon Robotics), in every supported format |
+| Golden dataset | `eval/dataset.jsonl` | 42 hand-written questions with reference answers and evidence strings |
+| Metrics | `eval/metrics.py` | Pure functions: hit@k, recall@k, MRR, percentiles, bootstrap CI, citation checks |
+| Judge | `eval/judge.py` | LLM-as-judge for correctness and faithfulness |
+| Runner | `eval/run.py` | Ingests the corpus, runs every question, prints and saves results |
+| Compare | `eval/compare.py` | Side-by-side table of saved runs |
+
+### 6.2 The corpus is designed to be hard
+
+A benchmark that's too easy can't show improvement. The first version had only 28
+chunks, so retrieving the top 6 returned **21% of the whole corpus** and hit@6 was 97%:
+no headroom. The final corpus (77 chunks) adds deliberate traps:
+
+| Trap | Example | What it tests |
+|---|---|---|
+| **Superseded version** | Archived 2024 PTO policy says 18 days; the 2026 handbook says 22 | Does the answer use the current document? |
+| **Near-duplicate documents** | Falcon and Osprey status reports have identical structure, different numbers | Precision: right project, right number |
+| **Exact identifiers** | SKU `HX-4471`, error `ERR_VPN_0x2F`, ticket `T-20931` | Vector search's known weakness → hybrid search (Phase 3) |
+| **Tables** | DOCX budget tables, CSV rows | Structure lost in chunking |
+| **Bulk noise** | 500-row product catalog, 400-row ticket log | Haystack size |
+| **Semantic distractors** | Weekly digests about *other* projects using the same words (budgets, pilots, leads, GA dates) | Similar-sounding but wrong chunks |
+| **Multi-hop** | "Who approved the Osprey increase, and what's the new total?" needs the meeting notes + the status report | Recall of *all* needed pieces |
+| **Unanswerable** | "What's the CEO's name?" (only the CFO is mentioned) | Does the model refuse instead of guessing? |
+
+### 6.3 Labeling with evidence strings, not chunk IDs
+
+Each question lists **evidence strings**: short exact phrases that must be retrieved
+to answer it.
+
+```json
+{"id": "q15", "category": "table",
+ "question": "What is Project Falcon's total budget, and how much has been spent so far?",
+ "reference": "Total budget $2,400,000; $1,575,000 spent to date.",
+ "evidence": ["Total | $2,400,000 | $1,575,000"]}
+```
+
+A retrieved chunk is relevant if it contains an evidence string (ignoring case and
+whitespace). **Why not label chunk IDs?** Chunk IDs change every time chunking changes,
+and Phase 3 *will* change chunking. Evidence strings stay valid. `--validate-only`
+checks that every evidence string still exists in the parsed corpus, so a broken label
+is caught before it silently corrupts the metrics.
+
+### 6.4 Retrieval metrics (measured separately from generation)
+
+Always evaluate retrieval and generation **separately**. If an answer is wrong, you need
+to know *which half* failed.
+
+| Metric | Definition | Intuition |
+|---|---|---|
+| **hit@k** | 1 if *any* evidence is in the top k, averaged over questions | "Did we find something useful?" |
+| **recall@k** | Fraction of a question's evidence found in the top k | Matters for multi-hop: did we find *all* the pieces? |
+| **MRR** (Mean Reciprocal Rank) | Average of 1 / rank of the first relevant chunk | Rewards ranking the right chunk *first*. Rank 1 → 1.0, rank 2 → 0.5, rank 4 → 0.25, not found → 0 |
+
+We always retrieve 10 so hit@1/3/5/10 can all be reported. The LLM only sees the top
+`k` (6).
+
+### 6.5 Generation metrics: LLM-as-judge
+
+Correctness can't be checked with string matching ("$2.4M" vs "2,400,000 dollars"), so
+a second LLM call grades each answer with a rubric and returns JSON:
+
+| Metric | Compares | Meaning |
+|---|---|---|
+| **Correctness** | Answer vs **reference** | correct = 1, partial = 0.5, incorrect = 0 |
+| **Faithfulness** | Answer vs **retrieved excerpts** | Every claim is supported by what the model was shown (no hallucination) |
+| **False refusal rate** | | Said "not found" when the answer exists |
+| **Correct refusal rate** | | Said "not found" when it really isn't in the documents |
+| **Citation rate / invalid citations** | *checked in code*, no LLM | Has `[n]` citations; no `[7]` when only 6 sources exist |
+
+**Correctness and faithfulness are different things.** An answer can be faithful but
+incorrect (the model faithfully reported a wrong chunk) or correct but unfaithful (the
+right fact from the model's own memory, not the documents).
+
+**Known judge biases** (interview favorite):
+- **Self-preference:** models rate their own family higher. Our judge is the same model
+  as the answerer because it's free; a different provider would be better (`JUDGE_MODEL`,
+  `JUDGE_BASE_URL`).
+- **Verbosity bias:** longer answers look better.
+- **Inconsistency:** mitigated with discrete labels (not 1–10 scores), temperature 0,
+  JSON output, and a precise rubric.
+- **It can just be wrong**, which is exactly what happened to us (see 6.7).
+
+### 6.6 Latency, tokens and cost
+
+- **TTFT and total latency** are measured end-to-end (retrieval + generation), reported
+  as **p50 and p95**. Averages hide the tail; p95 is "how slow is it for the unluckiest
+  1 in 20 users".
+- **Token usage** comes from the API (`stream_options={"include_usage": true}`).
+- **Cost per 1,000 queries** = tokens × paid-tier price (`eval/pricing.py`). We pay $0 on
+  the free tier, but this is the number you'd compare in production.
+- **Statistical noise:** with 36 answerable questions, one question = 2.8 percentage
+  points. We report **bootstrap 95% confidence intervals** (resample the questions 2,000
+  times and see how much the average moves). If two runs' intervals overlap heavily,
+  the difference may be noise.
+
+### 6.7 Baseline results (Phase 1 system, 2026-11-17)
+
+Config: 1200-char chunks, 200 overlap, top-k 6, `gemini-embedding-001` @ 768 dims,
+answer and judge model `gemini-3.5-flash-lite`, 77 chunks.
+
+**Retrieval** (36 answerable questions)
+
+| hit@1 | hit@3 | hit@5 | hit@10 | recall@6 | MRR |
+|---|---|---|---|---|---|
+| 0.667 | 0.917 | 0.917 | 0.944 | 0.917 (95% CI 0.83–0.99) | 0.796 |
+
+**Generation** (42 questions)
+
+| Correctness | Faithfulness | False refusals | Correct refusals | Citation rate |
+|---|---|---|---|---|
+| 0.917 (95% CI 0.82–0.99) | 1.000 | 8.3% | 100% | 100% |
+
+**Latency and cost**
+
+| TTFT p50 | TTFT p95 | Total p50 | Total p95 | Prompt tokens | Output tokens | $/1k queries |
+|---|---|---|---|---|---|---|
+| 0.86 s | 18.7 s | 1.1 s | 23.3 s | 1,956 | 35 | $0.67 |
+
+**By category**
+
+| Category | n | hit@6 | recall@6 | Correctness |
+|---|---|---|---|---|
+| distractor | 6 | 1.00 | 1.00 | 1.00 |
+| exact_id | 7 | 0.86 | 0.86 | 0.86 |
+| multi_hop | 4 | 1.00 | 0.75 | 0.63 |
+| simple | 16 | 0.94 | 0.94 | 0.94 |
+| table | 3 | 1.00 | 1.00 | 1.00 |
+| unanswerable | 6 | - | - | 1.00 |
+
+**What the numbers say:**
+
+1. **Retrieval is the bottleneck.** *Every* wrong answer had its evidence missing from
+   the top 6. When the right chunk was retrieved, the model answered correctly and
+   faithfully every time. → Phase 3 should focus on retrieval, not prompts or models.
+2. **The failures, one by one:**
+   - **q25 (SKU HX-4471):** an exact-ID lookup; the right CSV row wasn't in the top 6
+     among hundreds of near-identical rows. Classic case for keyword/BM25 search.
+   - **q30 (restocking fee):** all 6 retrieved chunks came from `product_catalog.csv`,
+     and the FAQ answer was never retrieved. CSV chunks (dense numbers and product words)
+     act as **embedding "hubs"**, vectors that are close to many unrelated queries.
+   - **q32 (Osprey budget increase):** the weekly-digest distractors ("Kestrel's testing
+     budget was revised to …") outranked the meeting note that holds the answer.
+   - **q33 (Falcon on-site lead):** half of a multi-hop question was retrieved (partial credit).
+3. **hit@1 is only 0.67.** The right chunk is usually *somewhere* in the top 6 but often
+   not first, which is a reranking opportunity. It also matters for cost: if ranking were
+   better, we could send fewer chunks.
+4. **The prompt is ~2,000 tokens and the answer ~35.** Cost is dominated by *input*
+   (retrieved context). Reducing k, or reranking so k can shrink, cuts cost almost
+   proportionally.
+5. **Tail latency is terrible (p95 ≈ 20 s) while the median is ~1 s.** That's free-tier
+   provider variance, not our code (retrieval p95 is ~20 ms). In production you'd
+   address it with a paid tier, request hedging (send a duplicate request to a second
+   model if the first is slow), or a timeout plus fallback.
+6. **Grounding works:** 100% faithfulness and 100% correct refusals on the unanswerable
+   questions, including the trap "What's the CEO's name?" when only the CFO is mentioned.
+
+**Lesson learned: audit the judge.** The first full run reported **98.8%** correctness.
+Reading the per-question results showed the judge marking refusals on *answerable*
+questions as "correct": it compared the answer to the excerpts ("the SKU isn't in the
+documents, so refusing is right") instead of to the reference. Two fixes:
+(1) a clearer rubric ("the reference is ground truth; excerpts may be incomplete"), and
+(2) a **deterministic override in code**: a refusal on an answerable question can never
+be "correct". Even with the better prompt, the judge repeated the mistake on q25 and q30,
+and the code override caught both. True correctness: **91.7%**. The flawed run is kept in
+`eval/results/invalid/` for reference.
+
+---
+
+## 7. Scaling: what breaks first and how to fix it
 
 Think about each tier separately. Roughly in the order they'd hurt:
 
@@ -550,7 +731,7 @@ Think about each tier separately. Roughly in the order they'd hurt:
 
 ---
 
-## 7. Known limitations (and which phase fixes them)
+## 8. Known limitations (and which phase fixes them)
 
 | Limitation | Why it matters | Fix (phase) |
 |---|---|---|
@@ -559,8 +740,9 @@ Think about each tier separately. Roughly in the order they'd hurt:
 | Retrieval uses only the latest message | "What about its budget?" retrieves poorly | Query rewriting with history (4) |
 | Chunks lack document context | "It increased 5%": what's "it"? | Contextual retrieval / parent-child chunks (3–4) |
 | No OCR | Scanned PDFs fail | Gemini vision OCR, Tesseract baseline (3) |
-| No evaluation | "Seems to work" isn't evidence | Golden dataset + metrics (**2**) |
-| `done` event reports the configured model even if a fallback answered | Wrong data for model comparisons | Fix before Phase 2 benchmarks |
+| CSV rows chunked without their header | Chunks are "hubs" in embedding space; column names are lost | Row-aware chunking that repeats the header (3) |
+| Judge = same model as answerer | Self-preference bias in correctness scores | Use a different-provider judge when available |
+| Small golden set (42 questions) | 95% CIs are ±8–10 points | Grow the set; use synthetic question generation plus human review |
 | Commit → enqueue gap | API crash can strand a doc in `pending` | Transactional outbox / sweeper job |
 | `create_all` instead of migrations | Schema changes need manual work | Alembic |
 | JWT in localStorage, no revocation | XSS exposure; can't force logout | httpOnly cookie + refresh tokens |
@@ -568,7 +750,7 @@ Think about each tier separately. Roughly in the order they'd hurt:
 
 ---
 
-## 8. Interview question bank
+## 9. Interview question bank
 
 Try answering each before reading the answer.
 
@@ -641,14 +823,36 @@ backfill a new index, then cut over.
 See section 1's table. RAG for large, changing knowledge with citations; fine-tuning
 for behavior and style; long context for small corpora, especially with prompt caching.
 
+**Q: Your RAG system gives a wrong answer. How do you debug it?**
+Split the pipeline: was the evidence retrieved (check its rank)? If not, it's a
+retrieval problem (chunking, embeddings, search, query). If yes, it's generation
+(prompt, model, too much noise in the context). In our baseline, 4/4 failures were
+retrieval failures, which told us where to spend effort.
+
+**Q: How do you trust an LLM-as-judge?**
+You don't, blindly. Read a sample of its verdicts by hand; use discrete labels,
+temperature 0 and a precise rubric; prefer a judge from a different model family; and
+enforce anything checkable in code. Our story: the judge inflated correctness from
+91.7% to 98.8% by grading refusals as correct, and a deterministic rule fixed it.
+
+**Q: Your new chunking strategy improves correctness from 0.90 to 0.93. Ship it?**
+With ~40 questions that's about one question, well within the 95% confidence interval
+(±8–10 points). Look at *which* questions changed, check the latency/cost trade-off,
+and grow the dataset before claiming a win.
+
+**Q: Why is p95 latency more important than the average?**
+Averages hide the tail. Our median was 1.1 s but p95 was 23 s, so 1 in 20 users waits
+20× longer. Users remember the slow ones.
+
 **Q: What would you improve next?** (Always have an answer!)
-An evaluation harness first, because you can't improve what you don't measure. Then
-hybrid search and reranking, since those are typically the biggest retrieval quality
-wins.
+The baseline shows retrieval is the bottleneck (every wrong answer = evidence not
+retrieved) and the misses are exact IDs, CSV "hub" chunks and semantic distractors. So:
+hybrid search (BM25 + vectors) for exact IDs, a reranker to fix ranking (hit@1 is only
+0.67), and row-aware CSV chunking. Then re-run the evaluation to prove each change helped.
 
 ---
 
-## 9. Glossary
+## 10. Glossary
 
 | Term | Meaning |
 |---|---|
@@ -659,10 +863,14 @@ wins.
 | **Cross-encoder / reranker** | Model that scores (question, passage) *together*: slower but more accurate than comparing separate embeddings |
 | **Embedding** | Vector representation of text where similar meaning means nearby vectors |
 | **Faithfulness** | Whether every claim in an answer is supported by the retrieved context |
+| **Golden dataset** | Hand-verified questions with reference answers, used to evaluate every change |
 | **Grounding** | Constraining the LLM to answer from provided sources |
+| **Hubness** | In high-dimensional spaces, some vectors ("hubs") end up close to many unrelated queries |
 | **HNSW** | Graph-based ANN index (see 5.4) |
 | **Hybrid search** | Combining keyword (BM25) and vector search results |
 | **Idempotent** | Running an operation twice has the same effect as running it once |
+| **LLM-as-judge** | Using an LLM with a rubric to grade another LLM's output |
+| **p50 / p95** | The median / the value 95% of requests are faster than (tail latency) |
 | **Matryoshka embeddings** | Embeddings whose prefixes are also valid (smaller) embeddings |
 | **MRR** | Mean Reciprocal Rank: how high the first correct result ranks, on average |
 | **Recall@k** | Fraction of questions where a correct chunk appears in the top k |
@@ -673,7 +881,7 @@ wins.
 
 ---
 
-## 10. Phase log
+## 11. Phase log
 
 ### Phase 1: Naive RAG MVP ✅
 
@@ -699,6 +907,29 @@ providers for offline testing, unit tests for parsing and chunking.
    fixed score threshold to detect "no answer"; let the LLM refuse based on content, and
    measure it.*
 
-**Next:** Phase 2, an evaluation harness (golden dataset, recall@k, MRR, faithfulness,
-latency, cost). First fix the `done` event so it reports the model that actually
-answered.
+### Phase 2: Evaluation harness ✅
+
+**Built:** a 10-document fictional corpus with deliberate traps, 42 labeled questions
+(evidence strings, 7 categories), retrieval metrics (hit@k, recall@k, MRR), an
+LLM-as-judge (correctness, faithfulness, refusals), latency p50/p95, token and cost
+tracking, bootstrap confidence intervals, and a run-comparison tool. Also fixed the chat
+`done` event to report the model that *actually* answered, plus token usage.
+
+**Baseline:** retrieval hit@6 0.94, MRR 0.80; correctness 0.92; faithfulness 1.00;
+p50 1.1 s; $0.67 per 1k queries (paid-tier equivalent). Full numbers in [6.7](#67-baseline-results-phase-1-system-2026-11-17).
+
+**What broke and what we learned:**
+
+1. **The first benchmark was too easy.** 28 chunks with top-6 retrieval = 21% of the
+   corpus per query; hit@6 was 97%. *Lesson: a benchmark needs headroom, or it can't
+   show improvements.* Added bulk noise and semantic distractors (77 chunks).
+2. **The judge was wrong, in our favor.** It scored refusals on answerable questions as
+   correct, inflating correctness from 91.7% to 98.8%. *Lesson: always read a sample of
+   judge verdicts; enforce checkable rules in code.*
+3. **Free-tier rate limits during ingestion.** Gemini returned HTTP 429 while embedding
+   the corpus; the exponential-backoff retries from Phase 1 recovered automatically.
+   *Lesson: the resilience code earned its keep.*
+4. **The real bottleneck is retrieval.** Every wrong answer was a retrieval miss.
+
+**Next:** Phase 3: hybrid search, reranking, better chunking (CSV headers), OCR, each
+measured against this baseline.

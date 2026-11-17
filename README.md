@@ -67,7 +67,26 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 | `backend/app/llm.py` | OpenAI-compatible streaming chat (Gemini, Groq, …) |
 | `backend/app/rag.py` | Retrieval query + prompt construction |
 | `backend/app/worker.py` | Ingestion job |
+| `backend/eval/` | Evaluation harness: corpus, golden dataset, metrics, LLM judge, results |
 | `frontend/src/` | React UI (auth, documents, chat) |
+
+## Evaluation
+
+A fictional-company corpus (`backend/eval/corpus/`) and 42 hand-written questions
+(`backend/eval/dataset.jsonl`) measure retrieval, answer quality, latency and cost.
+Commands run inside the `api` container:
+
+```bash
+docker compose exec api python -m eval.run --validate-only                # check dataset vs corpus
+docker compose exec api python -m eval.run --retrieval-only --label quick # retrieval metrics only (fast)
+docker compose exec api python -m eval.run --label baseline               # + answers + LLM judge (~7 min)
+docker compose exec api python -m eval.run --retrieval-only --chunk-size 600 --label chunk600
+docker compose exec api python -m eval.compare                            # table of all runs
+```
+
+Results are saved to `backend/eval/results/` with per-question detail. See
+[docs/HOW_IT_WORKS.md §6](docs/HOW_IT_WORKS.md#6-evaluation) for what each metric means
+and the baseline numbers.
 
 ## Design decisions worth explaining in an interview
 
@@ -81,7 +100,7 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 - **Provider-agnostic LLM layer:** any OpenAI-compatible endpoint works. That makes the planned model comparison a config change.
 - **Event loop hygiene:** bcrypt and PDF parsing run in threads so they don't block the async server.
 
-## Known Phase 1 limitations (intentional; later phases fix them)
+## Known limitations (intentional; later phases fix them)
 
 - Naive retrieval: one vector search on the raw question. No keyword/hybrid search, no reranking.
 - Follow-up questions ("what about the second one?") retrieve poorly, because there is no query rewriting yet.
@@ -92,8 +111,8 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 
 ## Roadmap
 
-1. ✅ Phase 1: naive RAG MVP (this)
-2. Golden Q&A dataset + evaluation script (recall@k, MRR, faithfulness, latency, cost)
+1. ✅ Phase 1: naive RAG MVP
+2. ✅ Phase 2: golden Q&A dataset + evaluation harness (hit@k, recall@k, MRR, correctness, faithfulness, latency, cost)
 3. Hybrid search (Postgres full-text search + vectors, Reciprocal Rank Fusion) → reranking → better chunking
    → OCR for scanned PDFs/images (Gemini vision on pages with no text layer; Tesseract as a local baseline)
 4. Query rewriting, contextual retrieval, agentic RAG, long-context baseline

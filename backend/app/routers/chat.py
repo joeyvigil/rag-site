@@ -68,13 +68,14 @@ async def chat(
     async def event_stream() -> AsyncIterator[str]:
         yield _sse("sources", sources)
         first_token_ms: float | None = None
+        meta: dict = {}  # filled by stream_chat: model actually used + token usage
 
         if not chunks:
             # Don't spend an LLM call when there's nothing to ground the answer in.
             yield _sse("token", {"text": "I couldn't find anything relevant. Upload some documents and wait until they show as ready."})
         else:
             try:
-                async for fragment in stream_chat(messages):
+                async for fragment in stream_chat(messages, meta=meta):
                     if first_token_ms is None:
                         first_token_ms = (time.perf_counter() - started) * 1000
                     yield _sse("token", {"text": fragment})
@@ -85,15 +86,16 @@ async def chat(
 
         total_ms = (time.perf_counter() - started) * 1000
         log.info(
-            "chat user=%s chunks=%d retrieval=%.0fms first_token=%sms total=%.0fms",
-            user.id, len(chunks), retrieval_ms,
-            f"{first_token_ms:.0f}" if first_token_ms else "-", total_ms,
+            "chat user=%s model=%s chunks=%d retrieval=%.0fms first_token=%sms total=%.0fms usage=%s",
+            user.id, meta.get("model"), len(chunks), retrieval_ms,
+            f"{first_token_ms:.0f}" if first_token_ms else "-", total_ms, meta.get("usage"),
         )
         yield _sse("done", {
             "retrieval_ms": round(retrieval_ms),
             "first_token_ms": round(first_token_ms) if first_token_ms else None,
             "total_ms": round(total_ms),
-            "model": settings.llm_model if settings.llm_provider != "fake" else "fake",
+            "model": meta.get("model", "none"),
+            "usage": meta.get("usage"),
         })
 
     return StreamingResponse(

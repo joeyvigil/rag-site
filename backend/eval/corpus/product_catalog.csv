@@ -1,0 +1,501 @@
+sku,name,category,price_usd,weight_kg,warehouse
+HX-8184,Soft Gripper C2,Grippers,961.96,3.55,Reno
+HX-8791,Depth Camera H4,Sensors,570.22,0.87,Reno
+HX-7781,LiDAR Module L4,Sensors,1299.00,0.95,Reno
+HX-2012,I/O Expansion Board E7,Controllers,2056.93,5.64,Reno
+HX-4027,Parallel Gripper H9,Grippers,1760.33,3.69,Denver
+HX-8496,Depth Camera E7,Sensors,1168.29,3.91,Boise
+HX-5222,Edge Compute Unit E1,Controllers,1884.46,1.19,Boise
+HX-3002,Harmonic Drive B8,Actuators,1532.68,0.38,Denver
+HX-2267,Backup Cell D2,Batteries,878.53,3.36,Reno
+HX-5865,Servo Actuator F6,Actuators,334.30,5.17,Denver
+HX-3708,IMU Board E3,Sensors,40.14,2.06,Boise
+HX-8774,Motion Controller D1,Controllers,131.19,2.03,Reno
+HX-3331,Edge Compute Unit C9,Controllers,1172.71,1.20,Reno
+HX-8490,Depth Camera F7,Sensors,119.06,5.19,Denver
+HX-2486,Sensor Harness H2,Cables,1177.68,2.48,Boise
+HX-8376,EtherCAT Cable C1,Cables,2331.33,0.19,Denver
+HX-8656,Harmonic Drive A5,Actuators,1025.12,4.63,Denver
+HX-7717,Motion Controller A7,Controllers,1657.80,0.83,Boise
+HX-5502,Safety Relay A6,Controllers,14.52,0.57,Denver
+HX-3336,Edge Compute Unit C4,Controllers,745.29,5.81,Denver
+HX-8650,Sensor Harness H1,Cables,21.50,3.33,Reno
+HX-1744,Servo Actuator C3,Actuators,1981.24,2.56,Reno
+HX-6579,Battery Pack E7,Batteries,1826.25,5.09,Reno
+HX-4249,Charging Dock B4,Batteries,259.24,4.65,Denver
+HX-5651,Charging Dock C7,Batteries,2068.34,3.12,Reno
+HX-1042,EtherCAT Cable G8,Cables,1196.23,1.24,Boise
+HX-7381,Battery Pack E4,Batteries,1296.78,3.08,Denver
+HX-4921,Sensor Harness G2,Cables,317.69,1.94,Reno
+HX-4514,Edge Compute Unit A1,Controllers,1336.79,4.40,Reno
+HX-3899,Torque Sensor E5,Sensors,1117.80,0.93,Denver
+HX-2017,IMU Board H1,Sensors,2479.64,2.60,Denver
+HX-8481,IMU Board C1,Sensors,2492.94,2.41,Boise
+HX-2154,Servo Actuator E7,Actuators,2161.09,2.54,Reno
+HX-7810,Charging Dock H1,Batteries,1030.09,4.07,Reno
+HX-8124,Harmonic Drive B9,Actuators,2276.55,0.14,Reno
+HX-1837,Harmonic Drive B6,Actuators,2119.50,3.64,Reno
+HX-5969,Depth Camera F6,Sensors,2438.56,0.83,Boise
+HX-1021,Edge Compute Unit H5,Controllers,86.44,1.76,Boise
+HX-6712,Vacuum Gripper G4,Grippers,2420.48,4.96,Boise
+HX-5320,Safety Relay D3,Controllers,2183.14,0.36,Boise
+HX-4307,Linear Actuator A2,Actuators,1050.97,3.52,Denver
+HX-5691,IMU Board E2,Sensors,990.04,5.13,Reno
+HX-5460,Edge Compute Unit D4,Controllers,1154.26,0.97,Reno
+HX-1740,Depth Camera A4,Sensors,2090.63,2.00,Reno
+HX-7108,Harmonic Drive H6,Actuators,1285.53,0.70,Denver
+HX-7894,Charging Dock C6,Batteries,1907.46,3.26,Denver
+HX-2762,Encoder Cable A1,Cables,706.98,3.61,Denver
+HX-5457,Power Cable G8,Cables,113.62,2.35,Boise
+HX-4380,Safety Relay G4,Controllers,641.21,2.02,Reno
+HX-8367,Power Cable C6,Cables,44.07,1.28,Reno
+HX-2852,Sensor Harness A1,Cables,1740.51,4.91,Boise
+HX-5956,IMU Board F6,Sensors,1112.63,0.51,Reno
+HX-4162,Charging Dock H1,Batteries,319.98,5.79,Boise
+HX-4684,EtherCAT Cable F8,Cables,1255.91,5.75,Boise
+HX-8021,Torque Sensor D5,Sensors,1630.71,3.10,Denver
+HX-8006,Proximity Sensor G5,Sensors,1136.26,5.01,Reno
+HX-8382,EtherCAT Cable C7,Cables,427.91,1.65,Boise
+HX-8363,Parallel Gripper D2,Grippers,887.43,3.38,Boise
+HX-4435,Depth Camera D7,Sensors,2290.06,1.95,Reno
+HX-6057,Depth Camera B3,Sensors,786.40,1.47,Reno
+HX-3372,Battery Management Board H4,Batteries,2012.70,4.13,Boise
+HX-1517,Backup Cell E7,Batteries,296.11,0.32,Reno
+HX-4318,Stepper Drive C8,Actuators,2080.90,5.52,Reno
+HX-8203,Proximity Sensor E7,Sensors,852.99,4.74,Boise
+HX-1845,Soft Gripper E3,Grippers,959.89,4.89,Reno
+HX-3136,Safety Relay H5,Controllers,2385.32,1.85,Denver
+HX-4521,Encoder Cable H8,Cables,1108.19,1.32,Boise
+HX-4320,Edge Compute Unit H1,Controllers,1593.69,4.23,Reno
+HX-4780,Linear Actuator H5,Actuators,1274.64,1.68,Boise
+HX-4968,Encoder Cable A9,Cables,1979.77,0.44,Denver
+HX-6786,Proximity Sensor G7,Sensors,830.55,2.82,Reno
+HX-6576,Battery Management Board H4,Batteries,2393.56,1.71,Boise
+HX-1938,Battery Management Board F2,Batteries,737.28,0.99,Reno
+HX-6101,IMU Board F8,Sensors,2494.48,4.67,Denver
+HX-1600,EtherCAT Cable E3,Cables,2333.48,5.29,Reno
+HX-2809,Battery Pack H3,Batteries,831.27,0.51,Boise
+HX-7196,Edge Compute Unit A4,Controllers,671.31,0.83,Boise
+HX-8635,EtherCAT Cable C9,Cables,72.16,4.38,Denver
+HX-2115,Power Cable C2,Cables,415.12,2.82,Boise
+HX-5788,Edge Compute Unit F4,Controllers,2493.33,0.87,Boise
+HX-1570,Proximity Sensor B9,Sensors,541.76,2.55,Boise
+HX-1458,IMU Board F3,Sensors,444.37,3.58,Denver
+HX-6036,I/O Expansion Board A2,Controllers,1679.60,2.47,Denver
+HX-4516,Battery Pack B1,Batteries,537.49,0.51,Denver
+HX-5102,Battery Management Board A2,Batteries,1095.54,5.04,Boise
+HX-3538,Linear Actuator C9,Actuators,820.24,3.54,Denver
+HX-2907,Servo Actuator G6,Actuators,1794.81,0.65,Reno
+HX-6007,Harmonic Drive G4,Actuators,1797.27,2.33,Boise
+HX-7443,Backup Cell B7,Batteries,378.36,3.42,Denver
+HX-2842,Soft Gripper D8,Grippers,796.02,2.13,Denver
+HX-2147,Encoder Cable D6,Cables,1445.80,4.65,Boise
+HX-5684,Safety Relay G1,Controllers,798.85,2.86,Boise
+HX-8524,Stepper Drive H1,Actuators,284.11,2.21,Boise
+HX-3029,Vacuum Gripper D9,Grippers,1504.49,4.34,Boise
+HX-7109,Parallel Gripper F3,Grippers,195.57,3.82,Denver
+HX-7273,Torque Sensor H9,Sensors,416.99,3.19,Denver
+HX-5440,Harmonic Drive D7,Actuators,260.53,4.99,Reno
+HX-3438,Harmonic Drive E6,Actuators,2156.19,0.57,Reno
+HX-3131,I/O Expansion Board D8,Controllers,820.48,4.58,Boise
+HX-5508,Soft Gripper H5,Grippers,770.02,1.42,Denver
+HX-8349,IMU Board H5,Sensors,1880.68,5.05,Boise
+HX-4605,Parallel Gripper C7,Grippers,1542.11,2.68,Reno
+HX-5863,Gripper Finger Set E8,Grippers,2040.29,2.24,Denver
+HX-4469,Backup Cell B9,Batteries,1346.45,0.96,Reno
+HX-4052,Proximity Sensor F2,Sensors,1029.97,5.25,Boise
+HX-5099,Sensor Harness H2,Cables,1497.10,5.34,Denver
+HX-8549,Soft Gripper A3,Grippers,2175.31,3.42,Boise
+HX-4724,I/O Expansion Board A2,Controllers,1828.68,2.78,Denver
+HX-8417,Stepper Drive B9,Actuators,598.82,4.03,Reno
+HX-2814,Power Cable E8,Cables,1610.14,0.24,Boise
+HX-7447,Parallel Gripper C7,Grippers,770.52,4.15,Reno
+HX-3184,Harmonic Drive B7,Actuators,1508.12,4.94,Denver
+HX-4375,EtherCAT Cable C3,Cables,202.03,5.23,Denver
+HX-5809,Stepper Drive A3,Actuators,1178.90,3.93,Boise
+HX-2836,Battery Pack A1,Batteries,2374.28,1.24,Reno
+HX-6793,Proximity Sensor D9,Sensors,1142.74,0.41,Denver
+HX-5577,I/O Expansion Board A7,Controllers,639.87,0.07,Reno
+HX-2577,Vacuum Gripper C4,Grippers,544.88,2.93,Denver
+HX-6996,Servo Actuator F8,Actuators,1762.74,2.62,Denver
+HX-4632,Proximity Sensor F2,Sensors,111.53,2.79,Reno
+HX-2370,Servo Actuator D5,Actuators,86.57,1.39,Boise
+HX-3142,Gripper Finger Set H2,Grippers,2008.03,4.35,Boise
+HX-6561,Power Cable F2,Cables,827.58,3.37,Boise
+HX-4086,Parallel Gripper H9,Grippers,859.11,2.16,Denver
+HX-7826,Battery Management Board B7,Batteries,2155.10,0.30,Reno
+HX-4447,Parallel Gripper H2,Grippers,46.64,0.45,Boise
+HX-2526,Battery Management Board A1,Batteries,749.49,3.64,Boise
+HX-4089,Battery Pack B4,Batteries,2012.60,3.55,Denver
+HX-6879,Safety Relay H6,Controllers,1120.59,4.37,Boise
+HX-2381,EtherCAT Cable C6,Cables,2107.11,3.40,Reno
+HX-1302,Parallel Gripper A4,Grippers,2215.05,1.93,Boise
+HX-8206,Charging Dock G9,Batteries,1241.57,5.84,Denver
+HX-2971,Proximity Sensor B1,Sensors,1118.87,4.05,Reno
+HX-4682,Sensor Harness G1,Cables,1763.32,1.27,Denver
+HX-6779,Edge Compute Unit A2,Controllers,52.41,1.33,Reno
+HX-2767,Servo Actuator G9,Actuators,719.79,4.29,Boise
+HX-1701,IMU Board H9,Sensors,1896.62,4.16,Denver
+HX-6977,Motion Controller G2,Controllers,1382.34,4.98,Denver
+HX-5769,Edge Compute Unit A6,Controllers,1755.58,4.88,Denver
+HX-3811,Charging Dock H6,Batteries,1270.75,5.08,Denver
+HX-4758,Depth Camera C4,Sensors,1863.75,3.26,Denver
+HX-7353,Torque Sensor F7,Sensors,419.12,0.88,Reno
+HX-1765,Depth Camera D4,Sensors,372.65,0.32,Boise
+HX-3652,Linear Actuator E1,Actuators,321.26,2.55,Reno
+HX-3457,I/O Expansion Board B1,Controllers,1148.42,5.99,Reno
+HX-5351,Encoder Cable H9,Cables,1069.72,5.45,Boise
+HX-2674,Parallel Gripper C5,Grippers,727.17,0.76,Boise
+HX-1534,Stepper Drive E8,Actuators,1820.94,3.60,Boise
+HX-2799,Battery Management Board A4,Batteries,2055.40,4.84,Boise
+HX-7027,Power Cable F1,Cables,130.11,2.89,Denver
+HX-1115,Charging Dock E1,Batteries,2435.87,3.34,Denver
+HX-8967,Depth Camera B1,Sensors,2303.58,5.39,Denver
+HX-6685,IMU Board B4,Sensors,960.76,4.40,Reno
+HX-1950,Charging Dock F5,Batteries,860.95,4.72,Denver
+HX-6238,Servo Actuator E4,Actuators,561.91,4.43,Denver
+HX-8546,Gripper Finger Set B8,Grippers,1723.25,4.21,Boise
+HX-2694,Edge Compute Unit A7,Controllers,1195.06,5.66,Boise
+HX-7990,Motion Controller D7,Controllers,1431.95,3.47,Denver
+HX-4283,Battery Pack C3,Batteries,1196.25,5.62,Reno
+HX-6528,IMU Board A9,Sensors,823.38,3.68,Denver
+HX-2448,Vacuum Gripper A8,Grippers,687.45,4.58,Reno
+HX-3317,Battery Management Board H3,Batteries,1119.14,2.93,Boise
+HX-7588,Harmonic Drive B3,Actuators,1886.61,1.39,Denver
+HX-3906,Soft Gripper E5,Grippers,1391.70,3.12,Reno
+HX-5417,IMU Board D8,Sensors,2019.71,1.18,Reno
+HX-8160,Vacuum Gripper B5,Grippers,214.27,1.00,Boise
+HX-4266,Motion Controller F7,Controllers,784.75,1.57,Reno
+HX-3125,Edge Compute Unit G1,Controllers,1459.64,5.97,Reno
+HX-6674,Motion Controller F9,Controllers,953.12,1.93,Denver
+HX-7089,Edge Compute Unit F3,Controllers,1243.03,3.01,Denver
+HX-8111,Battery Pack E5,Batteries,882.36,3.49,Reno
+HX-8163,Harmonic Drive B1,Actuators,1632.10,3.27,Reno
+HX-7977,Proximity Sensor E8,Sensors,613.44,2.82,Denver
+HX-7172,Edge Compute Unit D8,Controllers,552.46,2.64,Reno
+HX-7941,Edge Compute Unit B8,Controllers,1782.44,2.69,Reno
+HX-3199,Soft Gripper F9,Grippers,1446.94,3.42,Boise
+HX-6825,Depth Camera G9,Sensors,127.13,1.83,Reno
+HX-2992,Charging Dock E2,Batteries,1636.07,5.16,Reno
+HX-6499,I/O Expansion Board G7,Controllers,377.30,2.29,Denver
+HX-3958,Parallel Gripper H4,Grippers,1147.36,0.86,Reno
+HX-6546,Encoder Cable G3,Cables,1977.29,4.15,Reno
+HX-7460,Motion Controller F3,Controllers,229.88,1.81,Denver
+HX-7180,Sensor Harness F6,Cables,381.64,0.46,Boise
+HX-7421,Charging Dock G6,Batteries,904.95,0.59,Boise
+HX-1718,Gripper Finger Set C7,Grippers,502.65,5.31,Denver
+HX-4766,Stepper Drive G7,Actuators,1775.20,2.54,Reno
+HX-5340,Gripper Finger Set A3,Grippers,347.73,1.24,Boise
+HX-2695,Stepper Drive E9,Actuators,425.10,5.88,Boise
+HX-8392,Linear Actuator G1,Actuators,2463.35,1.63,Boise
+HX-8677,Proximity Sensor H4,Sensors,1740.59,4.24,Boise
+HX-5693,Stepper Drive F4,Actuators,160.00,0.75,Boise
+HX-4185,Gripper Finger Set C8,Grippers,2299.26,5.89,Denver
+HX-6714,Vacuum Gripper F3,Grippers,1409.96,1.17,Boise
+HX-3163,Edge Compute Unit H1,Controllers,434.64,2.45,Denver
+HX-8538,Torque Sensor A9,Sensors,2008.77,4.30,Denver
+HX-1392,Battery Pack A1,Batteries,1725.93,2.53,Boise
+HX-7661,Proximity Sensor G9,Sensors,907.76,2.21,Reno
+HX-8476,Encoder Cable G5,Cables,453.64,1.95,Reno
+HX-8416,EtherCAT Cable G2,Cables,2366.30,1.37,Boise
+HX-7771,Proximity Sensor A3,Sensors,1982.61,3.59,Denver
+HX-8733,IMU Board B1,Sensors,1437.29,2.84,Boise
+HX-2227,Depth Camera H2,Sensors,1702.34,4.32,Boise
+HX-1671,Motion Controller E7,Controllers,1180.01,5.37,Boise
+HX-5737,Servo Actuator G6,Actuators,1752.46,3.27,Reno
+HX-7446,EtherCAT Cable B9,Cables,521.86,1.33,Reno
+HX-8361,Backup Cell B6,Batteries,1671.26,4.27,Denver
+HX-3791,Proximity Sensor E8,Sensors,289.65,0.44,Boise
+HX-8369,Sensor Harness B4,Cables,565.62,2.06,Denver
+HX-5599,Battery Management Board E2,Batteries,1206.94,2.05,Boise
+HX-5495,Backup Cell B5,Batteries,597.91,0.77,Reno
+HX-1308,Stepper Drive E2,Actuators,1613.44,5.87,Reno
+HX-5333,Stepper Drive B3,Actuators,664.84,5.34,Denver
+HX-3138,Gripper Finger Set F6,Grippers,1134.63,1.44,Reno
+HX-5899,Gripper Finger Set A5,Grippers,1037.46,4.69,Denver
+HX-3271,Charging Dock C4,Batteries,369.88,1.97,Reno
+HX-8942,I/O Expansion Board H4,Controllers,1337.36,1.89,Boise
+HX-7162,Backup Cell B5,Batteries,410.31,1.48,Boise
+HX-7604,Proximity Sensor B9,Sensors,376.50,1.19,Denver
+HX-6227,Servo Actuator D6,Actuators,420.01,3.70,Denver
+HX-2940,Parallel Gripper D7,Grippers,754.75,0.41,Denver
+HX-3640,Encoder Cable A2,Cables,576.17,4.06,Denver
+HX-4403,Torque Sensor C9,Sensors,2191.77,2.23,Denver
+HX-3005,IMU Board G5,Sensors,2473.86,3.86,Denver
+HX-6038,Sensor Harness H9,Cables,2385.81,4.45,Reno
+HX-6163,Battery Pack E2,Batteries,59.39,0.43,Denver
+HX-3631,Vacuum Gripper B4,Grippers,1340.20,4.35,Reno
+HX-6656,EtherCAT Cable F1,Cables,1209.51,1.81,Reno
+HX-8938,Linear Actuator C7,Actuators,1216.67,1.32,Boise
+HX-1156,Torque Sensor C4,Sensors,1836.52,3.56,Reno
+HX-4544,Power Cable B9,Cables,386.77,1.03,Boise
+HX-1712,Edge Compute Unit F5,Controllers,1301.62,5.51,Reno
+HX-3996,I/O Expansion Board A7,Controllers,132.64,3.39,Boise
+HX-8085,Power Cable H7,Cables,140.24,3.13,Denver
+HX-4879,Torque Sensor E3,Sensors,2015.41,5.49,Denver
+HX-2367,Parallel Gripper E2,Grippers,2236.20,4.06,Reno
+HX-6353,Battery Pack A7,Batteries,1821.89,4.81,Reno
+HX-4343,Vacuum Gripper F4,Grippers,1111.24,5.71,Boise
+HX-4031,Soft Gripper B1,Grippers,393.17,4.54,Reno
+HX-6838,Battery Management Board G7,Batteries,2129.71,2.78,Reno
+HX-1937,Charging Dock G8,Batteries,2220.79,2.51,Boise
+HX-1994,Servo Actuator D3,Actuators,499.34,2.43,Denver
+HX-4032,Parallel Gripper E2,Grippers,1524.78,1.07,Denver
+HX-2351,Sensor Harness C1,Cables,257.64,1.27,Reno
+HX-6247,Soft Gripper E5,Grippers,474.96,3.13,Reno
+HX-4077,Linear Actuator F2,Actuators,450.29,3.25,Denver
+HX-8303,Safety Relay G3,Controllers,1835.82,5.79,Boise
+HX-5140,Backup Cell G8,Batteries,1042.00,5.05,Boise
+HX-8772,I/O Expansion Board G6,Controllers,1103.36,2.61,Denver
+HX-8405,Depth Camera H8,Sensors,1924.75,4.68,Denver
+HX-5578,IMU Board D6,Sensors,761.45,5.46,Reno
+HX-4589,Backup Cell B1,Batteries,2433.00,3.67,Reno
+HX-8920,Soft Gripper G9,Grippers,831.22,0.21,Boise
+HX-1897,I/O Expansion Board A8,Controllers,667.50,3.95,Denver
+HX-3837,Battery Pack F1,Batteries,1898.53,2.29,Denver
+HX-2608,Battery Management Board C5,Batteries,1538.00,0.61,Denver
+HX-8395,Depth Camera G9,Sensors,2085.14,1.86,Reno
+HX-5829,Encoder Cable B4,Cables,744.13,2.20,Boise
+HX-1606,Power Cable C3,Cables,2028.80,5.70,Reno
+HX-7117,Harmonic Drive B2,Actuators,1111.98,4.18,Reno
+HX-7405,Depth Camera G5,Sensors,2042.15,2.39,Reno
+HX-1365,Gripper Finger Set H5,Grippers,569.47,1.65,Reno
+HX-3225,Soft Gripper B3,Grippers,381.32,2.33,Reno
+HX-8526,Vacuum Gripper A3,Grippers,1468.59,5.51,Reno
+HX-5094,I/O Expansion Board B9,Controllers,2298.28,1.42,Denver
+HX-5720,IMU Board B3,Sensors,1538.13,3.82,Boise
+HX-1403,Backup Cell E6,Batteries,55.48,4.91,Boise
+HX-5293,EtherCAT Cable F6,Cables,2295.25,2.36,Boise
+HX-3547,Gripper Finger Set B4,Grippers,340.29,5.85,Boise
+HX-4039,Backup Cell C7,Batteries,1639.03,5.01,Denver
+HX-4577,Linear Actuator G7,Actuators,1312.29,2.40,Boise
+HX-1639,Power Cable A9,Cables,2257.71,1.25,Denver
+HX-1555,Soft Gripper B1,Grippers,125.13,2.66,Boise
+HX-6489,Linear Actuator F7,Actuators,1735.72,1.76,Boise
+HX-5469,Stepper Drive C7,Actuators,322.98,1.88,Reno
+HX-8815,Motion Controller H5,Controllers,1934.95,1.90,Reno
+HX-5441,Soft Gripper C3,Grippers,1985.27,3.08,Reno
+HX-7569,Charging Dock D2,Batteries,1316.14,3.19,Boise
+HX-4552,Charging Dock F8,Batteries,901.33,1.17,Boise
+HX-4444,Soft Gripper E5,Grippers,1162.08,0.75,Reno
+HX-2646,Torque Sensor H1,Sensors,905.44,3.46,Boise
+HX-2377,Edge Compute Unit B2,Controllers,673.38,3.28,Boise
+HX-5957,Sensor Harness F1,Cables,1587.14,4.71,Boise
+HX-6172,Soft Gripper A6,Grippers,1270.81,1.90,Boise
+HX-2765,Power Cable F7,Cables,281.67,4.09,Denver
+HX-1710,Linear Actuator B7,Actuators,882.08,2.60,Reno
+HX-8307,Parallel Gripper A1,Grippers,1568.58,1.53,Denver
+HX-2240,Safety Relay G9,Controllers,1938.56,5.53,Denver
+HX-1900,Battery Pack C1,Batteries,898.81,4.74,Denver
+HX-3531,IMU Board A2,Sensors,145.14,3.63,Reno
+HX-4471,Servo Actuator S2,Actuators,149.00,0.42,Reno
+HX-7212,Servo Actuator B5,Actuators,2169.35,5.29,Boise
+HX-7622,Torque Sensor A7,Sensors,200.53,4.11,Reno
+HX-4152,Edge Compute Unit E9,Controllers,2152.65,0.12,Denver
+HX-5674,Safety Relay B9,Controllers,2436.76,0.45,Denver
+HX-2195,Stepper Drive G5,Actuators,385.27,2.01,Boise
+HX-1203,Depth Camera G4,Sensors,670.68,4.73,Reno
+HX-8253,Parallel Gripper B1,Grippers,1654.85,4.65,Reno
+HX-4352,Battery Management Board E5,Batteries,597.68,0.35,Denver
+HX-5151,Safety Relay A3,Controllers,485.94,5.01,Reno
+HX-6833,Gripper Finger Set E8,Grippers,1266.35,2.61,Denver
+HX-2524,Edge Compute Unit B5,Controllers,1938.54,4.24,Reno
+HX-2145,Soft Gripper C7,Grippers,2476.59,4.45,Boise
+HX-2455,Battery Pack G1,Batteries,459.29,1.94,Denver
+HX-6012,Gripper Finger Set D2,Grippers,343.64,0.49,Reno
+HX-1827,Soft Gripper F3,Grippers,2439.77,4.41,Boise
+HX-5337,Gripper Finger Set F5,Grippers,627.78,0.73,Denver
+HX-4686,I/O Expansion Board C9,Controllers,1601.29,1.13,Reno
+HX-3591,Parallel Gripper F4,Grippers,667.71,0.83,Denver
+HX-2362,Edge Compute Unit G6,Controllers,1367.33,0.65,Boise
+HX-3746,Torque Sensor A5,Sensors,2293.90,2.86,Reno
+HX-3327,Parallel Gripper F2,Grippers,1458.94,0.89,Boise
+HX-4917,IMU Board F7,Sensors,1756.34,5.48,Denver
+HX-7934,Encoder Cable B6,Cables,1762.82,3.99,Denver
+HX-2210,Charging Dock A2,Batteries,481.01,2.67,Boise
+HX-1254,Edge Compute Unit D2,Controllers,1157.80,4.83,Reno
+HX-8483,Parallel Gripper E8,Grippers,2418.62,1.81,Boise
+HX-7461,EtherCAT Cable C8,Cables,188.90,5.08,Boise
+HX-5521,Sensor Harness H6,Cables,2174.66,5.89,Reno
+HX-6626,Motion Controller B2,Controllers,237.61,0.62,Denver
+HX-3364,Harmonic Drive H9,Actuators,702.90,5.94,Denver
+HX-8978,Proximity Sensor D4,Sensors,669.98,4.91,Denver
+HX-5918,Servo Actuator F9,Actuators,1073.80,2.25,Denver
+HX-8691,Parallel Gripper D9,Grippers,1006.46,0.29,Reno
+HX-1665,Stepper Drive D7,Actuators,1547.18,0.23,Denver
+HX-5731,Proximity Sensor H3,Sensors,1312.96,4.34,Boise
+HX-6089,Torque Sensor C8,Sensors,1675.30,3.41,Reno
+HX-5931,Linear Actuator G4,Actuators,1125.78,1.71,Reno
+HX-5537,Torque Sensor A2,Sensors,1771.06,0.40,Reno
+HX-2238,Battery Pack B6,Batteries,2021.41,2.51,Denver
+HX-5180,Motion Controller H3,Controllers,1285.55,2.77,Reno
+HX-5312,Motion Controller F4,Controllers,2017.08,2.08,Reno
+HX-6255,Charging Dock B9,Batteries,1410.41,3.68,Reno
+HX-5019,Depth Camera G7,Sensors,468.42,3.54,Boise
+HX-7119,Safety Relay C7,Controllers,1333.79,1.42,Denver
+HX-1164,Soft Gripper B2,Grippers,857.81,5.33,Reno
+HX-4358,Charging Dock B8,Batteries,1954.91,1.63,Denver
+HX-3406,Vacuum Gripper B6,Grippers,1653.99,1.87,Denver
+HX-5530,Motion Controller F4,Controllers,732.53,4.72,Denver
+HX-3043,Harmonic Drive A6,Actuators,1763.06,1.68,Boise
+HX-5113,EtherCAT Cable B8,Cables,436.33,5.91,Reno
+HX-3240,Vacuum Gripper G7,Grippers,2046.85,5.73,Reno
+HX-6521,Stepper Drive H7,Actuators,1216.73,2.68,Boise
+HX-7664,Power Cable H2,Cables,789.72,1.97,Boise
+HX-6974,Backup Cell F7,Batteries,1124.10,5.51,Boise
+HX-3004,Battery Pack G8,Batteries,589.68,1.34,Reno
+HX-7069,EtherCAT Cable D1,Cables,1676.24,3.21,Denver
+HX-3617,Proximity Sensor F8,Sensors,33.43,1.30,Denver
+HX-4383,Battery Management Board H2,Batteries,1454.02,3.06,Denver
+HX-5039,Proximity Sensor C7,Sensors,693.52,1.83,Reno
+HX-6596,IMU Board C4,Sensors,1155.57,1.56,Boise
+HX-3036,Torque Sensor H3,Sensors,1057.59,1.71,Reno
+HX-5682,Vacuum Gripper A3,Grippers,561.85,3.12,Reno
+HX-1285,Proximity Sensor D6,Sensors,908.57,5.70,Reno
+HX-1134,Charging Dock C5,Batteries,1075.95,3.71,Reno
+HX-8449,Depth Camera C5,Sensors,237.88,2.19,Reno
+HX-6509,I/O Expansion Board A2,Controllers,1080.16,5.30,Denver
+HX-5137,Motion Controller A4,Controllers,934.30,3.58,Reno
+HX-2998,Proximity Sensor B7,Sensors,551.01,4.83,Denver
+HX-4956,Gripper Finger Set B8,Grippers,1806.37,2.74,Reno
+HX-3193,Linear Actuator F4,Actuators,1640.32,2.40,Denver
+HX-1277,Servo Actuator A7,Actuators,348.04,3.80,Reno
+HX-5066,Soft Gripper C6,Grippers,321.69,4.70,Boise
+HX-3541,Backup Cell C2,Batteries,777.41,2.29,Boise
+HX-6900,Sensor Harness C9,Cables,2475.86,5.75,Denver
+HX-6831,Edge Compute Unit A2,Controllers,739.12,2.46,Reno
+HX-7075,Charging Dock B1,Batteries,1771.21,4.22,Reno
+HX-5183,Charging Dock H6,Batteries,980.88,4.65,Denver
+HX-2043,Charging Dock A1,Batteries,2446.33,2.80,Denver
+HX-8201,Gripper Finger Set A2,Grippers,2363.36,3.06,Reno
+HX-8554,I/O Expansion Board B9,Controllers,1812.84,1.18,Boise
+HX-3077,Battery Pack F2,Batteries,865.28,4.41,Denver
+HX-3335,Harmonic Drive A3,Actuators,2135.28,4.69,Reno
+HX-4809,Battery Management Board F3,Batteries,1516.70,5.78,Denver
+HX-6398,I/O Expansion Board G7,Controllers,1170.23,4.39,Denver
+HX-4073,Motion Controller B7,Controllers,1291.46,1.71,Boise
+HX-6494,I/O Expansion Board G7,Controllers,1469.58,2.12,Boise
+HX-5243,Motion Controller D2,Controllers,1143.87,4.82,Denver
+HX-4574,Power Cable G4,Cables,640.53,4.27,Reno
+HX-6304,Vacuum Gripper G8,Grippers,268.32,5.77,Denver
+HX-5544,Sensor Harness B1,Cables,228.60,3.35,Denver
+HX-8097,Battery Pack H4,Batteries,1253.69,5.21,Boise
+HX-5218,Power Cable F4,Cables,1168.85,1.64,Reno
+HX-2899,Safety Relay C7,Controllers,991.98,4.44,Reno
+HX-3423,Servo Actuator F3,Actuators,1495.13,0.97,Reno
+HX-2557,Encoder Cable C2,Cables,2258.99,3.90,Boise
+HX-8570,Sensor Harness G8,Cables,78.56,4.12,Reno
+HX-8246,Vacuum Gripper G1,Grippers,994.15,2.28,Boise
+HX-1668,Parallel Gripper A6,Grippers,2327.41,5.04,Denver
+HX-7340,Soft Gripper G2,Grippers,473.90,1.31,Boise
+HX-3508,Battery Management Board H9,Batteries,1329.65,2.58,Denver
+HX-4986,Encoder Cable A4,Cables,991.18,3.62,Reno
+HX-1847,Vacuum Gripper C1,Grippers,623.12,2.65,Boise
+HX-1361,Stepper Drive C5,Actuators,408.15,2.68,Denver
+HX-7457,Vacuum Gripper A2,Grippers,1567.32,5.03,Reno
+HX-3418,Harmonic Drive E1,Actuators,1416.99,4.13,Denver
+HX-8370,Harmonic Drive F3,Actuators,1804.60,3.95,Boise
+HX-7562,Charging Dock A3,Batteries,2122.43,4.08,Boise
+HX-2863,Power Cable G9,Cables,1049.49,3.24,Boise
+HX-7247,Parallel Gripper G9,Grippers,2436.49,4.92,Denver
+HX-6045,Sensor Harness H7,Cables,2065.21,3.58,Boise
+HX-4643,Soft Gripper B3,Grippers,222.81,2.61,Denver
+HX-8180,EtherCAT Cable E2,Cables,1179.60,4.46,Denver
+HX-4823,Gripper Finger Set B1,Grippers,1281.23,3.99,Boise
+HX-5664,Safety Relay F3,Controllers,1948.46,2.95,Denver
+HX-2961,Linear Actuator B2,Actuators,1831.11,4.91,Denver
+HX-4209,Vacuum Gripper D8,Grippers,967.78,1.48,Denver
+HX-4503,Power Cable B2,Cables,2362.90,4.16,Reno
+HX-6104,Vacuum Gripper E9,Grippers,776.67,2.48,Boise
+HX-4046,Charging Dock A7,Batteries,1565.88,4.37,Reno
+HX-8062,Stepper Drive E2,Actuators,1999.36,2.65,Boise
+HX-3638,EtherCAT Cable B3,Cables,691.16,3.82,Denver
+HX-6284,Backup Cell F7,Batteries,269.33,0.64,Reno
+HX-6957,Vacuum Gripper D9,Grippers,2457.87,2.55,Reno
+HX-2421,EtherCAT Cable B3,Cables,2378.47,3.79,Boise
+HX-3493,Motion Controller B4,Controllers,2218.71,0.86,Boise
+HX-6120,Sensor Harness D2,Cables,69.21,1.07,Boise
+HX-6473,I/O Expansion Board A8,Controllers,2128.13,1.13,Reno
+HX-1989,Encoder Cable D8,Cables,774.23,1.63,Reno
+HX-7486,Backup Cell F3,Batteries,1769.42,3.39,Denver
+HX-4466,Torque Sensor E7,Sensors,2487.90,3.92,Boise
+HX-8657,Charging Dock F9,Batteries,2237.84,5.08,Boise
+HX-5813,Gripper Finger Set E8,Grippers,2114.03,1.24,Boise
+HX-1746,Backup Cell C6,Batteries,2214.30,2.25,Boise
+HX-7583,EtherCAT Cable B2,Cables,776.68,6.00,Denver
+HX-6814,Depth Camera A9,Sensors,1022.94,1.39,Reno
+HX-1702,Encoder Cable D2,Cables,209.68,0.97,Denver
+HX-1376,Vacuum Gripper E6,Grippers,940.23,0.92,Denver
+HX-7621,EtherCAT Cable F2,Cables,559.52,1.38,Boise
+HX-1240,Vacuum Gripper H9,Grippers,896.80,3.52,Reno
+HX-7237,Backup Cell H3,Batteries,1445.68,1.65,Boise
+HX-2289,Servo Actuator C2,Actuators,1489.61,4.07,Reno
+HX-8868,I/O Expansion Board F3,Controllers,2094.95,1.59,Denver
+HX-8987,Power Cable H8,Cables,1279.40,0.38,Denver
+HX-7987,Gripper Finger Set E1,Grippers,235.28,2.57,Boise
+HX-1220,Motion Controller B7,Controllers,343.57,2.80,Reno
+HX-6005,Linear Actuator B7,Actuators,936.13,5.92,Denver
+HX-2717,I/O Expansion Board B7,Controllers,1684.08,0.88,Boise
+HX-8679,Battery Pack A7,Batteries,1539.23,5.62,Reno
+HX-3041,Battery Pack G6,Batteries,1201.81,4.70,Boise
+HX-2462,Encoder Cable A2,Cables,1493.45,2.11,Boise
+HX-5532,Depth Camera E4,Sensors,1795.44,1.26,Denver
+HX-2982,Parallel Gripper G7,Grippers,189.54,5.94,Boise
+HX-7216,IMU Board F5,Sensors,392.92,5.75,Boise
+HX-5120,Gripper Pad Set (10 pack),Grippers,38.50,0.15,Boise
+HX-4868,IMU Board C7,Sensors,480.57,3.62,Denver
+HX-6529,Battery Pack E1,Batteries,455.14,4.23,Boise
+HX-3682,Encoder Cable D3,Cables,1248.17,3.11,Boise
+HX-8617,Charging Dock C9,Batteries,404.54,3.38,Boise
+HX-7585,IMU Board B9,Sensors,565.90,0.94,Boise
+HX-5986,Backup Cell A7,Batteries,2224.49,2.02,Reno
+HX-2008,Vacuum Gripper G5,Grippers,1929.27,3.76,Denver
+HX-8813,Battery Management Board C9,Batteries,2282.01,5.23,Boise
+HX-7371,Depth Camera B1,Sensors,2322.57,3.48,Boise
+HX-1813,Battery Management Board F1,Batteries,998.36,1.18,Reno
+HX-4439,Backup Cell B2,Batteries,2092.54,3.02,Denver
+HX-6074,Stepper Drive A8,Actuators,345.65,4.90,Denver
+HX-5177,Depth Camera F3,Sensors,594.49,0.92,Reno
+HX-6124,Depth Camera B3,Sensors,603.46,3.33,Reno
+HX-4924,Torque Sensor E9,Sensors,1741.95,0.87,Denver
+HX-1072,Safety Relay C1,Controllers,563.31,3.67,Boise
+HX-6462,Harmonic Drive E9,Actuators,399.15,2.68,Boise
+HX-7004,Servo Actuator F7,Actuators,683.59,0.43,Denver
+HX-8046,Sensor Harness E1,Cables,1526.03,4.45,Reno
+HX-6256,Backup Cell H3,Batteries,1833.27,2.15,Reno
+HX-3033,Harmonic Drive D9,Actuators,954.04,5.46,Boise
+HX-2122,Battery Management Board H9,Batteries,1145.19,3.66,Denver
+HX-7721,Torque Sensor A4,Sensors,999.17,1.71,Reno
+HX-2871,Battery Pack A1,Batteries,615.16,2.86,Boise
+HX-5259,EtherCAT Cable F7,Cables,179.58,4.00,Boise
+HX-6932,Backup Cell F2,Batteries,1977.75,0.13,Denver
+HX-6711,Parallel Gripper D7,Grippers,1664.00,2.31,Denver
+HX-1137,Encoder Cable E1,Cables,1258.03,4.20,Boise
+HX-3370,Encoder Cable B3,Cables,2407.12,4.72,Reno
+HX-6958,Linear Actuator D9,Actuators,816.00,3.99,Denver
+HX-4133,Harmonic Drive D4,Actuators,2042.38,2.79,Boise
+HX-7738,Charging Dock E6,Batteries,2277.46,5.49,Reno
+HX-6072,EtherCAT Cable E8,Cables,1032.92,3.33,Reno
+HX-1849,Encoder Cable C1,Cables,883.99,2.06,Denver
+HX-7370,Sensor Harness D5,Cables,1102.48,4.30,Reno
+HX-2499,Parallel Gripper G7,Grippers,1493.08,3.47,Boise
+HX-5667,IMU Board F5,Sensors,1909.58,2.96,Denver
+HX-3067,Soft Gripper G2,Grippers,935.76,2.47,Denver
+HX-8975,Harmonic Drive E4,Actuators,1519.63,2.15,Denver
+HX-3379,Stepper Drive B6,Actuators,2310.40,3.95,Denver
+HX-3573,IMU Board F5,Sensors,1838.51,3.82,Denver
+HX-8977,EtherCAT Cable D3,Cables,2440.63,4.87,Boise
+HX-8980,EtherCAT Cable E6,Cables,1510.01,4.19,Boise
+HX-2434,Backup Cell H3,Batteries,2029.69,0.43,Boise
+HX-3691,Proximity Sensor E3,Sensors,2468.88,3.26,Reno
+HX-7067,Power Cable G1,Cables,79.34,1.35,Denver
+HX-8270,Sensor Harness E1,Cables,2310.78,4.12,Boise
+HX-3459,Servo Actuator A6,Actuators,1621.68,4.08,Reno
+HX-7625,Servo Actuator C6,Actuators,818.33,2.77,Boise
+HX-6758,Motion Controller D5,Controllers,1970.63,3.77,Denver
+HX-3279,I/O Expansion Board B8,Controllers,53.36,3.26,Boise
+HX-2521,Safety Relay C8,Controllers,725.64,1.16,Boise
+HX-4715,Servo Actuator C8,Actuators,1041.98,2.81,Boise
+HX-8269,Motion Controller B4,Controllers,1579.75,5.53,Reno
+HX-2308,I/O Expansion Board B5,Controllers,922.02,1.36,Reno
+HX-7502,Charging Dock B5,Batteries,1291.05,3.82,Boise
