@@ -49,15 +49,37 @@ def test_docx_headings_and_tables():
     assert "Name | Value" in text
 
 
-def test_empty_pdf_raises():
+def test_pdf_pages_without_text_are_flagged_for_ocr():
     import pymupdf
 
+    pix = pymupdf.Pixmap(pymupdf.csRGB, pymupdf.IRect(0, 0, 40, 40), 0)
+    pix.clear_with(200)
+
     doc = pymupdf.open()
-    doc.new_page()  # blank page, no text
+    doc.new_page().insert_text((72, 72), "A real text page with enough characters.")
+    doc.new_page().insert_image(pymupdf.Rect(50, 50, 500, 700), stream=pix.tobytes("png"))  # "scan"
+    doc.new_page()  # truly blank: skipped, no OCR call
+    parsed = parse_document("mixed.pdf", doc.tobytes())
+    assert [s.page for s in parsed.sections] == [1]
+    assert parsed.ocr_pages == [2]
+
+
+def test_images_go_to_ocr():
+    parsed = parse_document("receipt.png", b"\x89PNG...")
+    assert parsed.sections == [] and parsed.ocr_pages == [1]
+
+
+def test_csv_header_is_kept_separately():
+    section = parse_document("t.csv", b"sku,price\nA-1,10\nB-2,20\n").sections[0]
+    assert section.header == "sku,price"
+    assert section.text == "A-1,10\nB-2,20"
+
+
+def test_empty_text_file_raises():
     with pytest.raises(ParseError, match="No extractable text"):
-        parse_document("scan.pdf", doc.tobytes())
+        parse_document("empty.txt", b"   \n")
 
 
 def test_unsupported_extension():
     with pytest.raises(ParseError):
-        parse_document("image.png", b"\x89PNG")
+        parse_document("archive.zip", b"PK\x03\x04")

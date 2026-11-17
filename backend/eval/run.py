@@ -37,7 +37,7 @@ from app.embeddings import embed_query
 from app.llm import stream_chat
 from app.models import Chunk, Document, DocumentStatus, User
 from app.parsing import parse_document
-from app.rag import build_messages, retrieve
+from app.rag import build_messages, search
 from app.storage import storage
 from eval import metrics
 from eval.build_corpus import CORPUS_DIR
@@ -99,6 +99,7 @@ def ingest_config(corpus: dict[str, str]) -> dict:
     return {
         "chunk_size": settings.chunk_size,
         "chunk_overlap": settings.chunk_overlap,
+        "csv_header_in_chunks": settings.csv_header_in_chunks,
         "embedding_provider": settings.embedding_provider,
         "embedding_model": settings.embedding_model,
         "embedding_dim": settings.embedding_dim,
@@ -177,15 +178,24 @@ async def run_question(q: dict, user_id: uuid.UUID, args, judge: Judge | None, l
     rec: dict = {k: q[k] for k in ("id", "category", "question", "reference", "evidence")}
 
     # --- Retrieval
+    if args.reranker == "llm":
+        await limiter.wait()  # the LLM reranker is an API call too
     t0 = time.perf_counter()
+    search_meta: dict = {}
     async with SessionLocal() as s:
-        qvec = await embed_query(s, q["question"])
-        chunks = await retrieve(s, user_id, qvec, max(RETRIEVE_N, args.top_k))
+        qvec = await embed_query(s, q["question"]) if args.retrieval_mode != "keyword" else None
+        chunks = await search(
+            s, user_id, q["question"], qvec, max(RETRIEVE_N, args.top_k),
+            mode=args.retrieval_mode, reranker=args.reranker, meta=search_meta,
+        )
         await s.commit()
     retrieval_ms = (time.perf_counter() - t0) * 1000
     context = chunks[: args.top_k]
 
     rec["retrieval_ms"] = round(retrieval_ms, 1)
+    if "rerank_usage" in search_meta:
+        ru = search_meta["rerank_usage"]
+        rec["rerank_usage"] = {**ru, "cost_usd": cost_usd(ru["model"], ru["prompt_tokens"], ru["completion_tokens"])}
     rec["retrieved"] = [
         {"filename": c.filename, "page": c.page, "chunk_index": c.chunk_index, "score": round(c.score, 4)}
         for c in chunks
@@ -320,9 +330,14 @@ def summarize(records: list[dict]) -> dict:
         g["total_ms_p95"] = _r(metrics.percentile(total, 95), 0)
         g["prompt_tokens_mean"] = _r(metrics.mean([r["generation"]["usage"]["prompt_tokens"] for r in gens]), 0)
         g["completion_tokens_mean"] = _r(metrics.mean([r["generation"]["usage"]["completion_tokens"] for r in gens]), 0)
+        # Total cost per query = generation + LLM reranking (if used).
         costs = [r["generation"]["cost_usd"] for r in gens]
-        if all(c is not None for c in costs):
-            g["cost_per_1k_queries_usd"] = _r(metrics.mean(costs) * 1000, 4)
+        rerank_costs = [r.get("rerank_usage", {}).get("cost_usd", 0.0) for r in gens]
+        if all(c is not None for c in costs + rerank_costs):
+            g["cost_per_1k_queries_usd"] = _r(metrics.mean([a + b for a, b in zip(costs, rerank_costs)]) * 1000, 4)
+        reranks = [r["rerank_usage"] for r in gens if "rerank_usage" in r]
+        if reranks:
+            g["rerank_prompt_tokens_mean"] = _r(metrics.mean([x["prompt_tokens"] for x in reranks]), 0)
         g["models_used"] = sorted({r["generation"]["model"] for r in gens})
 
     for cat in sorted({r["category"] for r in records}):
@@ -376,6 +391,9 @@ async def main(args) -> None:
         settings.chunk_size = args.chunk_size
     if args.chunk_overlap is not None:
         settings.chunk_overlap = args.chunk_overlap
+    if args.csv_header is not None:
+        settings.csv_header_in_chunks = args.csv_header == "on"
+    settings.rerank_candidates = args.rerank_candidates
 
     questions = load_dataset()
     corpus = parsed_corpus()
@@ -429,6 +447,9 @@ async def main(args) -> None:
     run_config = {
         **config,
         "top_k": args.top_k,
+        "retrieval_mode": args.retrieval_mode,
+        "reranker": args.reranker,
+        "rerank_candidates": args.rerank_candidates if args.reranker != "none" else None,
         "model": None if args.retrieval_only else args.model,
         "judge_model": judge.model if judge else None,
         "retrieval_only": args.retrieval_only,
@@ -471,6 +492,11 @@ def parse_args():
     p.add_argument("--top-k", type=int, default=settings.retrieval_top_k, help="chunks given to the LLM")
     p.add_argument("--chunk-size", type=int, help="override CHUNK_SIZE (triggers re-ingestion)")
     p.add_argument("--chunk-overlap", type=int, help="override CHUNK_OVERLAP (triggers re-ingestion)")
+    p.add_argument("--retrieval-mode", choices=["vector", "keyword", "hybrid"], default=settings.retrieval_mode)
+    p.add_argument("--reranker", choices=["none", "cross_encoder", "llm"], default=settings.reranker)
+    p.add_argument("--rerank-candidates", type=int, default=settings.rerank_candidates,
+                   help="first-stage results the reranker reorders")
+    p.add_argument("--csv-header", choices=["on", "off"], help="repeat CSV header in every chunk (re-ingests)")
     p.add_argument("--model", default=settings.llm_model, help="answer model (no fallbacks during eval)")
     p.add_argument("--judge-model", help="judge model (default: JUDGE_MODEL env or the answer model)")
     p.add_argument("--ids", help="comma-separated question ids, e.g. q01,q22")

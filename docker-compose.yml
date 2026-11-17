@@ -33,9 +33,11 @@ services:
       DATABASE_URL: postgresql+asyncpg://rag:rag@postgres:5432/rag
       REDIS_URL: redis://redis:6379
       STORAGE_DIR: /data/uploads
+      MODEL_CACHE_DIR: /data/models
     volumes:
       - ./backend:/app
       - uploads:/data/uploads
+      - models:/data/models
     ports:
       - "8000:8000"
     depends_on:
@@ -59,6 +61,7 @@ services:
     volumes:
       - ./backend:/app
       - uploads:/data/uploads
+      - models:/data/models
     depends_on:
       api:
         condition: service_healthy
@@ -79,5 +82,6 @@ services:
 
 volumes:
   pgdata:
+  models:
   uploads:
   frontend_node_modules:

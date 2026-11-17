@@ -56,3 +56,12 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         await conn.execute(text(f"SELECT pg_advisory_xact_lock({_INIT_LOCK_ID})"))
         await conn.run_sync(Base.metadata.create_all)
+        # create_all only creates missing *tables*. Columns added after the
+        # first run need explicit migration (a sign it's time for Alembic).
+        await conn.execute(text(
+            "ALTER TABLE chunks ADD COLUMN IF NOT EXISTS content_tsv tsvector "
+            f"GENERATED ALWAYS AS ({models.TSV_EXPRESSION}) STORED"
+        ))
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_chunks_content_tsv ON chunks USING gin (content_tsv)"
+        ))

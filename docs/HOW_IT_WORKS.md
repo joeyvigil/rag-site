@@ -8,7 +8,7 @@ It is updated at the end of every phase, so it always describes the code as it i
 > reading it. Then open the linked code and trace it. The "Interview angle" boxes are
 > the questions you should be able to answer without notes.
 
-**Current state:** Phase 2 (evaluation harness + baseline numbers). See [Phase log](#11-phase-log).
+**Current state:** Phase 3 (hybrid search, reranking, CSV-aware chunking, OCR, all measured). See [Phase log](#11-phase-log).
 
 ---
 
@@ -21,7 +21,8 @@ It is updated at the end of every phase, so it always describes the code as it i
 5. [Component deep dives](#5-component-deep-dives)
    - 5.1 Parsing · 5.2 Chunking · 5.3 Embeddings · 5.4 Vector search & HNSW ·
      5.5 Prompting · 5.6 Generation & streaming · 5.7 Auth & multi-tenancy ·
-     5.8 Async architecture & the job queue · 5.9 Data model
+     5.8 Async architecture & the job queue · 5.9 Data model ·
+     5.10 Hybrid search & RRF · 5.11 Reranking · 5.12 OCR
 6. [Evaluation: measuring a RAG system](#6-evaluation)
 7. [Scaling: what breaks first and how to fix it](#7-scaling-what-breaks-first-and-how-to-fix-it)
 8. [Known limitations (and which phase fixes them)](#8-known-limitations-and-which-phase-fixes-them)
@@ -135,7 +136,7 @@ Browser                API                             Redis      Worker        
 |---|---|
 | 1–6 | `upload_documents`: `backend/app/routers/documents.py:21` |
 | 7–12 | `ingest_document`: `backend/app/worker.py:29` |
-| 8 | `parse_document`: `backend/app/parsing.py:31` |
+| 8 | `parse_document`: `backend/app/parsing.py:42` (+ `ocr_document`: `backend/app/ocr.py:35` for scans) |
 | 9 | `chunk_sections`: `backend/app/chunking.py:30` |
 | 10 | `embed_documents`: `backend/app/embeddings.py:58` |
 
@@ -168,8 +169,10 @@ Browser                       API                                   Gemini      
   ├────────────────────────────►│ 1. auth: JWT → user                  │                │
   │                             │ 2. embed question (RETRIEVAL_QUERY) ─►│                │
   │                             │    (cache hit? skip the call)        │                │
-  │                             │ 3. vector search: top 6 chunks ───────────────────────►│
-  │                             │    WHERE user_id = me                │                │
+  │                             │ 3. hybrid search ─────────────────────────────────────►│
+  │                             │    vector top 30 + keyword top 30,   │                │
+  │                             │    merged with RRF → top 6           │                │
+  │                             │    (all WHERE user_id = me)          │                │
   │                             │ 4. build prompt: system rules +      │                │
   │                             │    numbered <excerpt>s + question    │                │
   │◄── event: sources ──────────┤ 5. send sources immediately          │                │
@@ -182,8 +185,8 @@ Browser                       API                                   Gemini      
 |---|---|
 | 1 | `get_current_user`: `backend/app/security.py:46` |
 | 2 | `embed_query`: `backend/app/embeddings.py:62` |
-| 3 | `retrieve`: `backend/app/rag.py:31` |
-| 4 | `build_messages`: `backend/app/rag.py:93` |
+| 3 | `search`: `backend/app/rag.py:41` (vector, keyword, RRF, optional rerank) |
+| 4 | `build_messages`: `backend/app/rag.py:215` |
 | 5–7 | `chat`: `backend/app/routers/chat.py:29` |
 | 6 | `stream_chat`: `backend/app/llm.py:43` |
 
@@ -227,8 +230,10 @@ Common real-world failures: scanned PDFs (no text layer → need OCR), multi-col
 layouts (text order scrambled), tables flattened into nonsense, headers/footers
 repeated on every page.
 
-**Scanned PDFs** currently fail with *"No extractable text found (scanned PDF? OCR
-isn't supported yet)"*. OCR is planned for Phase 3.
+**Scanned PDFs and images** (Phase 3): a PDF page with almost no text layer *and* an
+image on it is flagged in `ocr_pages`; image files (`.png`, `.jpg`, `.webp`) always are.
+Parsing is synchronous and CPU-bound, while OCR is a network call, so the parser only
+*reports* which pages need OCR and the worker runs it. See [5.12](#512-ocr-backendappocrpy).
 
 **Why not Docling/Unstructured?** They're much better at layouts and tables, but heavy
 (ML models, slow on a laptop). The lightweight parsers were a deliberate Phase 1
@@ -267,6 +272,26 @@ with one line produces a tiny chunk.
 
 The best of both is **parent-child retrieval** (Phase 3): *search* on small chunks,
 but *send* the LLM the larger section around each hit.
+
+**Tables: repeat the header (Phase 3).** A CSV used to be chunked like prose, so only
+the first chunk had the column names (`sku,name,category,price_usd,…`) and every other
+chunk was 20 bare rows of numbers. Those header-less chunks became embedding **"hubs"**:
+vague vectors close to many unrelated questions, so they crowded out real answers. Now
+`_parse_csv` keeps the header separately and the chunker prepends it to *every* chunk.
+Measured effect (vector search): hit@1 0.67 → 0.75, MRR 0.80 → 0.86, and the
+restocking-fee question went from not retrieved to rank 1, all from a few lines of code.
+
+**Chunk-size sweep (Phase 3, hybrid search):**
+
+| Chunk size | Chunks | hit@6 | recall@6 | hit@1 | MRR |
+|---|---|---|---|---|---|
+| 600 | 157 | 0.944 | 0.944 | **0.611** | **0.755** |
+| **1200** (default) | 79 | **1.000** | **0.986** | 0.472 | 0.659 |
+| 2000 | 50 | 0.944 | 0.931 | 0.556 | 0.708 |
+
+Smaller chunks rank the best match first more often (each is focused on one thing) but
+split multi-part facts apart (q33 lost its evidence). For answer quality, *getting the
+evidence into the top k* matters more than rank 1, so 1200 stays.
 
 Token estimate: `len(text) // 4` (rough rule for English). A real tokenizer would be
 exact, but the estimate is fine for sizing.
@@ -314,7 +339,7 @@ needed, deterministic, perfect for tests and load testing.
 > different spaces. At scale you'd build the new index alongside the old one, backfill,
 > then switch reads over (a blue/green re-index).
 
-### 5.4 Vector search & HNSW: `backend/app/rag.py:31`, `backend/app/models.py:55`
+### 5.4 Vector search & HNSW: `backend/app/rag.py:82`, `backend/app/models.py`
 
 **Exact search** would compare the question vector to *every* chunk vector: O(n).
 Fine for 10k chunks, too slow for 10M.
@@ -362,7 +387,7 @@ requests sharing the same pooled connection.
 database. Tenant filtering is a `WHERE` clause, deleting a document cascades to its
 vectors in the same transaction, and there's one fewer system to operate.
 
-### 5.5 Prompting: `backend/app/rag.py:93`
+### 5.5 Prompting: `backend/app/rag.py:215`
 
 The prompt has three parts:
 
@@ -513,7 +538,7 @@ embedding_cache (key = sha256, embedding)   ← independent, shared across users
 |---|---|
 | `users` | `id` (UUID), `email` (unique), `password_hash` |
 | `documents` | `user_id`, `filename`, `sha256` (dedupe), `storage_key`, `status`, `error`, `num_chunks`, `num_pages` |
-| `chunks` | `document_id`, `user_id`, `chunk_index`, `page`, `content`, `token_count`, `embedding vector(768)` + **HNSW index** |
+| `chunks` | `document_id`, `user_id`, `chunk_index`, `page`, `content`, `token_count`, `embedding vector(768)` + **HNSW index**, `content_tsv` (generated) + **GIN index** |
 | `embedding_cache` | `key` (sha256), `embedding` |
 
 - **UUIDs** for public IDs: not guessable or enumerable, unlike `1, 2, 3…`.
@@ -524,6 +549,120 @@ embedding_cache (key = sha256, embedding)   ← independent, shared across users
 - Tables are created with `create_all` at startup, guarded by a Postgres **advisory
   lock** so several processes starting at once don't race. Before the schema starts
   evolving, switch to **Alembic migrations**.
+
+### 5.10 Hybrid search & RRF: `backend/app/rag.py:41`
+
+**Why:** vector search matches *meaning*, so it's weak at *exact strings*: SKU `HX-4471`,
+error code `ERR_VPN_0x2F`, ticket `T-20931`. To an embedding model, `HX-4471` and
+`HX-4417` look nearly identical. Keyword search is the opposite: exact terms work, but
+paraphrases ("days off" vs "paid time off") don't. Hybrid search runs both and merges them.
+
+**Keyword half: Postgres full-text search** (`keyword_search`, line 159).
+- `chunks.content_tsv` is a **generated column**: `to_tsvector('english', content)`.
+  Postgres lowercases, drops stopwords and stems words ("budgets" → "budget"), and
+  recomputes it automatically on every insert, so it can never drift out of sync.
+- A **GIN index** (an inverted index: word → rows containing it) makes lookups fast.
+- `plainto_tsquery` would AND every word, requiring *all* question words to appear in a
+  chunk. We rewrite the ANDs as ORs so *any* word matches, and rank by `ts_rank_cd`
+  (term frequency and proximity).
+- **Caveat: `ts_rank_cd` is not BM25.** It has no IDF, so a rare word like `hx-4471`
+  isn't weighted above a common one like `price`. True BM25 in Postgres needs an
+  extension (e.g. ParadeDB `pg_search`). Even so, keyword-only search ranked the SKU
+  question at rank 1, where vector search missed it entirely.
+
+**Merging: Reciprocal Rank Fusion** (`rrf_fuse`, line 187). Each retriever returns its
+top 30, and each chunk scores `Σ 1 / (60 + rank)` across the lists.
+- **Uses ranks, not scores.** Cosine similarity (0–1) and ts_rank (unbounded) aren't on
+  comparable scales, and normalizing them is fragile. Ranks always are comparable.
+- **Rewards agreement.** A chunk ranked 3rd by both retrievers beats one ranked 1st by
+  only one of them.
+- **k = 60** (from the original paper) flattens the curve so a single #1 doesn't dominate.
+
+**Measured (retrieval only):**
+
+| | hit@6 | recall@6 | hit@1 | MRR |
+|---|---|---|---|---|
+| Vector only | 0.972 | 0.944 | 0.750 | 0.861 |
+| Keyword only | 0.611 | 0.597 | 0.556 | 0.606 |
+| **Hybrid (RRF)** | **1.000** | **0.986** | 0.472 | 0.659 |
+
+Hybrid gets the evidence into the top 6 for *every* question, the best recall of any
+first-stage method. But **rank 1 got worse**: keyword search adds noisy matches (any
+chunk sharing the word "budget"), and RRF gives them enough weight to push good vector
+hits down. **Hybrid trades precision for recall.** That's why it's usually paired with a
+reranker, and why we had to check whether that precision loss actually hurt answers
+(it didn't; see 6.8).
+
+### 5.11 Reranking: `backend/app/reranking.py`
+
+**Bi-encoder vs cross-encoder (classic interview question):**
+
+| | Bi-encoder (embeddings) | Cross-encoder (reranker) |
+|---|---|---|
+| Input | Question and chunk encoded **separately** | Question and chunk read **together** |
+| Precompute? | Yes: chunk vectors computed once at ingest | No: must run for every (question, chunk) pair |
+| Speed | Searches millions in ms | ~20–50 pairs per query is practical |
+| Accuracy | Good | Better: sees how words in the question relate to words in the chunk |
+
+Hence **two-stage retrieval**: a fast first stage narrows millions of chunks to ~20 candidates;
+a slow, accurate second stage reorders them.
+
+**We implemented two rerankers** (`RERANKER=cross_encoder|llm`):
+
+1. **Cross-encoder:** `ms-marco-MiniLM-L-6-v2` (22M parameters), run locally on CPU with
+   ONNX Runtime (via `fastembed`, no PyTorch needed). Free, private, unlimited.
+2. **LLM listwise reranker:** send the question and 20 numbered passages to the chat
+   model, which returns a JSON ranking.
+
+**Measured (retrieval only, 20 candidates):**
+
+| | hit@6 | hit@1 | MRR | Added latency (p50) |
+|---|---|---|---|---|
+| Vector + cross-encoder | 1.000 | 0.806 | 0.885 | **~3 s** on this laptop's CPU |
+| Vector + cross-encoder (10 candidates) | 0.972 | 0.833 | 0.898 | ~1.3 s |
+| Hybrid + cross-encoder | 0.944 ↓ | 0.806 | 0.882 | ~3 s |
+| **Hybrid + LLM** | **1.000** | **0.889** | **0.929** | ~1.2 s (+ an API call) |
+
+**Lessons:**
+- **The cross-encoder fails on ID lookups.** It was trained on MS MARCO (web search
+  questions), so it has never learned that a CSV row containing `HX-4471` answers
+  "price of HX-4471". With hybrid, it *demoted* the exact matches keyword search had
+  found. **A reranker can undo what the first stage got right.** Always check by category.
+- **The LLM reranker ranked every exact-ID question first.** It can *reason* about the
+  match. But it costs a full API call per question (~6,100 extra input tokens).
+- **CPU inference is slow.** 20 passages × ~300 tokens through a transformer is ~3 s on 4
+  laptop cores (it was 0.3 s in a quick test with 10-token passages, so input length
+  matters a lot). On a GPU this is ~20 ms. Fewer candidates halves it but loses recall.
+- **Default: off.** End-to-end, the reranker improved correctness by one question
+  (noise) for 3.5× the cost (see 6.8). It would earn its cost with a much larger corpus,
+  or if we cut `k` to 2–3 chunks to save prompt tokens.
+
+### 5.12 OCR: `backend/app/ocr.py`
+
+Pages without a text layer go through `ocr_document`: PDF pages are rendered to PNG at
+150 dpi (PyMuPDF), then transcribed by one of:
+
+- **Gemini vision** (`OCR_PROVIDER=gemini`, default): the image goes to the multimodal
+  model with "transcribe exactly; tables as `a | b | c`; no commentary". If the call
+  fails (rate limit, overload), it **falls back to Tesseract**: a slightly worse
+  transcript beats a failed document.
+- **Tesseract** (`OCR_PROVIDER=tesseract`): the classic open-source OCR engine, local.
+
+**Measured** (`python -m eval.ocr_eval`: the 4-page handbook turned into image-only
+"scans"; *degraded* = 90 dpi, blurred, JPEG quality 30):
+
+| | Clean: CER | Clean: evidence | Degraded: CER / WER | Degraded: evidence | Speed |
+|---|---|---|---|---|---|
+| Tesseract | 0.000 | 13/13 | 0.004 / 0.022 | **12/13** | **~1.3 s/page** |
+| Gemini | 0.000 | 13/13 | 0.000 / 0.000 | **13/13** | ~10–13 s/page (free tier) |
+
+- **CER/WER** = edit distance between OCR output and the truth, per character/word.
+- **Evidence survival** is the RAG-relevant metric: one wrong character inside
+  "Contractors are not eligible for PTO" means keyword search can't match that fact, even
+  though a 0.4% CER sounds excellent.
+- **Caveat:** these are clean typeset pages. Real scans (skew, handwriting, tables,
+  stamps) separate the two much more, usually in the vision model's favor. Privacy is
+  the other axis: Gemini sees your page images; Tesseract never leaves the machine.
 
 ---
 
@@ -705,6 +844,33 @@ be "correct". Even with the better prompt, the judge repeated the mistake on q25
 and the code override caught both. True correctness: **91.7%**. The flawed run is kept in
 `eval/results/invalid/` for reference.
 
+### 6.8 Phase 3 results: what actually improved answers
+
+Every change was measured alone (an **ablation**), with the CSV fix applied first:
+
+| Run | Retrieval | hit@6 | hit@1 | MRR | **Correctness** | p50 | **$/1k q** |
+|---|---|---|---|---|---|---|---|
+| Phase 2 baseline | vector | 0.944 | 0.667 | 0.796 | 0.917 | 1.1 s | $0.67 |
+| + CSV header | vector | 0.972 | 0.750 | 0.861 | – | – | – |
+| **+ hybrid (default)** | hybrid | **1.000** | 0.472 | 0.659 | **0.976** (CI 0.94–1.00) | 1.35 s | **$0.74** |
+| + LLM reranker | hybrid+llm | 1.000 | 0.833 | 0.888 | 0.988 (CI 0.96–1.00) | 3.8 s | $2.60 |
+
+1. **Hybrid search fixed answers:** 0.917 → 0.976, zero false refusals, every exact-ID
+   question correct, for +10% cost (slightly larger prompts).
+2. **Better ranking ≠ better answers.** The reranker nearly doubled hit@1, yet correctness
+   moved by one question, inside the confidence interval. The LLM reads all 6 chunks
+   and finds the answer wherever it sits, so **hit@k is what drives answer quality here,
+   not rank 1**. Don't optimize a proxy metric past the point where it stops moving the
+   real one.
+3. **Cost and latency decide the tie:** the reranker is 3.5× the cost and ~3× the latency.
+   **Default = hybrid, no reranker.**
+4. **Remaining "partials" are judge strictness**, not errors: q17 gave the testing budget
+   but not the "spent so far" figure the reference included. The judge also flip-flopped
+   on q04 between runs at temperature 0. LLM judges are noisy at the margin, which is
+   another reason to read the per-question results.
+5. **We're near the ceiling of this benchmark.** To keep measuring progress, Phase 4
+   needs harder questions (follow-ups, cross-document synthesis) or a bigger corpus.
+
 ---
 
 ## 7. Scaling: what breaks first and how to fix it
@@ -735,18 +901,19 @@ Think about each tier separately. Roughly in the order they'd hurt:
 
 | Limitation | Why it matters | Fix (phase) |
 |---|---|---|
-| Pure vector search | Misses exact terms: IDs, names, error codes | Hybrid search: BM25 + vector, fused with RRF (3) |
-| No reranking | Top-k by embedding similarity is noisy | Cross-encoder reranker (3) |
+| Keyword search uses `ts_rank_cd`, not BM25 | No IDF: rare terms (IDs) aren't weighted above common words | ParadeDB `pg_search` or a dedicated BM25 index |
+| Reranker off by default | Rank 1 is often wrong (hit@1 0.47 with hybrid) | Turn on (`RERANKER=llm`) if `k` is reduced or the corpus grows |
+| Cross-encoder is slow on CPU (~3 s/query) | Unusable for interactive chat on this laptop | GPU inference, a smaller model, or fewer candidates |
 | Retrieval uses only the latest message | "What about its budget?" retrieves poorly | Query rewriting with history (4) |
-| Chunks lack document context | "It increased 5%": what's "it"? | Contextual retrieval / parent-child chunks (3–4) |
-| No OCR | Scanned PDFs fail | Gemini vision OCR, Tesseract baseline (3) |
-| CSV rows chunked without their header | Chunks are "hubs" in embedding space; column names are lost | Row-aware chunking that repeats the header (3) |
+| Chunks lack document context | "It increased 5%": what's "it"? | Contextual retrieval / parent-child chunks (4) |
+| OCR tested only on synthetic scans | Real-world accuracy unknown (tables, handwriting) | Add real scanned documents to the eval |
+| CSVs with quoted multi-line fields | Header/row split assumes one row per line | Parse with the `csv` module |
 | Judge = same model as answerer | Self-preference bias in correctness scores | Use a different-provider judge when available |
-| Small golden set (42 questions) | 95% CIs are ±8–10 points | Grow the set; use synthetic question generation plus human review |
+| Small, now-saturated golden set (42 questions) | CIs are ±4–8 points and correctness is ~98%, so it can't show further gains | Harder questions (follow-ups, synthesis), bigger corpus (4) |
 | Commit → enqueue gap | API crash can strand a doc in `pending` | Transactional outbox / sweeper job |
 | `create_all` instead of migrations | Schema changes need manual work | Alembic |
 | JWT in localStorage, no revocation | XSS exposure; can't force logout | httpOnly cookie + refresh tokens |
-| Chunks can't span pages | Tiny chunks for sparse pages | Structure-aware chunking (3) |
+| Chunks can't span pages | Tiny chunks for sparse pages | Structure-aware chunking (4) |
 
 ---
 
@@ -844,11 +1011,44 @@ and grow the dataset before claiming a win.
 Averages hide the tail. Our median was 1.1 s but p95 was 23 s, so 1 in 20 users waits
 20× longer. Users remember the slow ones.
 
+**Q: What is hybrid search and why use it?**
+Run lexical (keyword/BM25) and semantic (vector) retrieval and merge the results. Vectors
+handle paraphrase; keywords handle exact identifiers, names and codes that embeddings
+blur together. We merged with Reciprocal Rank Fusion because it uses ranks, so the two
+incomparable score scales don't matter. Measured: correctness 0.917 → 0.976, and every
+exact-ID question was fixed.
+
+**Q: How does Reciprocal Rank Fusion work?**
+score = Σ 1/(k + rank) over each result list, with k = 60. It rewards documents that
+several retrievers agree on and needs no score normalization.
+
+**Q: Bi-encoder vs cross-encoder?**
+A bi-encoder embeds the query and document separately (precomputable, fast, used for
+first-stage search). A cross-encoder reads them together (more accurate, but must run
+per pair at query time, so it's used to rerank the top ~20). See 5.11.
+
+**Q: Your reranker improved MRR a lot. Did you ship it?**
+No. End-to-end correctness changed by one question (noise) while cost rose 3.5× and
+latency 3×. The generator reads all top-k chunks, so recall@k mattered and rank 1
+didn't. I'd turn it on if we reduced k to save tokens, or if the corpus grew so that
+first-stage recall dropped.
+
+**Q: Can a reranker make things worse?**
+Yes. Our MS-MARCO cross-encoder demoted exact SKU and ticket-ID matches that keyword
+search had found, because it was never trained on that kind of lookup. Always break
+results down by question category.
+
+**Q: Gemini vision or Tesseract for OCR?**
+Measure on your documents. Ours: both perfect on clean scans; on degraded scans
+Tesseract broke 1 of 13 key facts while Gemini kept all 13, but Tesseract was ~8× faster,
+free and private. We default to Gemini with automatic fallback to Tesseract. Evaluate
+OCR with "evidence survival", not just character error rate.
+
 **Q: What would you improve next?** (Always have an answer!)
-The baseline shows retrieval is the bottleneck (every wrong answer = evidence not
-retrieved) and the misses are exact IDs, CSV "hub" chunks and semantic distractors. So:
-hybrid search (BM25 + vectors) for exact IDs, a reranker to fix ranking (hit@1 is only
-0.67), and row-aware CSV chunking. Then re-run the evaluation to prove each change helped.
+Phase 3 brought the benchmark near its ceiling (correctness 0.976), so first make the
+benchmark harder: multi-turn follow-ups and cross-document synthesis questions. Then
+add query rewriting for follow-ups, contextual chunk headers, and compare against a
+long-context baseline (no retrieval at all), each measured the same way.
 
 ---
 
@@ -860,6 +1060,9 @@ hybrid search (BM25 + vectors) for exact IDs, a reranker to fix ranking (hit@1 i
 | **BM25** | Classic keyword-relevance ranking (term frequency, rarity, document length) |
 | **Chunk** | A piece of a document small enough to embed and retrieve on its own |
 | **Cosine similarity** | Similarity of two vectors by angle, from −1 to 1 |
+| **Ablation** | Changing one component at a time to measure its individual effect |
+| **Bi-encoder** | Model that embeds query and document separately (what embeddings are) |
+| **CER / WER** | Character / Word Error Rate: edit distance from the true text, per character / word |
 | **Cross-encoder / reranker** | Model that scores (question, passage) *together*: slower but more accurate than comparing separate embeddings |
 | **Embedding** | Vector representation of text where similar meaning means nearby vectors |
 | **Faithfulness** | Whether every claim in an answer is supported by the retrieved context |
@@ -867,15 +1070,19 @@ hybrid search (BM25 + vectors) for exact IDs, a reranker to fix ranking (hit@1 i
 | **Grounding** | Constraining the LLM to answer from provided sources |
 | **Hubness** | In high-dimensional spaces, some vectors ("hubs") end up close to many unrelated queries |
 | **HNSW** | Graph-based ANN index (see 5.4) |
+| **GIN index** | Generalized Inverted Index: Postgres's word → rows index for full-text search |
 | **Hybrid search** | Combining keyword (BM25) and vector search results |
 | **Idempotent** | Running an operation twice has the same effect as running it once |
 | **LLM-as-judge** | Using an LLM with a rubric to grade another LLM's output |
 | **p50 / p95** | The median / the value 95% of requests are faster than (tail latency) |
+| **Listwise reranking** | Asking an LLM to order a whole list of passages at once |
 | **Matryoshka embeddings** | Embeddings whose prefixes are also valid (smaller) embeddings |
+| **OCR** | Optical Character Recognition: turning images of text into text |
 | **MRR** | Mean Reciprocal Rank: how high the first correct result ranks, on average |
 | **Recall@k** | Fraction of questions where a correct chunk appears in the top k |
 | **RRF** | Reciprocal Rank Fusion: merges ranked lists by summing 1/(k + rank) |
 | **SSE** | Server-Sent Events: one-way HTTP streaming from server to browser |
+| **tsvector / tsquery** | Postgres's preprocessed document / query types for full-text search |
 | **TTFT** | Time To First Token: the latency users actually feel |
 | **Top-k** | The number of chunks retrieved per question (6 here) |
 
@@ -933,3 +1140,37 @@ p50 1.1 s; $0.67 per 1k queries (paid-tier equivalent). Full numbers in [6.7](#6
 
 **Next:** Phase 3: hybrid search, reranking, better chunking (CSV headers), OCR, each
 measured against this baseline.
+
+### Phase 3: Better retrieval + OCR ✅
+
+**Built:** CSV header repetition in chunks; Postgres full-text search (generated
+`tsvector` column + GIN index); hybrid retrieval with Reciprocal Rank Fusion; two
+rerankers (local ONNX cross-encoder, LLM listwise); OCR for scanned PDFs and images
+(Gemini vision with automatic Tesseract fallback); an OCR evaluation (CER, WER, evidence
+survival); reranker token/cost tracking; new `--retrieval-mode`, `--reranker`,
+`--csv-header` and `--rerank-candidates` eval flags.
+
+**Result:** correctness **0.917 → 0.976** at +10% cost, by switching to hybrid search
+and repeating CSV headers. New defaults: `RETRIEVAL_MODE=hybrid`, `RERANKER=none`.
+
+**What broke and what we learned:**
+
+1. **Sanity-check refactors.** Before measuring anything new, re-ran the old config
+   through the new code: identical numbers (hit@1 0.667, MRR 0.796), proving the
+   refactor didn't silently change behavior.
+2. **Hybrid lowered rank-1 accuracy** (0.75 → 0.47) while raising recall to 100%. A
+   metric getting worse isn't automatically a regression: check the metric that
+   matters end-to-end.
+3. **The cross-encoder undid keyword search's exact-ID matches.** A model trained on web
+   questions doesn't understand SKU lookups.
+4. **A 0.3 s micro-benchmark became 3 s in reality.** The test used 10-token passages;
+   real chunks are ~300 tokens. Benchmark with realistic inputs.
+5. **A "scanned page" heuristic had a false positive.** The first version flagged any
+   page with < 20 characters for OCR, including real short pages. A unit test caught it,
+   and the fix requires an image on the page too.
+6. **The reranker won on ranking metrics and lost on cost.** The best ranker is not
+   the best system.
+
+**Next:** Phase 4: harder benchmark (follow-ups, synthesis), query rewriting,
+contextual retrieval, agentic RAG, and a long-context baseline.
+

@@ -13,11 +13,16 @@ RESULTS_DIR = Path(__file__).parent / "results"
 COLUMNS = [
     ("run", lambda r: f"{r['timestamp']} {r['label']}"),
     ("model", lambda r: r["config"].get("model") or "(retrieval)"),
-    ("chunk", lambda r: f"{r['config']['chunk_size']}/{r['config']['chunk_overlap']}"),
+    ("chunk", lambda r: f"{r['config']['chunk_size']}/{r['config']['chunk_overlap']}"
+                        + ("+hdr" if r["config"].get("csv_header_in_chunks") else "")),
+    ("retrieval", lambda r: r["config"].get("retrieval_mode", "vector")
+                            + (f"+{r['config']['reranker']}" if r["config"].get("reranker", "none") != "none" else "")),
     ("k", lambda r: r["config"]["top_k"]),
     ("hit@k", lambda r: r["summary"]["retrieval"].get("hit@k")),
     ("recall@k", lambda r: r["summary"]["retrieval"].get("recall@k")),
+    ("hit@1", lambda r: r["summary"]["retrieval"].get("hit@1")),
     ("MRR", lambda r: r["summary"]["retrieval"].get("mrr")),
+    ("ret p50", lambda r: r["summary"]["retrieval"].get("retrieval_ms_p50")),
     ("correct", lambda r: r["summary"]["generation"].get("correctness")),
     ("faithful", lambda r: r["summary"]["generation"].get("faithfulness")),
     ("p50 ms", lambda r: r["summary"]["generation"].get("total_ms_p50")),

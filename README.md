@@ -1,6 +1,6 @@
 # Doc Q&A: a RAG learning project
 
-Upload documents (PDF, DOCX, TXT, MD, CSV, JSON, HTML), then ask questions and get
+Upload documents (PDF incl. scanned, DOCX, TXT, MD, CSV, JSON, HTML, images), then ask questions and get
 streamed answers with citations. Built from scratch, without LangChain/LlamaIndex,
 so every step of the pipeline is visible and explainable.
 
@@ -42,15 +42,15 @@ Tests: `cd backend && uv venv -p 3.12 .venv && uv pip install -r requirements-de
 **Ingestion (async):** `POST /api/documents` validates the files, stores the originals,
 creates `pending` rows and enqueues a job, then returns immediately. The worker then:
 
-1. parses the file into text sections, keeping page numbers (`app/parsing.py`)
-2. splits each section into ~1200-character chunks with 200 characters of overlap, cutting on paragraph, then sentence, then word boundaries (`app/chunking.py`)
+1. parses the file into text sections, keeping page numbers (`app/parsing.py`); scanned pages and images are OCR'd (`app/ocr.py`)
+2. splits each section into ~1200-character chunks with 200 characters of overlap, cutting on paragraph, then sentence, then word boundaries; CSV chunks repeat the header row (`app/chunking.py`)
 3. embeds the chunks in batches. Embeddings are cached by content hash, and rate-limit errors (429) are retried with backoff (`app/embeddings.py`)
 4. writes the chunks and vectors and marks the document `ready` (`app/worker.py`)
 
 **Query (streamed):** `POST /api/chat` does the following (`app/rag.py`, `app/routers/chat.py`):
 
 1. embeds the question (with the `RETRIEVAL_QUERY` task type)
-2. runs an HNSW cosine search over **only this user's** chunks and returns the top k
+2. runs **hybrid search** over **only this user's** chunks: vector (HNSW cosine) + keyword (Postgres full-text), merged with Reciprocal Rank Fusion, with optional reranking (`RERANKER=cross_encoder|llm`)
 3. builds a prompt with the numbered excerpts, plus the rules: answer only from them, cite as `[n]`, and treat the excerpts as data, not instructions
 4. streams the answer back as SSE events (`sources`, then `token`s, then `done`), with timing info
 
@@ -65,7 +65,9 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 | `backend/app/chunking.py` | Recursive chunker |
 | `backend/app/embeddings.py` | Gemini / fake embeddings + cache + retries |
 | `backend/app/llm.py` | OpenAI-compatible streaming chat (Gemini, Groq, …) |
-| `backend/app/rag.py` | Retrieval query + prompt construction |
+| `backend/app/rag.py` | Retrieval pipeline (vector, keyword, RRF) + prompt construction |
+| `backend/app/reranking.py` | Cross-encoder (local ONNX) and LLM rerankers |
+| `backend/app/ocr.py` | OCR: Gemini vision or Tesseract |
 | `backend/app/worker.py` | Ingestion job |
 | `backend/eval/` | Evaluation harness: corpus, golden dataset, metrics, LLM judge, results |
 | `frontend/src/` | React UI (auth, documents, chat) |
@@ -81,12 +83,20 @@ docker compose exec api python -m eval.run --validate-only                # chec
 docker compose exec api python -m eval.run --retrieval-only --label quick # retrieval metrics only (fast)
 docker compose exec api python -m eval.run --label baseline               # + answers + LLM judge (~7 min)
 docker compose exec api python -m eval.run --retrieval-only --chunk-size 600 --label chunk600
+docker compose exec api python -m eval.run --retrieval-only --retrieval-mode vector --reranker cross_encoder --label ce
 docker compose exec api python -m eval.compare                            # table of all runs
+docker compose exec api python -m eval.ocr_eval                           # Gemini vs Tesseract OCR
 ```
 
 Results are saved to `backend/eval/results/` with per-question detail. See
 [docs/HOW_IT_WORKS.md §6](docs/HOW_IT_WORKS.md#6-evaluation) for what each metric means
-and the baseline numbers.
+and the results.
+
+| | Correctness | hit@6 | $/1k queries |
+|---|---|---|---|
+| Phase 2 baseline (vector search) | 0.917 | 0.944 | $0.67 |
+| **Phase 3 default (hybrid + CSV headers)** | **0.976** | **1.000** | $0.74 |
+| Phase 3 + LLM reranker | 0.988 | 1.000 | $2.60 |
 
 ## Design decisions worth explaining in an interview
 
@@ -96,16 +106,18 @@ and the baseline numbers.
 - **Asymmetric embeddings:** documents and queries are embedded with different task types.
 - **Embedding cache:** content-addressed (`sha256(provider|model|dim|task|text)`), so re-uploads and repeated questions cost nothing.
 - **Tenant isolation:** `user_id` is copied onto every chunk and every query filters on it. Other users' documents return 404 rather than 403, so document IDs can't be probed.
+- **Hybrid search + RRF:** embeddings miss exact IDs; keywords miss paraphrases. Rank fusion merges them without comparing incomparable scores.
+- **Measure before shipping:** the reranker doubled rank-1 accuracy but barely moved answer correctness, at 3.5× the cost, so it's off by default.
 - **Prompt injection:** document text is untrusted. Excerpts are wrapped in tags and the system prompt tells the model to ignore instructions inside them.
 - **Provider-agnostic LLM layer:** any OpenAI-compatible endpoint works. That makes the planned model comparison a config change.
 - **Event loop hygiene:** bcrypt and PDF parsing run in threads so they don't block the async server.
 
 ## Known limitations (intentional; later phases fix them)
 
-- Naive retrieval: one vector search on the raw question. No keyword/hybrid search, no reranking.
 - Follow-up questions ("what about the second one?") retrieve poorly, because there is no query rewriting yet.
 - Chunks never cross page boundaries, so very short pages produce tiny chunks.
-- Scanned PDFs (images only) fail, since there's no OCR.
+- Keyword ranking is `ts_rank_cd`, not true BM25 (no IDF).
+- OCR was evaluated on synthetic scans only.
 - Tables are created with `create_all`; switch to Alembic migrations before the schema changes much.
 - Changing `EMBEDDING_DIM` requires wiping the DB (`docker compose down -v`).
 
@@ -113,7 +125,6 @@ and the baseline numbers.
 
 1. ✅ Phase 1: naive RAG MVP
 2. ✅ Phase 2: golden Q&A dataset + evaluation harness (hit@k, recall@k, MRR, correctness, faithfulness, latency, cost)
-3. Hybrid search (Postgres full-text search + vectors, Reciprocal Rank Fusion) → reranking → better chunking
-   → OCR for scanned PDFs/images (Gemini vision on pages with no text layer; Tesseract as a local baseline)
+3. ✅ Phase 3: hybrid search (Postgres FTS + vectors, RRF), rerankers (cross-encoder, LLM), CSV-aware chunking, OCR (Gemini vision / Tesseract), all measured
 4. Query rewriting, contextual retrieval, agentic RAG, long-context baseline
 5. Load testing (Locust/k6 with the fake LLM), caching, rate limits, observability

@@ -12,7 +12,7 @@ from app.db import get_session
 from app.embeddings import EmbeddingError, embed_query
 from app.llm import stream_chat
 from app.models import User
-from app.rag import build_messages, retrieve
+from app.rag import build_messages, search
 from app.schemas import ChatRequest, SourceOut
 from app.security import get_current_user
 
@@ -39,9 +39,10 @@ async def chat(
 
     # --- Retrieval (before streaming starts, so failures return a clean HTTP error)
     try:
-        query_vec = await embed_query(session, body.question)
-        chunks = await retrieve(
-            session, user.id, query_vec, settings.retrieval_top_k, body.document_ids
+        needs_vec = settings.retrieval_mode != "keyword"
+        query_vec = await embed_query(session, body.question) if needs_vec else None
+        chunks = await search(
+            session, user.id, body.question, query_vec, settings.retrieval_top_k, body.document_ids
         )
         await session.commit()  # persist the query embedding in the cache
     except EmbeddingError as e:

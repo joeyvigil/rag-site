@@ -3,11 +3,16 @@ import uuid
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy import BigInteger, Computed, DateTime, ForeignKey, Index, Integer, String, Text, func
+from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.config import settings
 from app.db import Base
+
+# 'english' config: lowercases, drops stopwords ("the", "is"), and stems
+# ("budgets" -> "budget"). Shared with the migration in db.py.
+TSV_EXPRESSION = "to_tsvector('english', content)"
 
 
 class DocumentStatus(enum.StrEnum):
@@ -69,8 +74,15 @@ class Chunk(Base):
     content: Mapped[str] = mapped_column(Text)
     token_count: Mapped[int] = mapped_column(Integer)
     embedding: Mapped[list[float]] = mapped_column(Vector(settings.embedding_dim))
+    # Full-text search vector, computed by Postgres from `content` on every
+    # insert/update (a "generated column"), so it can never drift out of sync.
+    content_tsv: Mapped[str] = mapped_column(
+        TSVECTOR, Computed(TSV_EXPRESSION, persisted=True), deferred=True
+    )
 
     __table_args__ = (
+        # GIN = inverted index (word -> rows), the standard index for full-text search.
+        Index("ix_chunks_content_tsv", "content_tsv", postgresql_using="gin"),
         # HNSW = approximate nearest-neighbour graph index. Cosine ops to
         # match the `<=>` operator used at query time.
         Index(

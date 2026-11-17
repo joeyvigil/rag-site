@@ -1,0 +1,44 @@
+[
+  {
+    "provider": "tesseract",
+    "variant": "clean",
+    "sec_per_page": 1.3152452277499833,
+    "cer": 0.0,
+    "wer": 0.0,
+    "evidence_found": 13,
+    "evidence_total": 13,
+    "evidence_missing": []
+  },
+  {
+    "provider": "gemini",
+    "variant": "clean",
+    "sec_per_page": 13.227937752499884,
+    "cer": 0.0,
+    "wer": 0.0,
+    "evidence_found": 13,
+    "evidence_total": 13,
+    "evidence_missing": []
+  },
+  {
+    "provider": "tesseract",
+    "variant": "degraded",
+    "sec_per_page": 1.514778197249825,
+    "cer": 0.003952569169960474,
+    "wer": 0.0215311004784689,
+    "evidence_found": 12,
+    "evidence_total": 13,
+    "evidence_missing": [
+      "Contractors are not eligible for PTO"
+    ]
+  },
+  {
+    "provider": "gemini",
+    "variant": "degraded",
+    "sec_per_page": 10.532252507999829,
+    "cer": 0.0,
+    "wer": 0.0,
+    "evidence_found": 13,
+    "evidence_total": 13,
+    "evidence_missing": []
+  }
+]

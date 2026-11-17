@@ -1,0 +1,4611 @@
+{
+  "label": "p3-full-hybrid",
+  "timestamp": "20261117-204732",
+  "config": {
+    "chunk_size": 1200,
+    "chunk_overlap": 200,
+    "csv_header_in_chunks": true,
+    "embedding_provider": "gemini",
+    "embedding_model": "gemini-embedding-001",
+    "embedding_dim": 768,
+    "corpus": "28743987ae3a",
+    "top_k": 6,
+    "retrieval_mode": "hybrid",
+    "reranker": "none",
+    "rerank_candidates": null,
+    "model": "gemini-3.5-flash-lite",
+    "judge_model": "gemini-3.5-flash-lite",
+    "retrieval_only": false,
+    "concurrency": 2,
+    "rpm": 12,
+    "n_chunks": 79
+  },
+  "summary": {
+    "n_questions": 42,
+    "n_answerable": 36,
+    "errors": 0,
+    "retrieval": {
+      "hit@1": 0.472,
+      "hit@3": 0.778,
+      "hit@5": 0.972,
+      "hit@10": 1.0,
+      "hit@k": 1.0,
+      "recall@k": 0.986,
+      "mrr": 0.659,
+      "recall@k_ci95": [
+        0.9583333333333334,
+        1.0
+      ],
+      "retrieval_ms_p50": 13.0,
+      "retrieval_ms_p95": 28.9
+    },
+    "generation": {
+      "n_answered": 42,
+      "n_judged": 42,
+      "correctness": 0.976,
+      "correctness_ci95": [
+        0.9404761904761905,
+        1.0
+      ],
+      "faithfulness": 1.0,
+      "correctness_answerable": 0.972,
+      "false_refusal_rate": 0.0,
+      "correct_refusal_rate": 1.0,
+      "citation_rate": 0.972,
+      "invalid_citations": 0,
+      "ttft_ms_p50": 1295.0,
+      "ttft_ms_p95": 6065.0,
+      "total_ms_p50": 1352.0,
+      "total_ms_p95": 11199.0,
+      "prompt_tokens_mean": 2200.0,
+      "completion_tokens_mean": 33.0,
+      "cost_per_1k_queries_usd": 0.7422,
+      "models_used": [
+        "gemini-3.5-flash-lite"
+      ]
+    },
+    "by_category": {
+      "distractor": {
+        "n": 6,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "correctness": 1.0
+      },
+      "exact_id": {
+        "n": 7,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "correctness": 1.0
+      },
+      "multi_hop": {
+        "n": 4,
+        "hit@k": 1.0,
+        "recall@k": 0.875,
+        "correctness": 1.0
+      },
+      "simple": {
+        "n": 16,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "correctness": 0.969
+      },
+      "table": {
+        "n": 3,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "correctness": 0.833
+      },
+      "unanswerable": {
+        "n": 6,
+        "correctness": 1.0
+      }
+    },
+    "wall_time_s": 440.3
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "category": "distractor",
+      "question": "How many PTO days do full-time employees get per year?",
+      "reference": "22 days per year under the current (2026) handbook. The 18-day figure is from the archived 2024 policy.",
+      "evidence": [
+        "accrue 22 days of paid time off"
+      ],
+      "retrieval_ms": 44.7,
+      "retrieved": [
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0317
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0303
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0299
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0299
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0287
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "Based on the current Employee Handbook (effective January 1, 2026), full-time employees accrue 22 days of paid time off (PTO) per calendar year [2]. \n\n*(Note: Under the archived 2024 policy, full-time employees accrued 18 days per year [1].)*",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1230,
+          "completion_tokens": 70
+        },
+        "cost_usd": 0.000544,
+        "ttft_ms": 4155.0,
+        "total_ms": 4332.2,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately provides the current PTO days and notes the historical figure, perfectly matching the reference and excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1519,
+          "completion_tokens": 63
+        }
+      }
+    },
+    {
+      "id": "q02",
+      "category": "distractor",
+      "question": "How many unused PTO days can be carried over, and when do they expire?",
+      "reference": "Up to 6 unused days can be carried over; they expire on March 31.",
+      "evidence": [
+        "Up to 6 unused PTO days may be carried over",
+        "expire on March 31"
+      ],
+      "retrieval_ms": 154.2,
+      "retrieved": [
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0317
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0308
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0301
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0281
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0154
+        },
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0154
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0149
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0147
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2,
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "Based on the current Employee Handbook (effective January 1, 2026):\n\n* **Days allowed:** Up to 6 unused PTO days can be carried over into the following year [2].\n* **Expiration:** Carried-over days expire on March 31 [2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1349,
+          "completion_tokens": 61
+        },
+        "cost_usd": 0.0005572,
+        "ttft_ms": 5909.5,
+        "total_ms": 6074.7,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately provides the correct carryover limit and expiration date based on the current handbook.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1615,
+          "completion_tokens": 60
+        }
+      }
+    },
+    {
+      "id": "q03",
+      "category": "distractor",
+      "question": "How far in advance do I need to request more than 5 consecutive days off?",
+      "reference": "At least 3 weeks in advance, through the PeopleHub portal.",
+      "evidence": [
+        "at least 3 weeks in advance"
+      ],
+      "retrieval_ms": 26.3,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0323
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0288
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 13,
+          "score": 0.028
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 19,
+          "score": 0.0272
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0267
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0266
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0262
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0261
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0259
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "To request more than 5 consecutive days off, you must submit your request at least 3 weeks in advance through the PeopleHub portal [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2322,
+          "completion_tokens": 30
+        },
+        "cost_usd": 0.0007716,
+        "ttft_ms": 1718.5,
+        "total_ms": 1787.8,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly answered that requests for more than 5 consecutive days off must be submitted at least 3 weeks in advance through the PeopleHub portal.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2559,
+          "completion_tokens": 72
+        }
+      }
+    },
+    {
+      "id": "q04",
+      "category": "simple",
+      "question": "How many paid holidays does the company observe?",
+      "reference": "11 paid holidays per year, plus a company-wide shutdown from December 24 to January 1.",
+      "evidence": [
+        "11 paid holidays"
+      ],
+      "retrieval_ms": 17.4,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0317
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0315
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0315
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0312
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0301
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0147
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0145
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0143
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "The company observes 11 paid holidays per year [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1220,
+          "completion_tokens": 13
+        },
+        "cost_usd": 0.0003985,
+        "ttft_ms": 661.9,
+        "total_ms": 705.4,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "partial",
+        "correctness_score": 0.5,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer mentions the 11 paid holidays but omits the company-wide shutdown from December 24 to January 1.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1435,
+          "completion_tokens": 57
+        }
+      }
+    },
+    {
+      "id": "q05",
+      "category": "simple",
+      "question": "What are the core hours remote employees must be reachable?",
+      "reference": "10:00 to 15:00 in their local time zone.",
+      "evidence": [
+        "core hours of 10:00 to 15:00"
+      ],
+      "retrieval_ms": 17.0,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0328
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.032
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0312
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0308
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0308
+        },
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0306
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0301
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0147
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0143
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Remote employees must be reachable during core hours of 10:00 to 15:00 in their local time zone [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1305,
+          "completion_tokens": 30
+        },
+        "cost_usd": 0.0004665,
+        "ttft_ms": 496.4,
+        "total_ms": 680.9,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately provides the core hours from the text.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1535,
+          "completion_tokens": 41
+        }
+      }
+    },
+    {
+      "id": "q06",
+      "category": "distractor",
+      "question": "How much is the home office stipend?",
+      "reference": "$600, paid once, plus $40 per month for internet. ($400 was the old 2024 amount.)",
+      "evidence": [
+        "home office stipend is $600"
+      ],
+      "retrieval_ms": 16.0,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0328
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0318
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0161
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0159
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0154
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0149
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0147
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0145
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0143
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "The home office stipend is $600, paid once when you first set up a home office [1]. *(Note: An archived 2024 policy previously listed the amount as $400 [2].)*",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1270,
+          "completion_tokens": 47
+        },
+        "cost_usd": 0.0004985,
+        "ttft_ms": 10013.2,
+        "total_ms": 11456.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately provides the current home office stipend and correctly notes the previous 2024 amount based on the excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1526,
+          "completion_tokens": 55
+        }
+      }
+    },
+    {
+      "id": "q07",
+      "category": "simple",
+      "question": "What is the daily limit for meals during business travel?",
+      "reference": "Up to $75 per day.",
+      "evidence": [
+        "up to $75 per day"
+      ],
+      "retrieval_ms": 16.8,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0328
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0323
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0308
+        },
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.028
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0279
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0159
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0156
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0149
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0147
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Meals during business travel are reimbursed up to $75 per day [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1400,
+          "completion_tokens": 16
+        },
+        "cost_usd": 0.00046,
+        "ttft_ms": 1870.2,
+        "total_ms": 1970.7,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly states the daily meal limit during business travel as supported by the text.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1610,
+          "completion_tokens": 59
+        }
+      }
+    },
+    {
+      "id": "q08",
+      "category": "simple",
+      "question": "When do I need a receipt for an expense?",
+      "reference": "For any single expense above $250, which also requires manager approval.",
+      "evidence": [
+        "above $250 requires a receipt"
+      ],
+      "retrieval_ms": 9.3,
+      "retrieved": [
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 13,
+          "score": 0.0287
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0286
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0284
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 18,
+          "score": 0.0283
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0279
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 19,
+          "score": 0.0278
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 20,
+          "score": 0.0275
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0273
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0271
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0262
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "You need a receipt for any single expense above $250 [2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 3054,
+          "completion_tokens": 16
+        },
+        "cost_usd": 0.0009561999999999999,
+        "ttft_ms": 646.6,
+        "total_ms": 683.7,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately states that a receipt is required for any single expense above $250, matching the reference and source document.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 3292,
+          "completion_tokens": 68
+        }
+      }
+    },
+    {
+      "id": "q09",
+      "category": "simple",
+      "question": "How much parental leave do secondary caregivers get?",
+      "reference": "8 weeks of fully paid leave.",
+      "evidence": [
+        "secondary caregivers receive 8 weeks"
+      ],
+      "retrieval_ms": 8.0,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0328
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0161
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0159
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0156
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0154
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0149
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0147
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0145
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0143
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Secondary caregivers receive 8 weeks of fully paid parental leave [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1172,
+          "completion_tokens": 14
+        },
+        "cost_usd": 0.00038659999999999996,
+        "ttft_ms": 5398.3,
+        "total_ms": 5446.6,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately provides the exact duration of parental leave for secondary caregivers based on the document excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1372,
+          "completion_tokens": 49
+        }
+      }
+    },
+    {
+      "id": "q10",
+      "category": "simple",
+      "question": "Does unused learning budget roll over to the next year?",
+      "reference": "No. The $1,500 annual learning budget does not roll over.",
+      "evidence": [
+        "Unused learning budget does not roll over"
+      ],
+      "retrieval_ms": 10.3,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0328
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0315
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0302
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0296
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0295
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0291
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0287
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0285
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "No, unused learning budget does not roll over [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1683,
+          "completion_tokens": 12
+        },
+        "cost_usd": 0.0005348999999999999,
+        "ttft_ms": 4140.2,
+        "total_ms": 4174.9,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately states that the unused learning budget does not roll over, matching both the reference and the document excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1889,
+          "completion_tokens": 53
+        }
+      }
+    },
+    {
+      "id": "q11",
+      "category": "simple",
+      "question": "How much memory do laptops for new engineers have?",
+      "reference": "64 GB (other new employees get 32 GB).",
+      "evidence": [
+        "laptop with 64 GB of memory"
+      ],
+      "retrieval_ms": 12.7,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0328
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0318
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0284
+        },
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0278
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0161
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0159
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0154
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0149
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0147
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "New engineers receive a laptop with 64 GB of memory [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1502,
+          "completion_tokens": 15
+        },
+        "cost_usd": 0.0004881,
+        "ttft_ms": 1437.6,
+        "total_ms": 1566.6,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly states that new engineers receive laptops with 64 GB of memory, which is fully supported by excerpt [1].",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1712,
+          "completion_tokens": 68
+        }
+      }
+    },
+    {
+      "id": "q12",
+      "category": "simple",
+      "question": "Are contractors eligible for paid time off?",
+      "reference": "No, contractors are not eligible for PTO.",
+      "evidence": [
+        "Contractors are not eligible for PTO"
+      ],
+      "retrieval_ms": 14.0,
+      "retrieved": [
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0313
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0302
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0301
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0297
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.029
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0269
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "No, contractors are not eligible for paid time off [2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1340,
+          "completion_tokens": 13
+        },
+        "cost_usd": 0.0004345,
+        "ttft_ms": 1734.4,
+        "total_ms": 1898.0,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly answered that contractors are not eligible for paid time off, directly matching the reference and the provided document.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1539,
+          "completion_tokens": 65
+        }
+      }
+    },
+    {
+      "id": "q13",
+      "category": "simple",
+      "question": "Who is the project lead for Project Falcon?",
+      "reference": "Dana Ortiz.",
+      "evidence": [
+        "The project lead is Dana Ortiz"
+      ],
+      "retrieval_ms": 12.5,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.031
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0308
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0307
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0304
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0304
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0301
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0298
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0285
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          4
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.25
+      },
+      "generation": {
+        "answer": "The project lead for Project Falcon is Dana Ortiz [4].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1892,
+          "completion_tokens": 12
+        },
+        "cost_usd": 0.0005976,
+        "ttft_ms": 3600.0,
+        "total_ms": 3666.4,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified Dana Ortiz as the project lead for Project Falcon based on the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2085,
+          "completion_tokens": 60
+        }
+      }
+    },
+    {
+      "id": "q14",
+      "category": "distractor",
+      "question": "Who leads Project Osprey?",
+      "reference": "Marcus Bell.",
+      "evidence": [
+        "The project lead is Marcus Bell"
+      ],
+      "retrieval_ms": 11.8,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0312
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0311
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0307
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0304
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0301
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0296
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0296
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.029
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          5
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.2
+      },
+      "generation": {
+        "answer": "Project Osprey is led by Marcus Bell [5].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1777,
+          "completion_tokens": 11
+        },
+        "cost_usd": 0.0005606000000000001,
+        "ttft_ms": 776.3,
+        "total_ms": 822.8,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified Marcus Bell as the leader of Project Osprey based on the document excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1967,
+          "completion_tokens": 61
+        }
+      }
+    },
+    {
+      "id": "q15",
+      "category": "table",
+      "question": "What is Project Falcon's total budget, and how much has been spent so far?",
+      "reference": "Total budget $2,400,000; $1,575,000 spent to date.",
+      "evidence": [
+        "Total | $2,400,000 | $1,575,000"
+      ],
+      "retrieval_ms": 20.0,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0323
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0318
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0312
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0311
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0302
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0299
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0286
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          5
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.2
+      },
+      "generation": {
+        "answer": "Based on Project Falcon's status report:\n\n* **Total budget:** $2,400,000 [5]\n* **Spent to date:** $1,575,000 [5]",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2099,
+          "completion_tokens": 48
+        },
+        "cost_usd": 0.0007497,
+        "ttft_ms": 2674.2,
+        "total_ms": 2832.6,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly provided the total budget and spent amount for Project Falcon based on the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2352,
+          "completion_tokens": 48
+        }
+      }
+    },
+    {
+      "id": "q16",
+      "category": "table",
+      "question": "How much of Project Osprey's software budget has been spent?",
+      "reference": "$1,240,000 of the $1,600,000 software budget.",
+      "evidence": [
+        "Software | $1,600,000 | $1,240,000"
+      ],
+      "retrieval_ms": 10.1,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0318
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0315
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0308
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0304
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0302
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0302
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0301
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0296
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0296
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          3
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.3333333333333333
+      },
+      "generation": {
+        "answer": "Project Osprey has spent $1,240,000 of its software budget [3].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1863,
+          "completion_tokens": 22
+        },
+        "cost_usd": 0.0006139,
+        "ttft_ms": 988.7,
+        "total_ms": 1095.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified the amount spent on Project Osprey's software budget using the provided document excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2086,
+          "completion_tokens": 63
+        }
+      }
+    },
+    {
+      "id": "q17",
+      "category": "table",
+      "question": "What is the testing budget for Project Falcon?",
+      "reference": "$350,000, of which $95,000 has been spent.",
+      "evidence": [
+        "Testing | $350,000 | $95,000"
+      ],
+      "retrieval_ms": 8.8,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.032
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0318
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0312
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0311
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0305
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0301
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0284
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0284
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          4
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.25
+      },
+      "generation": {
+        "answer": "The testing budget for Project Falcon is $350,000 [4].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1994,
+          "completion_tokens": 18
+        },
+        "cost_usd": 0.0006431999999999999,
+        "ttft_ms": 1328.2,
+        "total_ms": 1386.1,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "partial",
+        "correctness_score": 0.5,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer provides the testing budget amount but omits the amount spent to date which is included in the reference.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2212,
+          "completion_tokens": 52
+        }
+      }
+    },
+    {
+      "id": "q18",
+      "category": "simple",
+      "question": "Why is Project Falcon's status Amber?",
+      "reference": "The vision subsystem is two weeks behind schedule because the camera supplier (Lumetrix) is delayed.",
+      "evidence": [
+        "two weeks behind schedule because of a delayed camera supplier"
+      ],
+      "retrieval_ms": 29.0,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0325
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0315
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0308
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.03
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.03
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0292
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0288
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          3
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.3333333333333333
+      },
+      "generation": {
+        "answer": "Project Falcon's status is Amber because the vision subsystem is two weeks behind schedule due to a delayed camera supplier (Lumetrix).",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1731,
+          "completion_tokens": 27
+        },
+        "cost_usd": 0.0005868,
+        "ttft_ms": 514.1,
+        "total_ms": 597.5,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified why Project Falcon's status is Amber, matching both the reference and the document excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1956,
+          "completion_tokens": 64
+        }
+      }
+    },
+    {
+      "id": "q19",
+      "category": "simple",
+      "question": "When is the Falcon pilot deployment at the Reno warehouse?",
+      "reference": "February 9, 2027.",
+      "evidence": [
+        "February 9, 2027"
+      ],
+      "retrieval_ms": 13.3,
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0291
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.028
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0273
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 16,
+          "score": 0.0271
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.027
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 18,
+          "score": 0.0265
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 13,
+          "score": 0.0265
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.026
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0254
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0254
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "The pilot deployment at the Reno warehouse is scheduled for February 9, 2027 [2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 3789,
+          "completion_tokens": 22
+        },
+        "cost_usd": 0.0011917,
+        "ttft_ms": 794.6,
+        "total_ms": 870.3,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately states the pilot deployment date found in the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4029,
+          "completion_tokens": 43
+        }
+      }
+    },
+    {
+      "id": "q20",
+      "category": "distractor",
+      "question": "What is the top risk for Project Osprey?",
+      "reference": "FAA waiver approval for beyond-visual-line-of-sight flights.",
+      "evidence": [
+        "FAA waiver approval"
+      ],
+      "retrieval_ms": 11.5,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.032
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0313
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0311
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0297
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0292
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          5
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.2
+      },
+      "generation": {
+        "answer": "The top risk for Project Osprey is FAA waiver approval for beyond-visual-line-of-sight flights [5].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1709,
+          "completion_tokens": 25
+        },
+        "cost_usd": 0.0005751999999999999,
+        "ttft_ms": 5785.5,
+        "total_ms": 5854.3,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified the top risk for Project Osprey using the provided excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1925,
+          "completion_tokens": 58
+        }
+      }
+    },
+    {
+      "id": "q21",
+      "category": "simple",
+      "question": "Who is the executive sponsor of Project Falcon?",
+      "reference": "Priya Raman.",
+      "evidence": [
+        "executive sponsor is Priya Raman"
+      ],
+      "retrieval_ms": 27.6,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0323
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0318
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0308
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0301
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0286
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0284
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          3
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.3333333333333333
+      },
+      "generation": {
+        "answer": "The executive sponsor of Project Falcon is Priya Raman [3].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1919,
+          "completion_tokens": 12
+        },
+        "cost_usd": 0.0006056999999999999,
+        "ttft_ms": 794.3,
+        "total_ms": 899.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified Priya Raman as the executive sponsor of Project Falcon based on the provided document excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2113,
+          "completion_tokens": 50
+        }
+      }
+    },
+    {
+      "id": "q22",
+      "category": "exact_id",
+      "question": "What should I do for incident SEC-610?",
+      "reference": "Rotate the exposed credentials immediately, then page the on-call security engineer via #sec-oncall. It is always severity P1.",
+      "evidence": [
+        "Rotate the credentials immediately"
+      ],
+      "retrieval_ms": 11.2,
+      "retrieved": [
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0323
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 27,
+          "score": 0.0159
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0156
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 16,
+          "score": 0.0154
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 22,
+          "score": 0.0152
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0149
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 21,
+          "score": 0.0147
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0145
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0143
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "For incident SEC-610 (Production credentials exposed):\n- Rotate the credentials immediately [1].\n- Page the on-call security engineer via the `#sec-oncall` channel [1].\n- Note that the severity is always P1 [1].\n- Do not delete logs [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2682,
+          "completion_tokens": 64
+        },
+        "cost_usd": 0.0009646,
+        "ttft_ms": 747.8,
+        "total_ms": 895.4,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly provides all steps and details for incident SEC-610 according to the reference and excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2978,
+          "completion_tokens": 64
+        }
+      }
+    },
+    {
+      "id": "q23",
+      "category": "exact_id",
+      "question": "What does ERR_VPN_0x2F mean and how do I fix it?",
+      "reference": "The certificate has expired. Run halcyon-vpn renew-cert and reconnect.",
+      "evidence": [
+        "ERR_VPN_0x2F: certificate expired"
+      ],
+      "retrieval_ms": 14.6,
+      "retrieved": [
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 16,
+          "score": 0.0317
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0315
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0295
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0283
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 27,
+          "score": 0.0274
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 22,
+          "score": 0.0273
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0272
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 23,
+          "score": 0.0271
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0267
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Based on the IT Security Runbook:\n\n* **Meaning:** `ERR_VPN_0x2F` indicates that the certificate has expired [1].\n* **How to fix it:** Run the command `halcyon-vpn renew-cert` and then reconnect [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2983,
+          "completion_tokens": 58
+        },
+        "cost_usd": 0.0010399,
+        "ttft_ms": 523.3,
+        "total_ms": 636.6,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified both the meaning and the fix for ERR_VPN_0x2F from the runbook excerpt.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 3264,
+          "completion_tokens": 67
+        }
+      }
+    },
+    {
+      "id": "q24",
+      "category": "exact_id",
+      "question": "What causes ERR_VPN_0x44?",
+      "reference": "The account is locked after 5 failed attempts; contact the ServiceDesk to unlock it.",
+      "evidence": [
+        "ERR_VPN_0x44: Account locked"
+      ],
+      "retrieval_ms": 11.1,
+      "retrieved": [
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0299
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0289
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 16,
+          "score": 0.0282
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0278
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0272
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0269
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0262
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0249
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0161
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "ERR_VPN_0x44 is caused by an account being locked after 5 failed attempts [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2745,
+          "completion_tokens": 23
+        },
+        "cost_usd": 0.000881,
+        "ttft_ms": 4518.5,
+        "total_ms": 4585.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified that ERR_VPN_0x44 is caused by an account being locked after 5 failed attempts, based on the IT Security Runbook excerpt.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2981,
+          "completion_tokens": 77
+        }
+      }
+    },
+    {
+      "id": "q25",
+      "category": "exact_id",
+      "question": "What is the price of SKU HX-4471?",
+      "reference": "$149.00 (Servo Actuator S2).",
+      "evidence": [
+        "HX-4471,Servo Actuator S2,Actuators,149.00"
+      ],
+      "retrieval_ms": 11.5,
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0318
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0315
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.031
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0308
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 16,
+          "score": 0.0303
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 27,
+          "score": 0.029
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0286
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 26,
+          "score": 0.0284
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0282
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0281
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          5
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.2
+      },
+      "generation": {
+        "answer": "The price of SKU HX-4471 is $149.00 [5].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 4254,
+          "completion_tokens": 21
+        },
+        "cost_usd": 0.0013287000000000002,
+        "ttft_ms": 722.1,
+        "total_ms": 800.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified the price of SKU HX-4471 from the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4499,
+          "completion_tokens": 60
+        }
+      }
+    },
+    {
+      "id": "q26",
+      "category": "exact_id",
+      "question": "What product is SKU HX-7781 and which warehouse stocks it?",
+      "reference": "LiDAR Module L4, stocked in the Reno warehouse.",
+      "evidence": [
+        "HX-7781,LiDAR Module L4"
+      ],
+      "retrieval_ms": 12.3,
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0318
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 27,
+          "score": 0.0315
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.031
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 23,
+          "score": 0.029
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0284
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 19,
+          "score": 0.028
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 26,
+          "score": 0.028
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.028
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0276
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Based on the product catalog:\n* **Product:** LiDAR Module L4 [1]\n* **Warehouse:** Reno [1]",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 4245,
+          "completion_tokens": 27
+        },
+        "cost_usd": 0.001341,
+        "ttft_ms": 3841.9,
+        "total_ms": 3974.4,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified SKU HX-7781 as the LiDAR Module L4, stocked in the Reno warehouse, based on the excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4494,
+          "completion_tokens": 71
+        }
+      }
+    },
+    {
+      "id": "q27",
+      "category": "exact_id",
+      "question": "What issue did Acme Logistics report in ticket T-20931?",
+      "reference": "The HR-9 arm stops mid-pick with error E-77; the ticket is escalated.",
+      "evidence": [
+        "T-20931,2026-09-14,Acme Logistics"
+      ],
+      "retrieval_ms": 10.3,
+      "retrieved": [
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 27,
+          "score": 0.0318
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 23,
+          "score": 0.0303
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0297
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 14,
+          "score": 0.0292
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0286
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 18,
+          "score": 0.0284
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 25,
+          "score": 0.0281
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.028
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 20,
+          "score": 0.0279
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0277
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "Based on the provided documents, Acme Logistics reported \"Arm HR-9 stops mid-pick with error E-77\" in ticket T-20931 [2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 3155,
+          "completion_tokens": 37
+        },
+        "cost_usd": 0.001039,
+        "ttft_ms": 1003.7,
+        "total_ms": 1091.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified the issue reported by Acme Logistics in ticket T-20931 based on the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 3423,
+          "completion_tokens": 66
+        }
+      }
+    },
+    {
+      "id": "q28",
+      "category": "exact_id",
+      "question": "How do I report a phishing email (SEC-417)?",
+      "reference": "Don't click links; forward the email as an attachment to phish@halcyon-robotics.example and delete it. Security responds within 4 business hours.",
+      "evidence": [
+        "Forward the email as an attachment"
+      ],
+      "retrieval_ms": 11.7,
+      "retrieved": [
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0323
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0303
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0298
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0297
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0284
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0283
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0273
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0262
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0256
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "To report a suspected phishing email (SEC-417):\n- Do not click any links or open attachments [1].\n- Forward the email as an attachment to `phish@halcyon-robotics.example` [1].\n- Delete the email after forwarding [1].\n- Include the incident code (`SEC-417`) in the subject line of the report [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1643,
+          "completion_tokens": 83
+        },
+        "cost_usd": 0.0007004,
+        "ttft_ms": 33983.6,
+        "total_ms": 34134.9,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately provides all instructions for reporting a phishing email based on the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1943,
+          "completion_tokens": 58
+        }
+      }
+    },
+    {
+      "id": "q29",
+      "category": "simple",
+      "question": "What warranty comes with Halcyon robotic arms?",
+      "reference": "A 2-year limited warranty covering parts and labor; extended warranties of up to 5 years can be purchased.",
+      "evidence": [
+        "2-year limited warranty"
+      ],
+      "retrieval_ms": 13.4,
+      "retrieved": [
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0275
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0274
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 14,
+          "score": 0.0161
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 17,
+          "score": 0.0159
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0156
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0156
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0154
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 13,
+          "score": 0.0154
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0152
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "All Halcyon robotic arms include a 2-year limited warranty covering parts and labor [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2151,
+          "completion_tokens": 20
+        },
+        "cost_usd": 0.0006952999999999999,
+        "ttft_ms": 2361.1,
+        "total_ms": 33129.9,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately states the warranty terms found in the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2392,
+          "completion_tokens": 42
+        }
+      }
+    },
+    {
+      "id": "q30",
+      "category": "simple",
+      "question": "What is the restocking fee for opened items?",
+      "reference": "15%.",
+      "evidence": [
+        "restocking fee of 15%"
+      ],
+      "retrieval_ms": 27.3,
+      "retrieved": [
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.028
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0275
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 25,
+          "score": 0.0161
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0161
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0159
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0159
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 22,
+          "score": 0.0156
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0156
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0154
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 21,
+          "score": 0.0154
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "A restocking fee of 15% applies to opened items [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 3351,
+          "completion_tokens": 15
+        },
+        "cost_usd": 0.0010428,
+        "ttft_ms": 4248.2,
+        "total_ms": 4307.1,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified the 15% restocking fee for opened items based on the provided documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 3579,
+          "completion_tokens": 62
+        }
+      }
+    },
+    {
+      "id": "q31",
+      "category": "simple",
+      "question": "How often should gripper pads be replaced?",
+      "reference": "Every 50,000 cycles or every 6 months, whichever comes first.",
+      "evidence": [
+        "every 50,000 cycles or every 6 months"
+      ],
+      "retrieval_ms": 18.2,
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 22,
+          "score": 0.0318
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 17,
+          "score": 0.0312
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0294
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0291
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.029
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0289
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 21,
+          "score": 0.0282
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0276
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0274
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 13,
+          "score": 0.0273
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          6
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 0.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.16666666666666666
+      },
+      "generation": {
+        "answer": "Gripper pads should be replaced every 50,000 cycles or every 6 months, whichever comes first [6].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 3784,
+          "completion_tokens": 27
+        },
+        "cost_usd": 0.0012027000000000001,
+        "ttft_ms": 762.1,
+        "total_ms": 833.3,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly answered how often gripper pads should be replaced based on the documentation.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4040,
+          "completion_tokens": 58
+        }
+      }
+    },
+    {
+      "id": "q32",
+      "category": "multi_hop",
+      "question": "Who approved the Osprey budget increase, and what is Osprey's total budget after the increase?",
+      "reference": "Priya Raman approved a $180,000 increase, bringing the total to $2,330,000 ($2,150,000 + $180,000).",
+      "evidence": [
+        "approved a $180,000 budget increase for Project Osprey",
+        "Total | $2,150,000"
+      ],
+      "retrieval_ms": 18.2,
+      "retrieved": [
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0301
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0297
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0293
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0291
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.029
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          5,
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Based on the provided documents:\n\n* **Approval:** Priya Raman approved the budget increase for Project Osprey [5].\n* **Total Budget:** The budget increase was $180,000 [5], on top of the original total budget of $2,150,000 listed in the Q3 status report [1]. This brings Osprey's total budget after the increase to **$2,330,000**.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1866,
+          "completion_tokens": 97
+        },
+        "cost_usd": 0.0008022999999999999,
+        "ttft_ms": 3270.9,
+        "total_ms": 3491.2,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identifies Priya Raman as the approver and calculates the total budget using the provided documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2191,
+          "completion_tokens": 50
+        }
+      }
+    },
+    {
+      "id": "q33",
+      "category": "multi_hop",
+      "question": "Who is the on-site lead for the Falcon pilot, and when does the pilot start?",
+      "reference": "Tomas Herrera; the Reno pilot is scheduled for February 9, 2027.",
+      "evidence": [
+        "on-site lead will be Tomas Herrera",
+        "February 9, 2027"
+      ],
+      "retrieval_ms": 17.7,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.031
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0309
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0308
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0308
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0304
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0302
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.03
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0299
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0286
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          null,
+          4
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 0.5,
+        "rr": 0.25
+      },
+      "generation": {
+        "answer": "Based on the provided documents:\n\n* **Pilot start date:** February 9, 2027 [4].\n* **On-site lead:** The provided documents do not mention an on-site lead for the Falcon pilot (they only state that Dana Ortiz is the project lead) [4].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1969,
+          "completion_tokens": 63
+        },
+        "cost_usd": 0.0007482,
+        "ttft_ms": 415.2,
+        "total_ms": 606.2,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identifies the pilot start date and accurately notes that the documents do not mention an on-site lead.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2229,
+          "completion_tokens": 53
+        }
+      }
+    },
+    {
+      "id": "q34",
+      "category": "multi_hop",
+      "question": "How many lost laptops were reported in Q3, and what is the procedure for a lost device?",
+      "reference": "One lost laptop (SEC-502). Procedure: report within 24 hours via a ticket in the HW-LOSS queue; IT remotely wipes the device.",
+      "evidence": [
+        "1 lost laptop (SEC-502)",
+        "IT will remotely wipe the device"
+      ],
+      "retrieval_ms": 12.7,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0323
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0323
+        },
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0323
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0301
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0299
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0293
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0292
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0284
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2,
+          3
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "Based on the provided documents:\n\n* **Number of lost laptops in Q3:** There was 1 lost laptop reported in Q3 (incident code SEC-502) [2][3].\n* **Procedure for a lost device:** \n  * Report the loss within 24 hours by filing a ticket in the ServiceDesk queue `HW-LOSS` [1][3].\n  * IT will remotely wipe the device [3].\n  * If the device contained customer data, you must also notify your manager [3].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1576,
+          "completion_tokens": 112
+        },
+        "cost_usd": 0.0007528,
+        "ttft_ms": 6073.6,
+        "total_ms": 6302.2,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly provides the number of lost laptops and the procedure, fully supported by the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1910,
+          "completion_tokens": 61
+        }
+      }
+    },
+    {
+      "id": "q35",
+      "category": "multi_hop",
+      "question": "Which project has the larger total budget, Falcon or Osprey, and by how much (according to the status reports)?",
+      "reference": "Falcon: $2,400,000 vs Osprey's $2,150,000, so Falcon's is $250,000 larger.",
+      "evidence": [
+        "Total | $2,400,000",
+        "Total | $2,150,000"
+      ],
+      "retrieval_ms": 16.7,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0317
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.031
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0308
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0305
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.03
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0295
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0288
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          4,
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "According to the status reports:\n* Project Falcon has a total budget of **$2,400,000** [4].\n* Project Osprey has a total budget of **$2,150,000** [2].\n\nProject Falcon has the larger total budget by **$250,000** [2][4].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1908,
+          "completion_tokens": 79
+        },
+        "cost_usd": 0.0007699,
+        "ttft_ms": 697.3,
+        "total_ms": 851.6,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified that Falcon has the larger budget and calculated the difference accurately based on the excerpts.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2210,
+          "completion_tokens": 62
+        }
+      }
+    },
+    {
+      "id": "q36",
+      "category": "simple",
+      "question": "Is the password rotation period changing?",
+      "reference": "No. The Q3 security review decided it will remain 180 days.",
+      "evidence": [
+        "password rotation period will remain 180 days"
+      ],
+      "retrieval_ms": 11.9,
+      "retrieved": [
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0299
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0295
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0292
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0291
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0281
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0159
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0156
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "No, the password rotation period will remain 180 days [1][2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1705,
+          "completion_tokens": 18
+        },
+        "cost_usd": 0.0005565,
+        "ttft_ms": 2322.5,
+        "total_ms": 3109.8,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly states that the password rotation period is not changing and will remain 180 days, supported by the documents.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1920,
+          "completion_tokens": 56
+        }
+      }
+    },
+    {
+      "id": "q37",
+      "category": "unanswerable",
+      "question": "What is the CEO's name?",
+      "reference": "NOT IN DOCUMENTS. (The CFO, Leah Kim, is mentioned, but no CEO is.)",
+      "evidence": [],
+      "retrieval_ms": 10.7,
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0284
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0266
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 17,
+          "score": 0.0263
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 14,
+          "score": 0.0263
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0263
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0258
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0254
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 22,
+          "score": 0.0252
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 26,
+          "score": 0.0252
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 16,
+          "score": 0.025
+        }
+      ],
+      "generation": {
+        "answer": "I couldn't find the CEO's name in the provided documents.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 4161,
+          "completion_tokens": 15
+        },
+        "cost_usd": 0.0012858,
+        "ttft_ms": 621.0,
+        "total_ms": 678.7,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": true,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The documents do not contain the CEO's name, and the assistant correctly stated it could not be found.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4405,
+          "completion_tokens": 64
+        }
+      }
+    },
+    {
+      "id": "q38",
+      "category": "unanswerable",
+      "question": "What is the company's 401(k) match?",
+      "reference": "NOT IN DOCUMENTS.",
+      "evidence": [],
+      "retrieval_ms": 10.3,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0306
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 3,
+          "chunk_index": 2,
+          "score": 0.0164
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0161
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0159
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0156
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0154
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0149
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0147
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0143
+        }
+      ],
+      "generation": {
+        "answer": "I couldn't find the answer to your question in the provided documents.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1303,
+          "completion_tokens": 15
+        },
+        "cost_usd": 0.00042839999999999995,
+        "ttft_ms": 1262.0,
+        "total_ms": 1318.2,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": true,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The reference states the information is not in the documents, and the assistant correctly refused.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1509,
+          "completion_tokens": 59
+        }
+      }
+    },
+    {
+      "id": "q39",
+      "category": "unanswerable",
+      "question": "Who is the dental insurance provider?",
+      "reference": "NOT IN DOCUMENTS.",
+      "evidence": [],
+      "retrieval_ms": 9.3,
+      "retrieved": [
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0287
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0164
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0161
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0159
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0156
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0154
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0152
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0149
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0147
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0145
+        }
+      ],
+      "generation": {
+        "answer": "I couldn't find the dental insurance provider in the provided documents.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1494,
+          "completion_tokens": 14
+        },
+        "cost_usd": 0.0004832,
+        "ttft_ms": 731.3,
+        "total_ms": 798.0,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": true,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The reference states the information is not in the documents, and the assistant correctly refused.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1688,
+          "completion_tokens": 59
+        }
+      }
+    },
+    {
+      "id": "q40",
+      "category": "unanswerable",
+      "question": "What is the price of SKU HX-9999?",
+      "reference": "NOT IN DOCUMENTS. (No such SKU in the catalog.)",
+      "evidence": [],
+      "retrieval_ms": 14.2,
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 27,
+          "score": 0.0328
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0315
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0315
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0308
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 25,
+          "score": 0.0294
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0293
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 26,
+          "score": 0.029
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.028
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0278
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0276
+        }
+      ],
+      "generation": {
+        "answer": "I couldn't find the price for SKU HX-9999 in the provided documents.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 4256,
+          "completion_tokens": 20
+        },
+        "cost_usd": 0.0013268,
+        "ttft_ms": 1036.0,
+        "total_ms": 1103.7,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": true,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The SKU is not present in the documents, and the assistant correctly stated it could not be found.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4498,
+          "completion_tokens": 50
+        }
+      }
+    },
+    {
+      "id": "q41",
+      "category": "unanswerable",
+      "question": "When is Project Osprey's general availability date?",
+      "reference": "NOT IN DOCUMENTS. (Only the Boise pilot date, January 12, 2027, is given; the June 2027 GA date belongs to Falcon.)",
+      "evidence": [],
+      "retrieval_ms": 24.9,
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0311
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0311
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.031
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.031
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.031
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0305
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.029
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0288
+        }
+      ],
+      "generation": {
+        "answer": "I couldn't find the general availability date for Project Osprey in the provided documents.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1806,
+          "completion_tokens": 18
+        },
+        "cost_usd": 0.0005868,
+        "ttft_ms": 443.6,
+        "total_ms": 532.6,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": true,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The documents do not mention Project Osprey, and the assistant correctly stated it could not be found.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2036,
+          "completion_tokens": 50
+        }
+      }
+    },
+    {
+      "id": "q42",
+      "category": "unanswerable",
+      "question": "What programming language is the Falcon vision software written in?",
+      "reference": "NOT IN DOCUMENTS. (Rust was chosen for new firmware in general, not stated for Falcon's vision software.)",
+      "evidence": [],
+      "retrieval_ms": 10.4,
+      "retrieved": [
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0323
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0315
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0292
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0284
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0279
+        }
+      ],
+      "generation": {
+        "answer": "I couldn't find the programming language used for the Falcon vision software in the provided documents.",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1763,
+          "completion_tokens": 19
+        },
+        "cost_usd": 0.0005764,
+        "ttft_ms": 996.3,
+        "total_ms": 1030.4,
+        "has_citation": false,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": true,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The reference states the information is not in the documents, and the assistant correctly refused to answer.",
+        "judge_model": "gemini-3.5-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1988,
+          "completion_tokens": 61
+        }
+      }
+    }
+  ]
+}

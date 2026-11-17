@@ -19,7 +19,8 @@ from app.config import settings
 from app.db import SessionLocal, ensure_vector_extension
 from app.embeddings import embed_documents
 from app.models import Chunk, Document, DocumentStatus
-from app.parsing import parse_document
+from app.ocr import ocr_document
+from app.parsing import ParseError, Section, parse_document
 from app.storage import storage
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -41,7 +42,19 @@ async def ingest_document(ctx: dict, document_id: str) -> str:
             data = await storage.read(doc.storage_key)
             # Parsing is CPU-bound; a thread keeps the worker's event loop responsive.
             parsed = await anyio.to_thread.run_sync(parse_document, doc.filename, data)
-            chunks = chunk_sections(parsed.sections, settings.chunk_size, settings.chunk_overlap)
+
+            if parsed.ocr_pages:  # scanned pages / images: no text layer
+                ocr_text = await ocr_document(doc.filename, data, parsed.ocr_pages)
+                parsed.sections += [Section(t, page=p) for p, t in ocr_text.items() if t.strip()]
+                parsed.sections.sort(key=lambda s: s.page or 0)
+                log.info("%s: OCR'd %d page(s) via %s", doc.filename, len(ocr_text), settings.ocr_provider)
+            if not parsed.sections:
+                raise ParseError("No extractable text found, even after OCR")
+
+            chunks = chunk_sections(
+                parsed.sections, settings.chunk_size, settings.chunk_overlap,
+                repeat_headers=settings.csv_header_in_chunks,
+            )
             log.info("%s: %d sections -> %d chunks", doc.filename, len(parsed.sections), len(chunks))
 
             vectors = await embed_documents(session, [c.text for c in chunks])

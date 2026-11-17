@@ -40,5 +40,21 @@ def test_chunks_keep_page_numbers_and_global_index():
     assert [(c.index, c.page) for c in chunks] == [(0, 1), (1, 2)]
 
 
+def test_csv_header_repeated_in_every_chunk():
+    rows = "\n".join(f"SKU-{i},Widget {i},{i}.00" for i in range(100))
+    section = Section(rows, header="sku,name,price")
+    chunks = chunk_sections([section], size=300, overlap=0, repeat_headers=True)
+    assert len(chunks) > 1
+    assert all(c.text.startswith("sku,name,price\n") for c in chunks)
+    assert all(len(c.text) <= 300 for c in chunks)
+
+
+def test_csv_header_only_first_chunk_when_disabled():
+    rows = "\n".join(f"SKU-{i},Widget {i},{i}.00" for i in range(100))
+    chunks = chunk_sections([Section(rows, header="sku,name,price")], size=300, overlap=0, repeat_headers=False)
+    assert chunks[0].text.startswith("sku,name,price\n")
+    assert not chunks[1].text.startswith("sku,name,price")
+
+
 def test_whitespace_is_normalized():
     assert split_text("a   b\n\n\n\n c", size=100, overlap=0) == ["a b\n\nc"]

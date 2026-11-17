@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
 import { api, type Doc } from "../api";
 
-const ACCEPT = ".pdf,.docx,.txt,.md,.markdown,.csv,.json,.html,.htm";
+const ACCEPT = ".pdf,.docx,.txt,.md,.markdown,.csv,.json,.html,.htm,.png,.jpg,.jpeg,.webp";
 
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -90,7 +90,7 @@ export default function Documents() {
         onDrop={onDrop}
       >
         {uploading ? "Uploading…" : "Drop files or click to upload"}
-        <div className="muted small">PDF, DOCX, TXT, MD, CSV, JSON, HTML</div>
+        <div className="muted small">PDF (incl. scanned), DOCX, TXT, MD, CSV, JSON, HTML, images</div>
         <input
           ref={inputRef}
           type="file"

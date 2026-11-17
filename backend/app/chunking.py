@@ -27,12 +27,28 @@ class ChunkData:
         return max(1, len(self.text) // 4)  # ~4 chars per token for English
 
 
-def chunk_sections(sections: list[Section], size: int, overlap: int) -> list[ChunkData]:
+def chunk_sections(
+    sections: list[Section], size: int, overlap: int, repeat_headers: bool = True
+) -> list[ChunkData]:
+    """Split sections into chunks.
+
+    Sections with a `header` (CSV tables): if `repeat_headers`, every chunk
+    starts with the header row, so each chunk is self-describing. Otherwise
+    the header is only at the top of the first chunk (naive behaviour).
+    """
     if overlap >= size:
         raise ValueError("overlap must be smaller than size")
     chunks: list[ChunkData] = []
     for section in sections:
-        for text in split_text(section.text, size, overlap):
+        if section.header and repeat_headers:
+            prefix = section.header.strip() + "\n"
+            budget = max(size - len(prefix), overlap + 1)
+            texts = [prefix + t for t in split_text(section.text, budget, overlap)]
+        elif section.header:
+            texts = split_text(section.header + "\n" + section.text, size, overlap)
+        else:
+            texts = split_text(section.text, size, overlap)
+        for text in texts:
             chunks.append(ChunkData(index=len(chunks), text=text, page=section.page))
     return chunks
 
