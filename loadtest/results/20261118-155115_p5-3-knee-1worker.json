@@ -1,0 +1,244 @@
+{
+ "label": "p5-3-knee-1worker",
+ "note": "1 uvicorn worker (2 CPUs), pool 10+20",
+ "timestamp": "2026-11-18T15:51:15",
+ "duration_s": 60,
+ "steps": [
+  {
+   "users": 150,
+   "chat_headers": {
+    "n": 961,
+    "fail": 0,
+    "rps": 19.21,
+    "p50": 180.0,
+    "p95": 990.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 961,
+    "fail": 0,
+    "rps": 19.21,
+    "p50": 980.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 961,
+    "fail": 0,
+    "rps": 19.21,
+    "p50": 2600.0,
+    "p95": 3400.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 266,
+    "fail": 0,
+    "rps": 5.32,
+    "p50": 10.0,
+    "p95": 33.0,
+    "p99": 130.0
+   },
+   "aggregated": {
+    "n": 3149,
+    "fail": 0,
+    "rps": 62.94,
+    "p50": 980.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 13.0,
+    "peak_requests_in_flight": 68.0,
+    "db_wait_mean_ms": 5.9,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": []
+  },
+  {
+   "users": 300,
+   "chat_headers": {
+    "n": 1926,
+    "fail": 0,
+    "rps": 38.45,
+    "p50": 210.0,
+    "p95": 1000.0,
+    "p99": 1100.0
+   },
+   "chat_ttft": {
+    "n": 1926,
+    "fail": 0,
+    "rps": 38.45,
+    "p50": 1000.0,
+    "p95": 1800.0,
+    "p99": 2000.0
+   },
+   "chat_total": {
+    "n": 1926,
+    "fail": 0,
+    "rps": 38.45,
+    "p50": 2700.0,
+    "p95": 3500.0,
+    "p99": 3700.0
+   },
+   "list_documents": {
+    "n": 485,
+    "fail": 0,
+    "rps": 9.68,
+    "p50": 14.0,
+    "p95": 98.0,
+    "p99": 220.0
+   },
+   "aggregated": {
+    "n": 6263,
+    "fail": 0,
+    "rps": 125.04,
+    "p50": 1000.0,
+    "p95": 3400.0,
+    "p99": 3600.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 22.0,
+    "peak_requests_in_flight": 136.0,
+    "db_wait_mean_ms": 18.9,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": []
+  },
+  {
+   "users": 450,
+   "chat_headers": {
+    "n": 2527,
+    "fail": 3,
+    "rps": 50.35,
+    "p50": 400.0,
+    "p95": 1600.0,
+    "p99": 3600.0
+   },
+   "chat_ttft": {
+    "n": 2524,
+    "fail": 0,
+    "rps": 50.29,
+    "p50": 1200.0,
+    "p95": 2400.0,
+    "p99": 4400.0
+   },
+   "chat_total": {
+    "n": 2527,
+    "fail": 3,
+    "rps": 50.35,
+    "p50": 3300.0,
+    "p95": 5900.0,
+    "p99": 6900.0
+   },
+   "list_documents": {
+    "n": 667,
+    "fail": 3,
+    "rps": 13.29,
+    "p50": 91.0,
+    "p95": 1700.0,
+    "p99": 4900.0
+   },
+   "aggregated": {
+    "n": 8245,
+    "fail": 9,
+    "rps": 164.29,
+    "p50": 1200.0,
+    "p95": 4200.0,
+    "p99": 6200.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 30.0,
+    "peak_requests_in_flight": 322.0,
+    "db_wait_mean_ms": 296.0,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 3
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 3
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "users": 600,
+   "chat_headers": {
+    "n": 2981,
+    "fail": 7,
+    "rps": 59.39,
+    "p50": 1500.0,
+    "p95": 4900.0,
+    "p99": 7100.0
+   },
+   "chat_ttft": {
+    "n": 2974,
+    "fail": 0,
+    "rps": 59.25,
+    "p50": 2400.0,
+    "p95": 5700.0,
+    "p99": 7900.0
+   },
+   "chat_total": {
+    "n": 2981,
+    "fail": 7,
+    "rps": 59.39,
+    "p50": 4500.0,
+    "p95": 7800.0,
+    "p99": 10000.0
+   },
+   "list_documents": {
+    "n": 708,
+    "fail": 2,
+    "rps": 14.1,
+    "p50": 1300.0,
+    "p95": 4100.0,
+    "p99": 6500.0
+   },
+   "aggregated": {
+    "n": 9644,
+    "fail": 16,
+    "rps": 192.12,
+    "p50": 2700.0,
+    "p95": 6500.0,
+    "p99": 8800.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 30.0,
+    "peak_requests_in_flight": 336.0,
+    "db_wait_mean_ms": 1209.9,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 7
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 2
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 7
+    }
+   ]
+  }
+ ]
+}

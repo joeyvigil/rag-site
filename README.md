@@ -72,6 +72,9 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 | `backend/app/reranking.py` | Cross-encoder (local ONNX) and LLM rerankers |
 | `backend/app/ocr.py` | OCR: Gemini vision or Tesseract |
 | `backend/app/worker.py` | Ingestion job |
+| `backend/app/observability.py` | Prometheus metrics, request IDs, event-loop lag, DB-pool gauges |
+| `backend/app/cache.py` | Per-user rate limiting and the answer cache (Redis) |
+| `loadtest/` | Load-test stack: Locust users, step runner, fake-provider config, Prometheus/Grafana |
 | `backend/eval/` | Evaluation harness: corpus, golden dataset, metrics, LLM judge, results |
 | `frontend/src/` | React UI (auth, documents, chat) |
 
@@ -115,6 +118,31 @@ Phase 4 added 15 harder questions (follow-ups, cross-document synthesis, countin
 (The API was slow that day; compare latencies within the table, not with Phase 3. No mode
 could reliably count rows in a 500-row CSV: that needs a SQL/code tool.)
 
+## Load testing
+
+An isolated stack (its own database) with **fake** LLM and embeddings that wait like real
+ones (0.8 s to first token, 30 tokens/s), so load tests cost nothing and measure our code:
+
+```bash
+docker compose -f loadtest/docker-compose.yml up -d --build
+API_WORKERS=2 docker compose -f loadtest/docker-compose.yml up -d --force-recreate api
+API_WORKERS=2 docker compose -f loadtest/docker-compose.yml run --rm steps --label mytest --users 150,300,450
+docker compose -f loadtest/docker-compose.yml --profile monitoring up -d   # Prometheus :9090, Grafana :3001
+docker compose -f loadtest/docker-compose.yml down -v                      # remove it all
+```
+
+(Pass the same env vars to `run` as to `up`: `compose run` recreates the API if they differ.)
+Interactive Locust UI: http://localhost:8089. Results: `loadtest/results/`.
+
+| 1 API container (2 CPUs of a laptop) | chats/s | total p95 at 750 users |
+|---|---|---|
+| Before: DB connection held across external calls, 1 worker | ~59 (pool exhausted, 1.2 s DB wait) | – |
+| 1 worker, connection fix | ~55 (CPU-bound) | 17 s |
+| **2 workers (default for load tests)** | **~72** | **6.9 s** |
+| 2 workers + answer cache, repeated questions | ~89 (p50 0.77 s) | – |
+
+Details and the debugging story: [docs/HOW_IT_WORKS.md §7](docs/HOW_IT_WORKS.md#7-scaling-what-breaks-first-and-how-to-fix-it).
+
 ## Design decisions worth explaining in an interview
 
 - **Background ingestion queue:** parsing and embedding are slow and rate-limited. Doing them inside the HTTP request would tie up API capacity and time out on large files. Worker capacity scales separately from the API.
@@ -125,6 +153,8 @@ could reliably count rows in a 500-row CSV: that needs a SQL/code tool.)
 - **Tenant isolation:** `user_id` is copied onto every chunk and every query filters on it. Other users' documents return 404 rather than 403, so document IDs can't be probed.
 - **Hybrid search + RRF:** embeddings miss exact IDs; keywords miss paraphrases. Rank fusion merges them without comparing incomparable scores.
 - **Answer modes:** RAG, agent and long-context share one pipeline, so they're compared on identical questions; the user picks per question.
+- **No DB connection held across slow calls:** sessions end their transaction before LLM/embedding calls, so the pool isn't drained by connections that are just waiting.
+- **Answer cache with version-based invalidation:** per-user corpus version in the key; no cache scans.
 - **Measure before shipping:** the reranker doubled rank-1 accuracy but barely moved answer correctness, at 3.5× the cost, so it's off by default.
 - **Prompt injection:** document text is untrusted. Excerpts are wrapped in tags and the system prompt tells the model to ignore instructions inside them.
 - **Provider-agnostic LLM layer:** any OpenAI-compatible endpoint works. That makes the planned model comparison a config change.
@@ -146,4 +176,4 @@ could reliably count rows in a 500-row CSV: that needs a SQL/code tool.)
 2. ✅ Phase 2: golden Q&A dataset + evaluation harness (hit@k, recall@k, MRR, correctness, faithfulness, latency, cost)
 3. ✅ Phase 3: hybrid search (Postgres FTS + vectors, RRF), rerankers (cross-encoder, LLM), CSV-aware chunking, OCR (Gemini vision / Tesseract), all measured
 4. ✅ Phase 4: harder benchmark, query rewriting, contextual chunks, agentic RAG, long-context baseline, all measured
-5. Load testing (Locust/k6 with the fake LLM), caching, rate limits, observability
+5. ✅ Phase 5: observability (Prometheus, request IDs, Grafana), load testing with fake providers, connection-pool fix, multiple workers, answer cache, rate limiting

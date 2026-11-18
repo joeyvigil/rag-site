@@ -9,6 +9,7 @@ Providers:
   load testing.
 """
 
+import asyncio
 import hashlib
 import logging
 import math
@@ -89,6 +90,9 @@ async def _embed_cached(session: AsyncSession, texts: list[str], task: TaskType)
 
     missing = {k: t for k, t in zip(keys, texts, strict=True) if k not in found}
     if missing:
+        # End the transaction (returning the DB connection to the pool) before
+        # the network call; the session re-borrows one for the INSERT below.
+        await session.commit()
         log.info("embedding %d texts (%d cache hits)", len(missing), len(unique_keys) - len(missing))
         vectors = await _provider_embed(list(missing.values()), task)
         new_rows = [{"key": k, "embedding": v} for k, v in zip(missing, vectors, strict=True)]
@@ -122,6 +126,8 @@ def _normalize(vec: list[float]) -> list[float]:
 
 async def _provider_embed(texts: list[str], task: TaskType) -> list[list[float]]:
     if settings.embedding_provider == "fake":
+        if settings.fake_embed_latency_ms:  # simulate the network round trip
+            await asyncio.sleep(settings.fake_embed_latency_ms / 1000)
         return [_fake_embed(t) for t in texts]
 
     if not settings.gemini_api_key:

@@ -33,6 +33,7 @@ export type Timings = {
   model: string;
   search_query?: string | null;
   agent_steps?: number | null;
+  cached?: boolean;
 };
 
 // ---------------------------------------------------------------- token

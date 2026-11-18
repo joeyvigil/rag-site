@@ -1,0 +1,338 @@
+{
+ "label": "p5-8-2workers",
+ "note": "2 workers (verified 2 pids), connection fix, access log off",
+ "timestamp": "2026-11-18T16:23:51",
+ "duration_s": 60,
+ "steps": [
+  {
+   "users": 150,
+   "chat_headers": {
+    "n": 984,
+    "fail": 1,
+    "rps": 19.66,
+    "p50": 180.0,
+    "p95": 990.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 983,
+    "fail": 0,
+    "rps": 19.64,
+    "p50": 980.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 984,
+    "fail": 1,
+    "rps": 19.66,
+    "p50": 2500.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 222,
+    "fail": 0,
+    "rps": 4.44,
+    "p50": 8.0,
+    "p95": 20.0,
+    "p99": 56.0
+   },
+   "aggregated": {
+    "n": 3173,
+    "fail": 2,
+    "rps": 63.4,
+    "p50": 980.0,
+    "p95": 3300.0,
+    "p99": 3300.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 7.0,
+    "peak_requests_in_flight": 70.0,
+    "db_wait_mean_ms": 3.7,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 1
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "users": 300,
+   "chat_headers": {
+    "n": 1855,
+    "fail": 2,
+    "rps": 36.97,
+    "p50": 200.0,
+    "p95": 3100.0,
+    "p99": 4500.0
+   },
+   "chat_ttft": {
+    "n": 1853,
+    "fail": 0,
+    "rps": 36.93,
+    "p50": 1000.0,
+    "p95": 3900.0,
+    "p99": 5300.0
+   },
+   "chat_total": {
+    "n": 1855,
+    "fail": 2,
+    "rps": 36.97,
+    "p50": 2600.0,
+    "p95": 6700.0,
+    "p99": 7300.0
+   },
+   "list_documents": {
+    "n": 424,
+    "fail": 0,
+    "rps": 8.45,
+    "p50": 10.0,
+    "p95": 710.0,
+    "p99": 3100.0
+   },
+   "aggregated": {
+    "n": 5987,
+    "fail": 4,
+    "rps": 119.32,
+    "p50": 1000.0,
+    "p95": 4400.0,
+    "p99": 6800.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 38.0,
+    "peak_requests_in_flight": 229.0,
+    "db_wait_mean_ms": 61.6,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 2
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "users": 450,
+   "chat_headers": {
+    "n": 2763,
+    "fail": 7,
+    "rps": 55.06,
+    "p50": 330.0,
+    "p95": 1700.0,
+    "p99": 2200.0
+   },
+   "chat_ttft": {
+    "n": 2756,
+    "fail": 0,
+    "rps": 54.92,
+    "p50": 1100.0,
+    "p95": 2500.0,
+    "p99": 3100.0
+   },
+   "chat_total": {
+    "n": 2763,
+    "fail": 7,
+    "rps": 55.06,
+    "p50": 3300.0,
+    "p95": 4800.0,
+    "p99": 5200.0
+   },
+   "list_documents": {
+    "n": 696,
+    "fail": 4,
+    "rps": 13.87,
+    "p50": 21.0,
+    "p95": 440.0,
+    "p99": 970.0
+   },
+   "aggregated": {
+    "n": 8978,
+    "fail": 18,
+    "rps": 178.92,
+    "p50": 1200.0,
+    "p95": 4200.0,
+    "p99": 4900.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 37.0,
+    "peak_requests_in_flight": 281.0,
+    "db_wait_mean_ms": 37.5,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 7
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 4
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 7
+    }
+   ]
+  },
+  {
+   "users": 600,
+   "chat_headers": {
+    "n": 3268,
+    "fail": 16,
+    "rps": 65.01,
+    "p50": 980.0,
+    "p95": 2300.0,
+    "p99": 3400.0
+   },
+   "chat_ttft": {
+    "n": 3252,
+    "fail": 0,
+    "rps": 64.69,
+    "p50": 1800.0,
+    "p95": 3200.0,
+    "p99": 4200.0
+   },
+   "chat_total": {
+    "n": 3268,
+    "fail": 16,
+    "rps": 65.01,
+    "p50": 4200.0,
+    "p95": 5700.0,
+    "p99": 6300.0
+   },
+   "list_documents": {
+    "n": 848,
+    "fail": 4,
+    "rps": 16.87,
+    "p50": 160.0,
+    "p95": 850.0,
+    "p99": 1600.0
+   },
+   "aggregated": {
+    "n": 10636,
+    "fail": 36,
+    "rps": 211.59,
+    "p50": 1800.0,
+    "p95": 5100.0,
+    "p99": 5800.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 40.0,
+    "peak_requests_in_flight": 399.0,
+    "db_wait_mean_ms": 107.6,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 16
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 3
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "RemoteDisconnected('Remote end closed connection without response')",
+     "count": 1
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 16
+    }
+   ]
+  },
+  {
+   "users": 750,
+   "chat_headers": {
+    "n": 3591,
+    "fail": 19,
+    "rps": 71.51,
+    "p50": 1200.0,
+    "p95": 2800.0,
+    "p99": 3700.0
+   },
+   "chat_ttft": {
+    "n": 3572,
+    "fail": 0,
+    "rps": 71.13,
+    "p50": 2100.0,
+    "p95": 3600.0,
+    "p99": 4500.0
+   },
+   "chat_total": {
+    "n": 3591,
+    "fail": 19,
+    "rps": 71.51,
+    "p50": 5400.0,
+    "p95": 6900.0,
+    "p99": 7800.0
+   },
+   "list_documents": {
+    "n": 858,
+    "fail": 5,
+    "rps": 17.09,
+    "p50": 230.0,
+    "p95": 1100.0,
+    "p99": 2100.0
+   },
+   "aggregated": {
+    "n": 11612,
+    "fail": 43,
+    "rps": 231.24,
+    "p50": 2100.0,
+    "p95": 6200.0,
+    "p99": 7100.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 51.0,
+    "peak_requests_in_flight": 492.0,
+    "db_wait_mean_ms": 155.5,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 19
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 5
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 19
+    }
+   ]
+  }
+ ]
+}

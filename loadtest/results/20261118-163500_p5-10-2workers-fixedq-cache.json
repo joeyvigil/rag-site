@@ -1,0 +1,215 @@
+{
+ "label": "p5-10-2workers-fixedq-cache",
+ "note": "2 workers, 8 repeated questions, answer cache ttl=3600",
+ "timestamp": "2026-11-18T16:35:00",
+ "duration_s": 60,
+ "steps": [
+  {
+   "users": 300,
+   "chat_headers": {
+    "n": 2221,
+    "fail": 2,
+    "rps": 44.18,
+    "p50": 29.0,
+    "p95": 840.0,
+    "p99": 970.0
+   },
+   "chat_ttft": {
+    "n": 2219,
+    "fail": 0,
+    "rps": 44.14,
+    "p50": 830.0,
+    "p95": 1600.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 2221,
+    "fail": 2,
+    "rps": 44.18,
+    "p50": 2400.0,
+    "p95": 3200.0,
+    "p99": 3600.0
+   },
+   "list_documents": {
+    "n": 494,
+    "fail": 0,
+    "rps": 9.83,
+    "p50": 11.0,
+    "p95": 61.0,
+    "p99": 340.0
+   },
+   "aggregated": {
+    "n": 7155,
+    "fail": 4,
+    "rps": 142.34,
+    "p50": 820.0,
+    "p95": 3200.0,
+    "p99": 3300.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 23.0,
+    "peak_requests_in_flight": 140.0,
+    "peak_event_loop_lag_ms": 111,
+    "db_wait_mean_ms": 11.4,
+    "answer_cache_hits": 553.0,
+    "answer_cache_lookups": 1932.0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 2
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "users": 600,
+   "chat_headers": {
+    "n": 4330,
+    "fail": 11,
+    "rps": 85.6,
+    "p50": 670.0,
+    "p95": 1600.0,
+    "p99": 2100.0
+   },
+   "chat_ttft": {
+    "n": 4208,
+    "fail": 0,
+    "rps": 83.19,
+    "p50": 1000.0,
+    "p95": 2400.0,
+    "p99": 2900.0
+   },
+   "chat_total": {
+    "n": 4219,
+    "fail": 11,
+    "rps": 83.41,
+    "p50": 3200.0,
+    "p95": 4400.0,
+    "p99": 4900.0
+   },
+   "list_documents": {
+    "n": 1003,
+    "fail": 2,
+    "rps": 19.83,
+    "p50": 56.0,
+    "p95": 610.0,
+    "p99": 1100.0
+   },
+   "aggregated": {
+    "n": 13760,
+    "fail": 24,
+    "rps": 272.04,
+    "p50": 890.0,
+    "p95": 4000.0,
+    "p99": 4500.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 59.0,
+    "peak_requests_in_flight": 322.0,
+    "peak_event_loop_lag_ms": 193,
+    "db_wait_mean_ms": 106.0,
+    "answer_cache_hits": 1795.0,
+    "answer_cache_lookups": 3617.0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 11
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "RemoteDisconnected('Remote end closed connection without response')",
+     "count": 2
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 11
+    }
+   ]
+  },
+  {
+   "users": 600,
+   "chat_headers": {
+    "n": 4501,
+    "fail": 10,
+    "rps": 89.41,
+    "p50": 330.0,
+    "p95": 1400.0,
+    "p99": 1800.0
+   },
+   "chat_ttft": {
+    "n": 4491,
+    "fail": 0,
+    "rps": 89.21,
+    "p50": 780.0,
+    "p95": 2200.0,
+    "p99": 2500.0
+   },
+   "chat_total": {
+    "n": 4501,
+    "fail": 10,
+    "rps": 89.41,
+    "p50": 770.0,
+    "p95": 4100.0,
+    "p99": 4500.0
+   },
+   "list_documents": {
+    "n": 1178,
+    "fail": 4,
+    "rps": 23.4,
+    "p50": 46.0,
+    "p95": 510.0,
+    "p99": 930.0
+   },
+   "aggregated": {
+    "n": 14671,
+    "fail": 24,
+    "rps": 291.44,
+    "p50": 440.0,
+    "p95": 3700.0,
+    "p99": 4200.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 60.0,
+    "peak_requests_in_flight": 269.0,
+    "peak_event_loop_lag_ms": 122,
+    "db_wait_mean_ms": 83.6,
+    "answer_cache_hits": 3047.0,
+    "answer_cache_lookups": 4020.0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 10
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 3
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "RemoteDisconnected('Remote end closed connection without response')",
+     "count": 1
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 10
+    }
+   ]
+  }
+ ]
+}

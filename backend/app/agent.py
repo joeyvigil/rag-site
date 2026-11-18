@@ -130,6 +130,7 @@ async def run_agent(
             kwargs["tools"] = TOOLS
         else:  # out of steps: force an answer from what was gathered
             messages.append({"role": "user", "content": "Stop searching and answer now from the tool results you have."})
+        await session.commit()  # don't hold a DB connection while the LLM thinks (see db.py)
         resp = await _get_client().chat.completions.create(**kwargs)
         meta["steps"] += 1
         if resp.usage:

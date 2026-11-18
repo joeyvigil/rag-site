@@ -1,3 +1,4 @@
+import time
 from collections.abc import AsyncIterator
 
 import asyncpg
@@ -13,8 +14,9 @@ _INIT_LOCK_ID = 7243901
 
 engine = create_async_engine(
     settings.database_url,
-    pool_size=10,
-    max_overflow=20,
+    pool_size=settings.db_pool_size,
+    max_overflow=settings.db_max_overflow,
+    pool_timeout=settings.db_pool_timeout,
     pool_pre_ping=True,
 )
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
@@ -24,8 +26,22 @@ class Base(DeclarativeBase):
     pass
 
 
+# RULE (Phase 5 finding): never hold a DB connection across a slow external
+# call (LLM, embedding API, reranker). A session keeps its connection checked
+# out from its first query until the transaction ends, even while the code is
+# just awaiting a network response; Postgres shows it as "idle in
+# transaction". Under load those idle-but-borrowed connections exhaust the
+# pool while Postgres itself is mostly idle. `await session.commit()` (or
+# close) before the call returns the connection; the next query borrows one again.
 async def get_session() -> AsyncIterator[AsyncSession]:
+    from app.observability import DB_CONN_WAIT
+
     async with SessionLocal() as session:
+        # Take the connection now so the time spent waiting for the pool is
+        # measured (it's invisible otherwise: it just looks like a slow request).
+        started = time.perf_counter()
+        await session.connection()
+        DB_CONN_WAIT.observe(time.perf_counter() - started)
         yield session
 
 

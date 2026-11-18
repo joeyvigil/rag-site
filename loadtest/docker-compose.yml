@@ -1,0 +1,143 @@
+# Isolated load-test stack: its own project name, database and volumes, with
+# FAKE LLM + embeddings (no API key, no quota, no cost). The fakes *wait* like
+# real APIs (see FAKE_* below), so we measure our system, not Google's.
+#
+#   docker compose -f loadtest/docker-compose.yml up -d --build
+#   docker compose -f loadtest/docker-compose.yml run --rm steps --label baseline
+#   docker compose -f loadtest/docker-compose.yml --profile monitoring up -d   # + Prometheus/Grafana
+#   docker compose -f loadtest/docker-compose.yml down -v                      # throw it all away
+#
+# CPU limits split this 4-core laptop so the load generator can't starve the
+# server (or vice versa): api 2, postgres 1, locust 1.
+name: ragload
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+asyncpg://rag:rag@postgres:5432/rag
+  REDIS_URL: redis://redis:6379
+  STORAGE_DIR: /data/uploads
+  JWT_SECRET: loadtest-secret-not-for-production-0123456789
+  LLM_PROVIDER: fake
+  EMBEDDING_PROVIDER: fake
+  OCR_PROVIDER: tesseract
+  # A typical hosted LLM: ~0.8 s to first token, then ~30 tokens/s (~2.5 s per answer).
+  FAKE_LLM_TTFT_MS: ${FAKE_LLM_TTFT_MS:-800}
+  FAKE_LLM_TOKENS_PER_S: ${FAKE_LLM_TOKENS_PER_S:-30}
+  FAKE_EMBED_LATENCY_MS: ${FAKE_EMBED_LATENCY_MS:-150}
+  DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+  DB_MAX_OVERFLOW: ${DB_MAX_OVERFLOW:-20}
+  DB_POOL_TIMEOUT: ${DB_POOL_TIMEOUT:-30}
+  RATE_LIMIT_CHAT_PER_MINUTE: ${RATE_LIMIT_CHAT_PER_MINUTE:-0}
+  ANSWER_CACHE_TTL_SECONDS: ${ANSWER_CACHE_TTL_SECONDS:-0}
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD: rag
+      POSTGRES_DB: rag
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    cpus: 1
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d rag"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ../backend
+    # Multiprocess metrics need an empty directory at startup. (One line on
+    # purpose: a folded YAML block with extra-indented lines keeps the
+    # newlines, and the flags after one silently vanished. Phase 5 lesson.)
+    command: ["sh", "-c", "rm -rf /tmp/prom && mkdir -p /tmp/prom && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${API_WORKERS:-1} --no-access-log"]
+    environment:
+      <<: *backend-env
+      PROMETHEUS_MULTIPROC_DIR: /tmp/prom
+    volumes:
+      - ../backend:/app
+      - uploads:/data/uploads
+    ports:
+      - "8001:8000"
+    cpus: 2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  worker:
+    build: ../backend
+    command: arq app.worker.WorkerSettings
+    environment: *backend-env
+    volumes:
+      - ../backend:/app
+      - uploads:/data/uploads
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Interactive Locust UI at http://localhost:8089
+  locust:
+    image: locustio/locust:2.32.0
+    command: -f /mnt/locust/locustfile.py --host http://api:8000
+    volumes:
+      - ./:/mnt/locust
+    ports:
+      - "8089:8089"
+    cpus: 1
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Headless step-load runner: `run --rm steps --label X [--users 10,25,50]`
+  steps:
+    image: locustio/locust:2.32.0
+    entrypoint: ["python", "/mnt/locust/steps.py"]
+    environment:
+      QUESTION_POOL: ${QUESTION_POOL:-unique}  # "fixed" = repeated questions (best case for the answer cache)
+    volumes:
+      - ./:/mnt/locust
+    cpus: 1
+    profiles: ["tools"]
+    depends_on:
+      api:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    profiles: ["monitoring"]
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/rag.json
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"  # 3000 is often taken by other dev servers
+    profiles: ["monitoring"]
+
+volumes:
+  pgdata:
+  uploads:

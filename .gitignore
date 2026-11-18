@@ -6,3 +6,4 @@ node_modules/
 dist/
 data/
 .venv/
+loadtest/results/raw/

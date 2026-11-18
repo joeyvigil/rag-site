@@ -1,0 +1,274 @@
+{
+ "label": "p5-1-baseline",
+ "note": "1 worker, pool 10+20, DB connection held during the LLM stream",
+ "timestamp": "2026-11-18T15:38:20",
+ "duration_s": 60,
+ "steps": [
+  {
+   "users": 10,
+   "chat_headers": {
+    "n": 60,
+    "fail": 0,
+    "rps": 1.21,
+    "p50": 200.0,
+    "p95": 1000.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 60,
+    "fail": 0,
+    "rps": 1.21,
+    "p50": 1000.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 60,
+    "fail": 0,
+    "rps": 1.21,
+    "p50": 2500.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 20,
+    "fail": 0,
+    "rps": 0.4,
+    "p50": 9.0,
+    "p95": 16.0,
+    "p99": 16.0
+   },
+   "aggregated": {
+    "n": 200,
+    "fail": 0,
+    "rps": 4.03,
+    "p50": 990.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 2.0,
+    "peak_requests_in_flight": 7.0,
+    "db_wait_mean_ms": 1.4,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": []
+  },
+  {
+   "users": 25,
+   "chat_headers": {
+    "n": 156,
+    "fail": 0,
+    "rps": 3.32,
+    "p50": 190.0,
+    "p95": 990.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 156,
+    "fail": 0,
+    "rps": 3.32,
+    "p50": 990.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 156,
+    "fail": 0,
+    "rps": 3.32,
+    "p50": 2500.0,
+    "p95": 3300.0,
+    "p99": 3300.0
+   },
+   "list_documents": {
+    "n": 30,
+    "fail": 0,
+    "rps": 0.64,
+    "p50": 7.0,
+    "p95": 17.0,
+    "p99": 21.0
+   },
+   "aggregated": {
+    "n": 498,
+    "fail": 0,
+    "rps": 10.59,
+    "p50": 990.0,
+    "p95": 2600.0,
+    "p99": 3300.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 4.0,
+    "peak_requests_in_flight": 16.0,
+    "db_wait_mean_ms": 1.7,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": []
+  },
+  {
+   "users": 50,
+   "chat_headers": {
+    "n": 330,
+    "fail": 0,
+    "rps": 6.59,
+    "p50": 190.0,
+    "p95": 990.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 330,
+    "fail": 0,
+    "rps": 6.59,
+    "p50": 990.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 330,
+    "fail": 0,
+    "rps": 6.59,
+    "p50": 2500.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 77,
+    "fail": 0,
+    "rps": 1.54,
+    "p50": 9.0,
+    "p95": 19.0,
+    "p99": 31.0
+   },
+   "aggregated": {
+    "n": 1067,
+    "fail": 0,
+    "rps": 21.31,
+    "p50": 990.0,
+    "p95": 3300.0,
+    "p99": 3300.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 6.0,
+    "peak_requests_in_flight": 27.0,
+    "db_wait_mean_ms": 2.6,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": []
+  },
+  {
+   "users": 100,
+   "chat_headers": {
+    "n": 660,
+    "fail": 0,
+    "rps": 13.21,
+    "p50": 180.0,
+    "p95": 990.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 660,
+    "fail": 0,
+    "rps": 13.21,
+    "p50": 980.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 660,
+    "fail": 0,
+    "rps": 13.21,
+    "p50": 2500.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 154,
+    "fail": 0,
+    "rps": 3.08,
+    "p50": 9.0,
+    "p95": 21.0,
+    "p99": 37.0
+   },
+   "aggregated": {
+    "n": 2134,
+    "fail": 0,
+    "rps": 42.71,
+    "p50": 980.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 9.0,
+    "peak_requests_in_flight": 45.0,
+    "db_wait_mean_ms": 3.6,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": []
+  },
+  {
+   "users": 150,
+   "chat_headers": {
+    "n": 960,
+    "fail": 1,
+    "rps": 19.18,
+    "p50": 180.0,
+    "p95": 990.0,
+    "p99": 1000.0
+   },
+   "chat_ttft": {
+    "n": 959,
+    "fail": 0,
+    "rps": 19.16,
+    "p50": 980.0,
+    "p95": 1800.0,
+    "p99": 1800.0
+   },
+   "chat_total": {
+    "n": 960,
+    "fail": 1,
+    "rps": 19.18,
+    "p50": 2500.0,
+    "p95": 3400.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 261,
+    "fail": 0,
+    "rps": 5.21,
+    "p50": 10.0,
+    "p95": 33.0,
+    "p99": 110.0
+   },
+   "aggregated": {
+    "n": 3140,
+    "fail": 2,
+    "rps": 62.74,
+    "p50": 980.0,
+    "p95": 3300.0,
+    "p99": 3400.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 18.0,
+    "peak_requests_in_flight": 68.0,
+    "db_wait_mean_ms": 5.8,
+    "answer_cache_hits": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 1
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 1
+    }
+   ]
+  }
+ ]
+}

@@ -84,6 +84,23 @@ class Settings(BaseSettings):
     # Uploads
     max_upload_mb: int = 25
 
+    # Phase 5: scaling & load testing ------------------------------------
+    # DB connection pool, PER PROCESS. Total connections = processes x
+    # (pool_size + max_overflow) and must stay under Postgres max_connections (100).
+    db_pool_size: int = 10
+    db_max_overflow: int = 20
+    db_pool_timeout: float = 30  # seconds to wait for a free connection before erroring
+    # Fake providers pretend to be a real API (so load tests measure realistic
+    # I/O waits, not an instant echo): time to first token, then a steady token rate.
+    fake_llm_ttft_ms: int = 0
+    fake_llm_tokens_per_s: float = 0  # 0 = as fast as possible (~10 ms/token)
+    fake_embed_latency_ms: int = 0
+    # Per-user chat requests per minute (0 = unlimited). Protects the shared
+    # LLM quota from one user (or one runaway script).
+    rate_limit_chat_per_minute: int = 20
+    # Exact-match answer cache TTL for questions without history (0 = off).
+    answer_cache_ttl_seconds: int = 3600
+
     @property
     def llm_fallback_model_list(self) -> list[str]:
         return [m.strip() for m in self.llm_fallback_models.split(",") if m.strip()]

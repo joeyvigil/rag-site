@@ -1,0 +1,210 @@
+{
+ "label": "p5-9-2workers-fixedq-nocache",
+ "note": "2 workers, 8 repeated questions, answer cache ttl=0",
+ "timestamp": "2026-11-18T16:27:40",
+ "duration_s": 60,
+ "steps": [
+  {
+   "users": 300,
+   "chat_headers": {
+    "n": 1994,
+    "fail": 2,
+    "rps": 39.77,
+    "p50": 32.0,
+    "p95": 840.0,
+    "p99": 910.0
+   },
+   "chat_ttft": {
+    "n": 1992,
+    "fail": 0,
+    "rps": 39.73,
+    "p50": 830.0,
+    "p95": 1600.0,
+    "p99": 1700.0
+   },
+   "chat_total": {
+    "n": 1994,
+    "fail": 2,
+    "rps": 39.77,
+    "p50": 2400.0,
+    "p95": 3200.0,
+    "p99": 3400.0
+   },
+   "list_documents": {
+    "n": 481,
+    "fail": 0,
+    "rps": 9.59,
+    "p50": 12.0,
+    "p95": 51.0,
+    "p99": 110.0
+   },
+   "aggregated": {
+    "n": 6461,
+    "fail": 4,
+    "rps": 128.86,
+    "p50": 830.0,
+    "p95": 3200.0,
+    "p99": 3300.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 13.0,
+    "peak_requests_in_flight": 139.0,
+    "peak_event_loop_lag_ms": 169,
+    "db_wait_mean_ms": 11.2,
+    "answer_cache_hits": 0,
+    "answer_cache_lookups": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 2
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 2
+    }
+   ]
+  },
+  {
+   "users": 600,
+   "chat_headers": {
+    "n": 3349,
+    "fail": 19,
+    "rps": 66.54,
+    "p50": 710.0,
+    "p95": 2300.0,
+    "p99": 3100.0
+   },
+   "chat_ttft": {
+    "n": 3330,
+    "fail": 0,
+    "rps": 66.16,
+    "p50": 1600.0,
+    "p95": 3100.0,
+    "p99": 3900.0
+   },
+   "chat_total": {
+    "n": 3349,
+    "fail": 19,
+    "rps": 66.54,
+    "p50": 4200.0,
+    "p95": 5600.0,
+    "p99": 6100.0
+   },
+   "list_documents": {
+    "n": 863,
+    "fail": 7,
+    "rps": 17.15,
+    "p50": 180.0,
+    "p95": 1300.0,
+    "p99": 2200.0
+   },
+   "aggregated": {
+    "n": 10891,
+    "fail": 45,
+    "rps": 216.37,
+    "p50": 1600.0,
+    "p95": 5100.0,
+    "p99": 5700.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 54.0,
+    "peak_requests_in_flight": 404.0,
+    "peak_event_loop_lag_ms": 340,
+    "db_wait_mean_ms": 173.0,
+    "answer_cache_hits": 0,
+    "answer_cache_lookups": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 19
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 7
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 19
+    }
+   ]
+  },
+  {
+   "users": 600,
+   "chat_headers": {
+    "n": 3358,
+    "fail": 32,
+    "rps": 66.75,
+    "p50": 700.0,
+    "p95": 2300.0,
+    "p99": 3100.0
+   },
+   "chat_ttft": {
+    "n": 3326,
+    "fail": 0,
+    "rps": 66.11,
+    "p50": 1500.0,
+    "p95": 3100.0,
+    "p99": 3900.0
+   },
+   "chat_total": {
+    "n": 3358,
+    "fail": 32,
+    "rps": 66.75,
+    "p50": 4200.0,
+    "p95": 5600.0,
+    "p99": 6100.0
+   },
+   "list_documents": {
+    "n": 848,
+    "fail": 2,
+    "rps": 16.86,
+    "p50": 180.0,
+    "p95": 1200.0,
+    "p99": 2100.0
+   },
+   "aggregated": {
+    "n": 10890,
+    "fail": 66,
+    "rps": 216.46,
+    "p50": 1600.0,
+    "p95": 5100.0,
+    "p99": 5800.0
+   },
+   "server": {
+    "peak_db_pool_checked_out": 41.0,
+    "peak_requests_in_flight": 402.0,
+    "peak_event_loop_lag_ms": 278,
+    "db_wait_mean_ms": 169.7,
+    "answer_cache_hits": 0,
+    "answer_cache_lookups": 0,
+    "rate_limited": 0
+   },
+   "failures": [
+    {
+     "name": "POST /api/chat [headers]",
+     "error": "CatchResponseError('HTTP 0')",
+     "count": 32
+    },
+    {
+     "name": "GET /api/documents",
+     "error": "ConnectionResetError(104, 'Connection reset by peer')",
+     "count": 2
+    },
+    {
+     "name": "chat total",
+     "error": "RuntimeError('HTTP 0')",
+     "count": 32
+    }
+   ]
+  }
+ ]
+}

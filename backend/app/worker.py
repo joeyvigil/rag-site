@@ -14,6 +14,7 @@ import anyio
 from arq.connections import RedisSettings
 from sqlalchemy import delete
 
+from app.cache import bump_corpus_version
 from app.chunking import chunk_sections
 from app.config import settings
 from app.db import SessionLocal, ensure_vector_extension
@@ -92,6 +93,8 @@ async def ingest_document(ctx: dict, document_id: str) -> str:
             doc.num_pages = parsed.num_pages
             doc.full_text = full_text
             await session.commit()
+            # Searchable content changed: invalidate this user's cached answers.
+            await bump_corpus_version(ctx["redis"], doc.user_id)
             log.info("%s: ready", doc.filename)
             return "ready"
 

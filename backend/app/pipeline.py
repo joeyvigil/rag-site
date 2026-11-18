@@ -49,6 +49,9 @@ async def prepare_answer(
     mode = mode or settings.answer_mode
     k = k or settings.retrieval_top_k
     started = time.perf_counter()
+    # End the auth query's transaction so the connection goes back to the pool
+    # before any slow external call (query rewrite, embedding, agent LLM calls).
+    await session.commit()
 
     if mode == "long_context":
         docs = await load_whole_documents(session, user_id, document_ids)

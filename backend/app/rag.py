@@ -75,6 +75,8 @@ async def search(
     if reranker != "none" and candidates:
         from app.reranking import rerank  # lazy: loads an ML model on first use
 
+        await session.commit()  # release the DB connection during the slow rerank (see db.py)
+
         candidates = await rerank(question, candidates, reranker, meta)
     return candidates[:k]
 

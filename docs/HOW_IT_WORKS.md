@@ -8,7 +8,7 @@ It is updated at the end of every phase, so it always describes the code as it i
 > reading it. Then open the linked code and trace it. The "Interview angle" boxes are
 > the questions you should be able to answer without notes.
 
-**Current state:** Phase 4 (query rewriting, contextual chunks, agentic RAG, long-context baseline, harder benchmark, all measured). See [Phase log](#11-phase-log).
+**Current state:** Phase 5 (observability, load testing, connection-pool fix, multiple workers, answer cache, rate limiting, all measured). All planned phases are done. See [Phase log](#11-phase-log).
 
 ---
 
@@ -27,6 +27,8 @@ It is updated at the end of every phase, so it always describes the code as it i
      5.15 Contextual chunks · 5.16 Agentic RAG · 5.17 Long-context baseline
 6. [Evaluation: measuring a RAG system](#6-evaluation)
 7. [Scaling: what breaks first and how to fix it](#7-scaling-what-breaks-first-and-how-to-fix-it)
+   - 7.1 Streams, connections & Little's Law · 7.2 Observability · 7.3 Load testing method ·
+     7.4 Results: finding the knee · 7.5 Caching & rate limiting
 8. [Known limitations (and which phase fixes them)](#8-known-limitations-and-which-phase-fixes-them)
 9. [Interview question bank](#9-interview-question-bank)
 10. [Glossary](#10-glossary)
@@ -1051,19 +1053,157 @@ Think about each tier separately. Roughly in the order they'd hurt:
 |---|---|---|
 | **LLM provider rate limits** | 429s, slow answers | This is #1 for an LLM app. Paid tier, multiple providers/keys with routing, fallback models (done), **semantic answer cache** for repeated questions, smaller/faster models for simple questions |
 | **Embedding rate limits on ingestion** | Docs stuck in processing | Queue + backoff (done), batch API, cache (done), more quota |
-| **DB connections** | "too many connections" | Each API process holds up to 30 (pool 10 + overflow 20). With 20 replicas that's 600. Put **PgBouncer** in front |
+| **DB connections** | Requests queue for a connection while Postgres idles | Never hold a connection across a slow external call (7.4, *fixed*). Each API process holds up to 30 (pool 10 + overflow 20); with 20 replicas that's 600 > Postgres's 100. Put **PgBouncer** in front |
 | **API CPU** | High latency under load | Stateless, so add replicas behind a load balancer; multiple uvicorn workers per container |
 | **Vector index memory** | Slow searches as data grows | HNSW is fast only if the index fits in RAM. Bigger DB instance, `halfvec` (16-bit floats, half the memory), fewer dimensions, partition by tenant, read replicas for search, or a dedicated vector DB |
 | **Ingestion throughput** | Long queue | More worker containers (horizontal) |
 | **File storage** | Local volume doesn't work across machines | S3/R2/GCS: swap `LocalStorage` (the interface was kept tiny for this reason) |
 
-**Plan for Phase 5:** load-test with Locust/k6 using `LLM_PROVIDER=fake` (so we measure
-*our* system, not Google's), find the knee of the latency curve, and add observability
-(per-stage latency, token counts, cost per query).
+Phase 5 measured this instead of guessing. Everything below runs in `loadtest/` against
+**fake** LLM and embedding providers that *wait* like real ones (0.8 s to first token, 30
+tokens/s, 150 ms per embedding): no quota, no cost, and we measure *our* system, not Google's.
+
+### 7.1 Streams, connections & Little's Law
+
+There are three different kinds of "connection" here:
+
+1. **Browser ↔ API (HTTP, SSE).** A chat is one HTTP response that stays open for
+   ~2.5 s while tokens are written to it (`sources` → `token`… → `done`).
+2. **Inside the API: coroutines on an event loop.** A request waiting on the LLM is a
+   paused coroutine: a little memory, no thread, no CPU. One process can hold hundreds of
+   open streams. What it *can't* do is run two pieces of Python at once: any CPU work
+   (JSON, SQLAlchemy, hashing) delays every other request in that process. That delay
+   is **event-loop lag**, measured by `event_loop_lag_seconds`.
+3. **API ↔ Postgres: a connection pool.** Each Postgres connection is a server process,
+   and the default limit is 100, so each API process keeps a pool (10 + 20 overflow) and
+   lends connections out. A request waits if the pool is empty.
+
+**Little's Law** ties them together: *items in the system = arrival rate × time each spends
+there*. At 20 chats/s × 2.5 s ≈ 50 streams open at once, but if each needs the DB for only
+0.2 s, that's just ~4 connections. If each instead held a connection for the full 2.5 s, a
+pool of 30 would cap the system at 30 / 2.5 = **12 chats/s, regardless of CPU**.
+
+### 7.2 Observability (`backend/app/observability.py`)
+
+- **Metrics at `/metrics`** (Prometheus text format): requests by route and status,
+  latency until the *last* byte (so streams are measured fully), chat stages
+  (`prep` / `ttft` / `total`), LLM tokens, DB connections checked out, **time waiting
+  for a DB connection**, event-loop lag per process, cache hits, rate-limit rejections.
+- **Route templates as labels** (`/api/documents/{document_id}`), never raw paths:
+  otherwise every ID becomes a new time series (a "cardinality explosion").
+- **Multiple workers:** each uvicorn worker is a separate process with its own memory,
+  so prometheus_client's *multiprocess mode* writes metrics to files that `/metrics` merges.
+- **Request IDs:** every response has `X-Request-ID`, and every log line includes it,
+  so one request's lines can be found among thousands.
+- **Pure ASGI middleware** rather than `BaseHTTPMiddleware`, so it sees when a streamed
+  response really ends and doesn't buffer it.
+- **Dashboards:** `docker compose -f loadtest/docker-compose.yml --profile monitoring up -d`
+  starts Prometheus (:9090) and a provisioned Grafana dashboard (:3001).
+
+The three things to watch for any service: **latency, traffic, errors, saturation**
+(Google SRE's "four golden signals"). Saturation here is the pool, in-flight requests and loop lag.
+
+### 7.3 Load testing method (`loadtest/`)
+
+- **Locust** simulates users: each asks a question (60%), a follow-up (20%) or lists
+  documents (20%), with 2–6 s of "think time" between actions. That's a **closed-loop**
+  test: a slower server means each user sends fewer requests, so look at *latency*, not
+  only throughput.
+- **Step load** (150 → 750 users, 60 s per step) to find the **knee**: the load where
+  latency stops being flat because a queue is forming somewhere.
+- **Client and server measured together:** Locust records headers / TTFT / total; the
+  runner (`steps.py`) samples `/metrics` every second for pool use, DB wait, in-flight
+  requests and loop lag.
+- **Isolation:** its own compose project and database; CPU caps (API 2 cores, Postgres 1,
+  Locust 1) so the load generator can't starve the server.
+- **Accounts are created before measuring.** Registration is slow on purpose (bcrypt)
+  and ingestion is background work; neither belongs in a chat benchmark (see the Phase 5 log).
+
+**Caveat: a weak, shared laptop.** Identical runs differed by up to 30%. Absolute
+numbers here are "this laptop", and only back-to-back relative comparisons count. In a
+real test the load generator runs on separate machines.
+
+### 7.4 Results: finding the knee
+
+All runs: 1 API container (2 CPUs), unique questions (no cache hits), fake LLM ~2.5 s/answer.
+
+**Fix 1: don't hold DB connections across slow calls.** Under load, Postgres showed 29
+connections **"idle in transaction"** while using ~20% CPU. The API had borrowed them for
+the auth query, then awaited the embedding API (and, for follow-ups, the query-rewrite
+LLM call) without giving them back. Fix: end the transaction (`await session.commit()`)
+before every external call (`pipeline.py`, `embeddings.py`, `agent.py`, `rag.py`).
+
+| 600 users, 1 worker | DB wait (mean) | peak DB conns | chats/s | total p95 |
+|---|---|---|---|---|
+| before | 1210 ms | 30 (pool exhausted) | 59.4 | 7.9 s |
+| after | 224 ms | 24 | 57.5 | 7.9 s |
+
+The pool stopped being the bottleneck, but end-to-end latency didn't move: **the next
+bottleneck was CPU in the single API process.** Fixing one bottleneck reveals the next.
+
+**Fix 2: two uvicorn workers** (one process per core):
+
+| users | 1 worker: chats/s · TTFT p95 · total p95 | 2 workers: chats/s · TTFT p95 · total p95 |
+|---|---|---|
+| 150 | 19.3 · 1.8 s · 3.3 s | 19.7 · 1.8 s · 3.3 s |
+| 300 | 38.5 · 1.9 s · 3.8 s | 37.0 · 3.9 s · 6.7 s (noise) |
+| 450 | 49.8 · 3.2 s · 5.5 s | 55.1 · 2.5 s · 4.8 s |
+| 600 | 56.5 · 5.0 s · 7.8 s | 65.0 · 3.2 s · 5.7 s |
+| 750 | 55.0 · **14 s** · **17 s** | **71.5** · 3.6 s · 6.9 s |
+
+- **The knee:** flat until ~300 users (~38 chats/s), then rising. One worker saturates at
+  ~55 chats/s and falls over at 750 users; two workers still serve 71.5 chats/s with a
+  6.9 s p95. Python's event loop uses one core, so **one worker per core** is the rule.
+- **What this means in reality:** the limit is CPU: one core ÷ ~55 chats/s ≈ 18 ms of Python per chat
+  (auth, SQL, JSON, ~50 SSE writes). With
+  a real LLM, the provider's rate limits (500 requests/day on our free tier!) would hit
+  long before this; the load test proves our own code isn't the problem.
+
+### 7.5 Caching & rate limiting (`backend/app/cache.py`)
+
+**Three caches, three levels:**
+
+| Cache | Key | Saves | Invalidation |
+|---|---|---|---|
+| Embeddings (Phase 1) | hash(model, dims, task, text) | An embedding API call | Never needed: same text → same vector |
+| LLM helper results (Phase 4) | hash(model, prompt) | Contextual-chunk LLM calls at ingest | Never needed: deterministic prompt |
+| **Answers (Phase 5)** | hash(user, corpus version, mode, docs, normalized question) | Retrieval + the whole LLM answer | **Corpus version** bump |
+
+**Answer-cache invalidation** is the hard part. Each user has a counter in Redis that's
+bumped when a document finishes ingesting or is deleted. It's part of the key, so stale
+answers are simply never looked up again and expire by TTL: no scanning, no races. Only
+questions *without history* are cached (a follow-up depends on the conversation), and
+only per user (tenant isolation: another user's identical question has different sources).
+
+**Why not a semantic cache?** Matching similar questions by embedding hits more often,
+but "PTO for full-time staff" and "PTO for part-time staff" are near-identical vectors with
+different answers. A wrong cached answer is worse than a slow right one.
+
+**Measured** (best case: each user re-asks from 8 fixed questions; 2 workers, 600 users):
+
+| | chats/s | total p50 | total p95 | hit rate |
+|---|---|---|---|---|
+| no answer cache | 66.8 | 4.2 s | 5.6 s | – |
+| cache warming | 83.4 | 3.2 s | 4.4 s | 50% |
+| cache warm | **89.4** | **0.77 s** | 4.1 s | 76% |
+
+With unique questions the hit rate is 0%, and real users rarely repeat themselves word
+for word. The embedding cache alone already cut retrieval from ~200 ms to ~30 ms for
+repeated questions. The answer cache is **on by default** (1 h TTL): a miss costs one
+Redis read, while a hit saves an LLM call and quota.
+
+**Rate limiting:** 20 questions per user per minute (`RATE_LIMIT_CHAT_PER_MINUTE`), HTTP
+429 with `Retry-After`. A fixed-window counter in Redis (`INCR` + `EXPIRE`), shared by all
+processes. Its known flaw: up to 2× the limit across a window boundary; a sliding window
+or token bucket fixes that. Its purpose is to stop one user (or a runaway script) from
+burning the whole team's LLM quota.
 
 > **Interview angle:** "Your RAG app needs to handle 100× traffic. What do you do?"
-> Measure first (where is time spent?), then go tier by tier with the table above.
-> Mention caching at three levels: embeddings, retrieval results, and final answers.
+> Measure first: load-test with a fake LLM to find *your* bottleneck (ours: DB connections
+> held during external calls, then CPU), watch the golden signals, then go tier by tier
+> with the table above. Cache at three levels (embeddings, LLM helper calls, answers),
+> rate-limit per user, and remember that in an LLM app the provider's limits usually
+> bind first.
 
 ---
 
@@ -1083,6 +1223,10 @@ Think about each tier separately. Roughly in the order they'd hurt:
 | Judge = same model as answerer | Self-preference bias in correctness scores | Use a different-provider judge when available |
 | Small golden set (57 questions, 3–7 per new category) | One question is 14–33 points within a category | More questions per category, a second corpus |
 | Free-tier quota (500 requests/day/model) | A full agent eval uses ~40% of a day's quota | Budget runs; paid tier for real experiments |
+| Load tests ran on a weak, shared laptop | ±30% run-to-run noise; absolute capacity unknown | Separate load-generator machines, repeated runs |
+| Answer cache is exact-match only | Rephrased questions miss | Semantic cache with a strict threshold and its own eval |
+| Fixed-window rate limit | 2× burst at window edges | Sliding window / token bucket (Lua script) |
+| `/metrics` is unauthenticated | Leaks traffic stats if exposed | Serve it on an internal port / network only |
 | Commit → enqueue gap | API crash can strand a doc in `pending` | Transactional outbox / sweeper job |
 | `create_all` instead of migrations | Schema changes need manual work | Alembic |
 | JWT in localStorage, no revocation | XSS exposure; can't force logout | httpOnly cookie + refresh tokens |
@@ -1250,10 +1394,49 @@ RAG fails by design: it sees 6 chunks of a 400-row file. Long context and agents
 read the whole file but still miscount (ours said 30 and 48 where the answer was 86).
 Aggregation needs computation: a text-to-SQL or code tool over the table.
 
+**Q: How would you load-test an LLM application?**
+Replace the LLM and embeddings with fakes that *wait* like real ones, so you measure your
+own system without spending quota. Ramp users in steps to find the knee, measure client
+(TTFT, total) and server (pool, loop lag, DB wait) side by side, keep setup traffic out of
+the measured window, and run the load generator on separate hardware.
+
+**Q: What is Little's Law and how did you use it?**
+Items in system = arrival rate × time in system. 20 chats/s × 2.5 s = 50 concurrent
+streams. It predicted that holding a DB connection for a whole answer would cap a 30-
+connection pool at 12 chats/s, and it explained why 60 chats/s × 0.2–1 s of held
+connections filled the pool.
+
+**Q: Tell me about a performance bug you found.**
+Under load, requests waited ~1.2 s for a DB connection while Postgres sat at 20% CPU.
+`pg_stat_activity` showed 29 connections "idle in transaction": we'd borrowed them for a
+query, then awaited the embedding API and an LLM call without releasing them. Ending the
+transaction before external calls cut the wait to 0.22 s. Bonus: my *first* hypothesis
+(the SSE stream holds the connection) was wrong. I tested it directly before fixing anything.
+
+**Q: Why didn't fixing the pool make the app faster?**
+Because the pool wasn't the only bottleneck: CPU in the single Python process was next.
+Adding a second worker raised capacity from ~55 to ~72 chats/s at 750 users and cut p95
+from 17 s to 7 s. Fixing one bottleneck reveals the next.
+
+**Q: How do you invalidate a cache of RAG answers?**
+Put a per-user corpus version in the key and bump it whenever a document finishes
+ingesting or is deleted; old entries are never read again and expire by TTL. Cache only
+questions without history, and only per tenant.
+
+**Q: Semantic cache: good idea?**
+Higher hit rate, but similar-looking questions can need different answers (full-time vs
+part-time). It needs a strict threshold and an evaluation of wrong-hit rate. I chose exact
+match: correctness first.
+
+**Q: What would you monitor in production?**
+The golden signals: latency (TTFT p95 above all), traffic, errors (5xx, LLM errors, 429s),
+saturation (DB pool, event-loop lag, queue depth), plus LLM tokens (= cost) and cache hit rate.
+
 **Q: What would you improve next?** (Always have an answer!)
-A text-to-SQL tool for aggregation questions (the one category no mode solves), a
-router that sends only multi-part questions to the agent, then Phase 5: load testing
-with a fake LLM, caching and observability.
+A text-to-SQL tool for aggregation questions (the one category no mode solves); a
+router that sends only multi-part questions to the agent; PgBouncer and multiple API
+replicas behind a load balancer; OpenTelemetry tracing across API, worker and LLM calls;
+and a bigger, real-world evaluation set.
 
 ---
 
@@ -1273,22 +1456,29 @@ with a fake LLM, caching and observability.
 | **Cross-encoder / reranker** | Model that scores (question, passage) *together*: slower but more accurate than comparing separate embeddings |
 | **Embedding** | Vector representation of text where similar meaning means nearby vectors |
 | **Faithfulness** | Whether every claim in an answer is supported by the retrieved context |
+| **Event-loop lag** | How late the async event loop runs scheduled work: time every waiting request is delayed by CPU work |
 | **Golden dataset** | Hand-verified questions with reference answers, used to evaluate every change |
+| **Golden signals** | Latency, traffic, errors, saturation: the four things to monitor on any service |
 | **Grounding** | Constraining the LLM to answer from provided sources |
+| **Idle in transaction** | A DB connection with an open transaction that isn't running a query: borrowed but unused |
 | **Hubness** | In high-dimensional spaces, some vectors ("hubs") end up close to many unrelated queries |
 | **HNSW** | Graph-based ANN index (see 5.4) |
 | **GIN index** | Generalized Inverted Index: Postgres's word → rows index for full-text search |
 | **Hybrid search** | Combining keyword (BM25) and vector search results |
 | **Idempotent** | Running an operation twice has the same effect as running it once |
 | **Long-context baseline** | Answering with whole documents in the prompt, no retrieval |
+| **Knee** | The load at which latency stops being flat and starts climbing (a queue is forming) |
+| **Little's Law** | Items in a system = arrival rate × time each spends there |
 | **LLM-as-judge** | Using an LLM with a rubric to grade another LLM's output |
 | **p50 / p95** | The median / the value 95% of requests are faster than (tail latency) |
 | **Listwise reranking** | Asking an LLM to order a whole list of passages at once |
 | **Matryoshka embeddings** | Embeddings whose prefixes are also valid (smaller) embeddings |
 | **OCR** | Optical Character Recognition: turning images of text into text |
+| **Connection pool** | A set of open DB connections lent to requests, so each doesn't open its own |
 | **MRR** | Mean Reciprocal Rank: how high the first correct result ranks, on average |
 | **Query rewriting** | Turning a follow-up into a standalone search query using the chat history |
 | **ReAct** | Reason + Act: the loop of thinking, calling a tool, observing the result |
+| **Rate limiting** | Capping requests per user per time window (HTTP 429 when exceeded) |
 | **Recall@k** | Fraction of questions where a correct chunk appears in the top k |
 | **RRF** | Reciprocal Rank Fusion: merges ranked lists by summing 1/(k + rank) |
 | **SSE** | Server-Sent Events: one-way HTTP streaming from server to browser |
@@ -1419,3 +1609,42 @@ Contextual chunks and the reranker share a lesson: better ranking, same answers.
 
 **Next:** Phase 5: load testing (Locust/k6 with the fake LLM), caching, rate limits and
 observability.
+
+### Phase 5: Load testing, scaling & observability ✅
+
+**Built:** Prometheus metrics (multiprocess), request IDs in logs and headers, event-loop
+lag and DB-pool instrumentation; an isolated load-test stack (fake providers with
+realistic latency, Locust, step runner, optional Prometheus + Grafana dashboard);
+connection release before external calls; per-user rate limiting; an answer cache with
+corpus-version invalidation; a UI badge for cached answers.
+
+**Result:** found and fixed a connection-pool bottleneck (DB wait 1.2 s → 0.22 s at 600
+users); two workers raised capacity from ~55 to ~72 chats/s and cut p95 at 750 users from
+17 s to 7 s; the answer cache took p50 from 4.2 s to 0.77 s when questions repeat.
+
+**What broke and what we learned:**
+
+1. **My first hypothesis was wrong.** I expected the SSE stream to hold a DB connection
+   for the whole answer. A direct test (5 s fake LLM delay, read the pool mid-stream)
+   showed 0 connections in use. *Lesson: test a hypothesis directly before "fixing" it.*
+2. **The real leak was next door:** connections held "idle in transaction" while awaiting
+   the embedding API and the query-rewrite LLM. Found with `pg_stat_activity`, not by
+   reading code.
+3. **The first baseline measured the wrong thing.** Each simulated user registered
+   (bcrypt) and uploaded inside the measured window, so 150 users looked saturated.
+   Pre-creating accounts showed the same config was fine. *Lesson: keep setup out of
+   the measurement.*
+4. **"2 workers" was really 1 worker.** A folded YAML block (`>`) keeps newlines on
+   extra-indented lines, so `--workers 2` became a separate, never-run command. Caught
+   because the new per-process lag metric showed one PID. *Lesson: verify the config
+   you think you're testing; per-instance metrics catch this.*
+5. **`docker compose run` silently recreated the API** with different env vars, so the
+   first cache run had the cache off (0 lookups). *Lesson: check that the feature
+   under test actually fired (a counter that should be non-zero).*
+6. **Fixing one bottleneck reveals the next:** the pool fix cut DB wait 5× but didn't
+   change end-to-end latency, because CPU was next.
+7. **Noise:** identical runs on this shared laptop differed by up to 30%. Only big,
+   repeatable differences count.
+
+**Next (beyond the plan):** text-to-SQL for aggregation questions, a router for agent
+mode, PgBouncer + replicas, distributed tracing.

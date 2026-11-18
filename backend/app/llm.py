@@ -85,6 +85,11 @@ async def complete(
     made in bursts (one per chunk at ingest), which is exactly when free-tier
     rate limits (HTTP 429) hit.
     """
+    if settings.llm_provider == "fake":
+        await asyncio.sleep(settings.fake_llm_ttft_ms / 1000)
+        text = messages[-1]["content"].strip().splitlines()[-1][:500]  # echo: a plausible "rewrite"
+        return Completion(text, "fake", {"prompt_tokens": sum(len(m["content"]) for m in messages) // 4,
+                                         "completion_tokens": len(text) // 4})
     model = model or settings.llm_model
     kwargs: dict = {"model": model, "messages": messages, "temperature": temperature}
     if json_mode:
@@ -173,11 +178,19 @@ async def stream_chat(
 
 
 async def _fake_stream(messages: list[dict[str, str]]) -> AsyncIterator[str]:
-    """Deterministic stand-in for an LLM: echoes the top excerpt."""
+    """Deterministic stand-in for an LLM: echoes the top excerpt.
+
+    FAKE_LLM_TTFT_MS / FAKE_LLM_TOKENS_PER_S make it *wait* like a real API
+    (the request holds its resources while waiting, which is what a load
+    test needs to reproduce), without spending any quota.
+    """
     prompt = messages[-1]["content"]
     match = re.search(r'<excerpt n="1"[^>]*>\n?(.*?)</excerpt>', prompt, re.S)
     excerpt = " ".join(match.group(1).split())[:300] if match else "(no excerpt)"
     answer = f"[fake LLM] The most relevant excerpt says: {excerpt} [1]"
-    for word in answer.split(" "):
-        await asyncio.sleep(0.01)
+    per_token = 1 / settings.fake_llm_tokens_per_s if settings.fake_llm_tokens_per_s else 0.01
+    await asyncio.sleep(settings.fake_llm_ttft_ms / 1000)
+    for i, word in enumerate(answer.split(" ")):
+        if i:
+            await asyncio.sleep(per_token)
         yield word + " "

@@ -117,7 +117,7 @@ export default function Chat() {
                   {t.timings && (
                     <span className="muted">
                       {" "}
-                      · {t.timings.mode ?? "rag"}
+                      · {t.timings.cached ? "cached answer" : (t.timings.mode ?? "rag")}
                       {t.timings.agent_steps ? ` (${t.timings.agent_steps} steps)` : ""} · prep {t.timings.retrieval_ms} ms ·
                       first token {t.timings.first_token_ms ?? "–"} ms · total {t.timings.total_ms} ms · {t.timings.model}
                     </span>

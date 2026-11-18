@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Request, Response, 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.cache import bump_corpus_version
 from app.config import settings
 from app.db import get_session
 from app.models import Document, DocumentStatus, User
@@ -133,6 +134,7 @@ async def reprocess_document(
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_document(
     document_id: uuid.UUID,
+    request: Request,
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> Response:
@@ -140,5 +142,6 @@ async def delete_document(
     key = doc.storage_key
     await session.delete(doc)  # chunks go via ON DELETE CASCADE
     await session.commit()
+    await bump_corpus_version(request.app.state.redis, user.id)  # cached answers may cite it
     await storage.delete(key)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
