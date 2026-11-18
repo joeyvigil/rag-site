@@ -50,3 +50,45 @@ def test_daily_quota_detected_through_wrapper_exceptions():
             raise LLMError("All models failed. Last error: Error code: 429") from inner
     except LLMError as wrapped:
         assert is_daily_quota_error(wrapped)
+
+
+def test_agent_falls_back_when_a_model_is_overloaded(monkeypatch):
+    import asyncio
+    from types import SimpleNamespace
+
+    from app import agent
+    from app.config import settings
+    from app.llm import LLMError
+
+    calls = []
+
+    class FakeCompletions:
+        def __init__(self, down):
+            self.down = down
+
+        async def create(self, model, **kwargs):
+            calls.append(model)
+            if model in self.down:
+                raise RuntimeError("Error code: 503 - high demand")
+            msg = SimpleNamespace(content="answer", tool_calls=None)
+            return SimpleNamespace(choices=[SimpleNamespace(message=msg)], usage=None)
+
+    class FakeSession:
+        async def commit(self):
+            pass
+
+    monkeypatch.setattr(settings, "llm_model", "primary")
+    monkeypatch.setattr(settings, "llm_fallback_models", "backup")
+
+    down = {"primary"}
+    monkeypatch.setattr(agent, "_get_client", lambda: SimpleNamespace(chat=SimpleNamespace(completions=FakeCompletions(down))))
+    meta: dict = {}
+    answer, _ = asyncio.run(agent.run_agent(FakeSession(), uuid.uuid4(), "q?", [], meta))
+    assert answer == "answer" and calls == ["primary", "backup"] and meta["model"] == "backup"
+
+    down.update({"backup"})  # everything overloaded -> a clear LLMError (the API turns it into a 503)
+    try:
+        asyncio.run(agent.run_agent(FakeSession(), uuid.uuid4(), "q?", [], {}))
+        raise AssertionError("expected LLMError")
+    except LLMError:
+        pass

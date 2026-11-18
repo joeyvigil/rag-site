@@ -11,7 +11,7 @@ from app.cache import answer_cache_key, check_rate_limit, get_cached_answer, sto
 from app.config import settings
 from app.db import get_session
 from app.embeddings import EmbeddingError
-from app.llm import stream_chat
+from app.llm import LLMError, stream_chat
 from app.models import User
 from app.observability import ANSWER_CACHE, CHAT_ERRORS, CHAT_STAGE, LLM_TOKENS, RATE_LIMITED
 from app.pipeline import prepare_answer
@@ -74,6 +74,14 @@ async def chat(
     except EmbeddingError as e:
         CHAT_ERRORS.labels("prep").inc()
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e)) from e
+    except LLMError as e:  # e.g. agent mode: every model overloaded or out of quota
+        CHAT_ERRORS.labels("llm").inc()
+        log.warning("LLM unavailable during preparation: %s", e)
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "The AI model is busy or unavailable right now (free-tier models are often briefly "
+            "overloaded). Please try again in a moment.",
+        ) from e
     except ContextTooLarge as e:
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, str(e)) from e
     except Exception as e:

@@ -33,7 +33,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.embeddings import embed_query
-from app.llm import _get_client
+from app.llm import LLMError, _get_client
 from app.models import Document, DocumentStatus
 from app.rag import RetrievedChunk, search
 
@@ -123,15 +123,29 @@ async def run_agent(
     messages += [{"role": m.role, "content": m.content} for m in history[-settings.max_history_messages :]]
     messages.append({"role": "user", "content": question})
 
+    # Fallback chain, like streaming chat: free-tier models are often briefly
+    # overloaded (HTTP 503). Once a model works we stay on it for the rest of
+    # the loop rather than switching models mid-conversation.
+    models = [settings.llm_model, *settings.llm_fallback_model_list]
+
     for step in range(settings.agent_max_steps + 1):
         final_step = step == settings.agent_max_steps
-        kwargs: dict = {"model": settings.llm_model, "messages": messages, "temperature": settings.llm_temperature}
+        kwargs: dict = {"messages": messages, "temperature": settings.llm_temperature}
         if not final_step:
             kwargs["tools"] = TOOLS
         else:  # out of steps: force an answer from what was gathered
             messages.append({"role": "user", "content": "Stop searching and answer now from the tool results you have."})
         await session.commit()  # don't hold a DB connection while the LLM thinks (see db.py)
-        resp = await _get_client().chat.completions.create(**kwargs)
+        resp = None
+        while resp is None:
+            try:
+                resp = await _get_client().chat.completions.create(model=models[0], **kwargs)
+            except Exception as e:
+                if len(models) == 1:  # nothing left to fall back to
+                    raise LLMError(f"All models failed. Last error: {e}") from e
+                log.warning("agent: model %s failed (%s); falling back to %s", models[0], e, models[1])
+                models.pop(0)
+        meta["model"] = models[0]
         meta["steps"] += 1
         if resp.usage:
             meta["usage"]["prompt_tokens"] += resp.usage.prompt_tokens
