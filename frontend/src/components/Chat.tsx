@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import Answer from "./Answer";
 import { streamChat, type AnswerMode, type ChatMessage, type Source, type Timings } from "../api";
 
 type Turn = {
@@ -9,26 +10,6 @@ type Turn = {
   error?: string;
   streaming?: boolean;
 };
-
-/** Render "[1]" style citations as small badges with the source as a tooltip. */
-function WithCitations({ text, sources }: { text: string; sources?: Source[] }) {
-  const parts = text.split(/(\[\d+\])/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        const m = part.match(/^\[(\d+)\]$/);
-        if (!m) return <span key={i}>{part}</span>;
-        const src = sources?.find((s) => s.n === Number(m[1]));
-        const title = src ? `${src.filename}${src.page ? `, p.${src.page}` : ""}` : undefined;
-        return (
-          <sup key={i} className="cite" title={title}>
-            {m[1]}
-          </sup>
-        );
-      })}
-    </>
-  );
-}
 
 export default function Chat() {
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -103,7 +84,7 @@ export default function Chat() {
           <div key={i} className={`msg ${t.role}`}>
             <div className="bubble">
               {t.role === "assistant" ? (
-                <WithCitations text={t.content} sources={t.sources} />
+                <Answer text={t.content} sources={t.sources} />
               ) : (
                 t.content
               )}
