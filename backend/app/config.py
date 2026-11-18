@@ -60,6 +60,22 @@ class Settings(BaseSettings):
     model_cache_dir: str = "./data/models"
     max_history_messages: int = 6
 
+    # Phase 4 -------------------------------------------------------------
+    # Rewrite follow-up questions ("what's its budget?") into standalone search
+    # queries using the conversation. Only runs when there is history.
+    query_rewrite: bool = True
+    # Context added to each chunk before embedding/indexing:
+    # "none", "title" (filename/page label, free), or "llm" (an LLM-written
+    # sentence situating the chunk in its document; one call per chunk at ingest)
+    chunk_context: Literal["none", "title", "llm"] = "none"
+    # How questions are answered:
+    # "rag" (retrieve top-k, then answer), "agent" (the LLM calls search/read
+    # tools in a loop), or "long_context" (no retrieval: all documents in the prompt)
+    answer_mode: Literal["rag", "agent", "long_context"] = "rag"
+    agent_max_steps: int = 6
+    agent_read_max_chars: int = 40_000  # read_document tool truncates long docs
+    long_context_max_chars: int = 400_000  # ~100k tokens; refuse beyond this
+
     # OCR for scanned PDFs and images: "gemini" (vision LLM) or "tesseract" (local)
     ocr_provider: Literal["gemini", "tesseract"] = "gemini"
     ocr_model: str = "gemini-3.5-flash-lite"

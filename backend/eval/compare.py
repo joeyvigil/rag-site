@@ -15,8 +15,12 @@ COLUMNS = [
     ("model", lambda r: r["config"].get("model") or "(retrieval)"),
     ("chunk", lambda r: f"{r['config']['chunk_size']}/{r['config']['chunk_overlap']}"
                         + ("+hdr" if r["config"].get("csv_header_in_chunks") else "")),
+    ("mode", lambda r: r["config"].get("answer_mode", "rag")
+                       + ("+rw" if r["config"].get("query_rewrite") else "")
+                       + (f"+ctx:{r['config']['chunk_context']}" if r["config"].get("chunk_context", "none") != "none" else "")),
     ("retrieval", lambda r: r["config"].get("retrieval_mode", "vector")
                             + (f"+{r['config']['reranker']}" if r["config"].get("reranker", "none") != "none" else "")),
+    ("n", lambda r: r["summary"]["n_questions"]),
     ("k", lambda r: r["config"]["top_k"]),
     ("hit@k", lambda r: r["summary"]["retrieval"].get("hit@k")),
     ("recall@k", lambda r: r["summary"]["retrieval"].get("recall@k")),

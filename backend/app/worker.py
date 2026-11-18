@@ -19,12 +19,22 @@ from app.config import settings
 from app.db import SessionLocal, ensure_vector_extension
 from app.embeddings import embed_documents
 from app.models import Chunk, Document, DocumentStatus
+from app.contextualize import contextualize
 from app.ocr import ocr_document
 from app.parsing import ParseError, Section, parse_document
 from app.storage import storage
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("worker")
+
+
+def document_text(sections: list[Section]) -> str:
+    """Whole-document text with page markers, for long-context answering and read_document."""
+    parts = []
+    for s in sections:
+        body = f"{s.header}\n{s.text}" if s.header else s.text
+        parts.append(f"[Page {s.page}]\n{body.strip()}" if s.page else body.strip())
+    return "\n\n".join(parts)
 
 
 async def ingest_document(ctx: dict, document_id: str) -> str:
@@ -57,7 +67,11 @@ async def ingest_document(ctx: dict, document_id: str) -> str:
             )
             log.info("%s: %d sections -> %d chunks", doc.filename, len(parsed.sections), len(chunks))
 
-            vectors = await embed_documents(session, [c.text for c in chunks])
+            full_text = document_text(parsed.sections)
+            # Optionally prefix each chunk with context (filename label or an
+            # LLM-written description) before it's embedded and indexed.
+            texts = await contextualize(session, doc.filename, full_text, chunks, settings.chunk_context)
+            vectors = await embed_documents(session, texts)
 
             # Idempotent: replace any chunks from a previous attempt.
             await session.execute(delete(Chunk).where(Chunk.document_id == doc.id))
@@ -67,15 +81,16 @@ async def ingest_document(ctx: dict, document_id: str) -> str:
                     user_id=doc.user_id,
                     chunk_index=c.index,
                     page=c.page,
-                    content=c.text,
-                    token_count=c.token_estimate,
+                    content=text,
+                    token_count=max(1, len(text) // 4),
                     embedding=vec,
                 )
-                for c, vec in zip(chunks, vectors, strict=True)
+                for c, text, vec in zip(chunks, texts, vectors, strict=True)
             )
             doc.status = DocumentStatus.READY
             doc.num_chunks = len(chunks)
             doc.num_pages = parsed.num_pages
+            doc.full_text = full_text
             await session.commit()
             log.info("%s: ready", doc.filename)
             return "ready"

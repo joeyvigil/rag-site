@@ -1,0 +1,1001 @@
+{
+  "label": "p4-B-rag-rewrite",
+  "timestamp": "20261118-132004",
+  "config": {
+    "chunk_size": 1200,
+    "chunk_overlap": 200,
+    "csv_header_in_chunks": true,
+    "chunk_context": "none",
+    "embedding_provider": "gemini",
+    "embedding_model": "gemini-embedding-001",
+    "embedding_dim": 768,
+    "corpus": "28743987ae3a",
+    "top_k": 6,
+    "answer_mode": "rag",
+    "query_rewrite": true,
+    "retrieval_mode": "hybrid",
+    "reranker": "none",
+    "rerank_candidates": null,
+    "model": "gemini-3.5-flash-lite",
+    "judge_model": "gemini-3.1-flash-lite",
+    "retrieval_only": false,
+    "concurrency": 2,
+    "rpm": 12,
+    "n_chunks": 79
+  },
+  "summary": {
+    "n_questions": 7,
+    "n_answerable": 7,
+    "n_with_evidence": 7,
+    "errors": 0,
+    "retrieval": {
+      "hit@1": 0.429,
+      "hit@3": 0.571,
+      "hit@5": 0.857,
+      "hit@10": 1.0,
+      "hit@k": 1.0,
+      "recall@k": 1.0,
+      "mrr": 0.588,
+      "recall@k_ci95": [
+        1.0,
+        1.0
+      ],
+      "retrieval_ms_p50": 6026.6,
+      "retrieval_ms_p95": 8241.3
+    },
+    "generation": {
+      "n_answered": 7,
+      "n_judged": 7,
+      "correctness": 1.0,
+      "correctness_ci95": [
+        1.0,
+        1.0
+      ],
+      "faithfulness": 1.0,
+      "correctness_answerable": 1.0,
+      "false_refusal_rate": 0.0,
+      "correct_refusal_rate": null,
+      "citation_rate": 1.0,
+      "invalid_citations": 0,
+      "ttft_ms_p50": 12816.0,
+      "ttft_ms_p95": 15267.0,
+      "total_ms_p50": 12854.0,
+      "total_ms_p95": 15326.0,
+      "prompt_tokens_mean": 2129.0,
+      "completion_tokens_mean": 23.0,
+      "cost_per_1k_queries_usd": 0.7543,
+      "helper_calls_per_query": 1.0,
+      "models_used": [
+        "gemini-3.5-flash-lite"
+      ]
+    },
+    "by_category": {
+      "follow_up": {
+        "n": 7,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "correctness": 1.0
+      }
+    },
+    "wall_time_s": 104.3
+  },
+  "questions": [
+    {
+      "id": "f01",
+      "category": "follow_up",
+      "question": "What is its top risk?",
+      "reference": "FAA waiver approval for beyond-visual-line-of-sight flights.",
+      "evidence": [
+        "FAA waiver approval"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "Who leads Project Osprey?"
+        },
+        {
+          "role": "assistant",
+          "content": "Marcus Bell leads Project Osprey."
+        }
+      ],
+      "prep_ms": 3462.6,
+      "retrieval_ms": 3462.6,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 96,
+          "completion_tokens": 9,
+          "cost_usd": 5.13e-05
+        }
+      ],
+      "search_query": "What is the top risk of Project Osprey",
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.032
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0315
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0313
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0311
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.0297
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0292
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0292
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          5
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.2
+      },
+      "generation": {
+        "answer": "The top risk for Project Osprey is FAA waiver approval for beyond-visual-line-of-sight flights [5].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1720,
+          "completion_tokens": 25
+        },
+        "cost_usd": 0.0005785,
+        "total_cost_usd": 0.0006298,
+        "ttft_ms": 5574.5,
+        "total_ms": 5629.5,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly identifies the top risk for Project Osprey as stated in the provided document.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1974,
+          "completion_tokens": 48
+        }
+      }
+    },
+    {
+      "id": "f02",
+      "category": "follow_up",
+      "question": "How much of that has been spent?",
+      "reference": "$1,575,000 has been spent to date.",
+      "evidence": [
+        "Total | $2,400,000 | $1,575,000"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "What is Project Falcon's total budget?"
+        },
+        {
+          "role": "assistant",
+          "content": "Project Falcon's total budget is $2,400,000."
+        }
+      ],
+      "prep_ms": 8434.9,
+      "retrieval_ms": 8434.9,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 112,
+          "completion_tokens": 5,
+          "cost_usd": 4.61e-05
+        }
+      ],
+      "search_query": "Project Falcon spent budget amount",
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 10,
+          "score": 0.0325
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 11,
+          "score": 0.032
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0315
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0313
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0303
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0303
+        },
+        {
+          "filename": "project_osprey_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0297
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 9,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0288
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          4
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.25
+      },
+      "generation": {
+        "answer": "$1,575,000 has been spent [4].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2108,
+          "completion_tokens": 16
+        },
+        "cost_usd": 0.0006724,
+        "total_cost_usd": 0.0007185,
+        "ttft_ms": 15690.1,
+        "total_ms": 15747.2,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The assistant correctly identified the amount spent from the provided document.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2356,
+          "completion_tokens": 42
+        }
+      }
+    },
+    {
+      "id": "f03",
+      "category": "follow_up",
+      "question": "How quickly will they get back to me?",
+      "reference": "The security team responds within 4 business hours.",
+      "evidence": [
+        "responds within 4 business hours"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "What should I do if I get a phishing email?"
+        },
+        {
+          "role": "assistant",
+          "content": "Don't click anything; forward it as an attachment to phish@halcyon-robotics.example and delete it (incident code SEC-417)."
+        }
+      ],
+      "prep_ms": 1406.7,
+      "retrieval_ms": 1406.7,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 131,
+          "completion_tokens": 11,
+          "cost_usd": 6.68e-05
+        }
+      ],
+      "search_query": "SEC-417 phishing response time Halcyon Robotics",
+      "retrieved": [
+        {
+          "filename": "it_security_runbook.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0323
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0317
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.031
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0292
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0289
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0288
+        },
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0279
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Based on the provided documents, the security team responds to suspected phishing emails (incident code SEC-417) within **4 business hours** [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1600,
+          "completion_tokens": 32
+        },
+        "cost_usd": 0.00056,
+        "total_cost_usd": 0.0006268,
+        "ttft_ms": 7829.7,
+        "total_ms": 7909.9,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly identifies the response time for phishing reports as stated in the provided security runbook.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1867,
+          "completion_tokens": 49
+        }
+      }
+    },
+    {
+      "id": "f04",
+      "category": "follow_up",
+      "question": "Can I extend it?",
+      "reference": "Yes, extended warranties of up to 5 years can be purchased at checkout.",
+      "evidence": [
+        "Extended warranties of up to 5 years"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "What warranty do the robotic arms come with?"
+        },
+        {
+          "role": "assistant",
+          "content": "A 2-year limited warranty covering parts and labor."
+        }
+      ],
+      "prep_ms": 7789.7,
+      "retrieval_ms": 7789.7,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 103,
+          "completion_tokens": 6,
+          "cost_usd": 4.59e-05
+        }
+      ],
+      "search_query": "Robotic arms warranty extension options",
+      "retrieved": [
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0263
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 14,
+          "score": 0.0164
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0161
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0159
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 13,
+          "score": 0.0159
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0156
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0156
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0154
+        },
+        {
+          "filename": "support_tickets.csv",
+          "page": null,
+          "chunk_index": 17,
+          "score": 0.0154
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "Yes, extended warranties of up to 5 years can be purchased at checkout [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 2180,
+          "completion_tokens": 18
+        },
+        "cost_usd": 0.000699,
+        "total_cost_usd": 0.0007449,
+        "ttft_ms": 14281.3,
+        "total_ms": 14344.8,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly identifies that extended warranties can be purchased at checkout, as stated in the provided document.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2447,
+          "completion_tokens": 50
+        }
+      }
+    },
+    {
+      "id": "f05",
+      "category": "follow_up",
+      "question": "And Falcon's?",
+      "reference": "The Falcon pilot at the Reno warehouse is scheduled for February 9, 2027.",
+      "evidence": [
+        "February 9, 2027"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "When does the Osprey pilot start?"
+        },
+        {
+          "role": "assistant",
+          "content": "The Osprey pilot with the city of Boise begins January 12, 2027."
+        }
+      ],
+      "prep_ms": 6026.6,
+      "retrieval_ms": 6026.6,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 111,
+          "completion_tokens": 11,
+          "cost_usd": 6.0799999999999994e-05
+        }
+      ],
+      "search_query": "Falcon's pilot with the city of Boise start date",
+      "retrieved": [
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.0318
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 5,
+          "score": 0.0318
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 4,
+          "score": 0.0318
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0306
+        },
+        {
+          "filename": "project_falcon_status.docx",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0306
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 6,
+          "score": 0.0299
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0296
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.029
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0289
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          6
+        ],
+        "hit@1": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 0.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.16666666666666666
+      },
+      "generation": {
+        "answer": "The pilot deployment for Project Falcon at the Reno warehouse is scheduled for February 9, 2027 [6].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1745,
+          "completion_tokens": 25
+        },
+        "cost_usd": 0.000586,
+        "total_cost_usd": 0.0006468,
+        "ttft_ms": 8117.8,
+        "total_ms": 8193.0,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly identifies the pilot date from the provided document.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 2006,
+          "completion_tokens": 42
+        }
+      }
+    },
+    {
+      "id": "f06",
+      "category": "follow_up",
+      "question": "Which warehouse stocks it?",
+      "reference": "Reno.",
+      "evidence": [
+        "HX-7781,LiDAR Module L4,Sensors,1299.00,0.95,Reno"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "What is SKU HX-7781?"
+        },
+        {
+          "role": "assistant",
+          "content": "SKU HX-7781 is the LiDAR Module L4, priced at $1,299.00."
+        }
+      ],
+      "prep_ms": 5911.2,
+      "retrieval_ms": 5911.2,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 118,
+          "completion_tokens": 13,
+          "cost_usd": 6.790000000000001e-05
+        }
+      ],
+      "search_query": "warehouse stock SKU HX-7781 LiDAR Module L4",
+      "retrieved": [
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0328
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 26,
+          "score": 0.0306
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 7,
+          "score": 0.03
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 19,
+          "score": 0.0299
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 24,
+          "score": 0.0297
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 3,
+          "score": 0.0295
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 23,
+          "score": 0.0289
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 25,
+          "score": 0.0287
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 18,
+          "score": 0.0284
+        },
+        {
+          "filename": "product_catalog.csv",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0282
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          1
+        ],
+        "hit@1": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 1.0
+      },
+      "generation": {
+        "answer": "SKU HX-7781 is stocked in the Reno warehouse [1].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 4272,
+          "completion_tokens": 17
+        },
+        "cost_usd": 0.0013241,
+        "total_cost_usd": 0.001392,
+        "ttft_ms": 12815.6,
+        "total_ms": 12854.3,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer correctly identifies the warehouse for the specified SKU based on the provided excerpts.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 4539,
+          "completion_tokens": 46
+        }
+      }
+    },
+    {
+      "id": "f07",
+      "category": "follow_up",
+      "question": "How many of those can roll over?",
+      "reference": "Up to 6 unused days can be carried over, and they expire on March 31.",
+      "evidence": [
+        "Up to 6 unused PTO days may be carried over"
+      ],
+      "history": [
+        {
+          "role": "user",
+          "content": "How many PTO days do full-time employees get?"
+        },
+        {
+          "role": "assistant",
+          "content": "Full-time employees accrue 22 days of PTO per year."
+        }
+      ],
+      "prep_ms": 7291.0,
+      "retrieval_ms": 7291.0,
+      "extra_usage": [
+        {
+          "stage": "rewrite",
+          "model": "gemini-3.5-flash-lite",
+          "prompt_tokens": 110,
+          "completion_tokens": 11,
+          "cost_usd": 6.05e-05
+        }
+      ],
+      "search_query": "How many PTO days can full-time employees roll over",
+      "retrieved": [
+        {
+          "filename": "pto_policy_2024_archived.md",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 1,
+          "chunk_index": 0,
+          "score": 0.0325
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 2,
+          "chunk_index": 1,
+          "score": 0.0317
+        },
+        {
+          "filename": "employee_handbook.pdf",
+          "page": 4,
+          "chunk_index": 3,
+          "score": 0.0305
+        },
+        {
+          "filename": "meeting_notes_q3.html",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0294
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 12,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 2,
+          "score": 0.0288
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 8,
+          "score": 0.0284
+        },
+        {
+          "filename": "weekly_digests_2026.md",
+          "page": null,
+          "chunk_index": 1,
+          "score": 0.0283
+        },
+        {
+          "filename": "customer_faq.txt",
+          "page": null,
+          "chunk_index": 0,
+          "score": 0.0282
+        }
+      ],
+      "retrieval": {
+        "ranks": [
+          2
+        ],
+        "hit@1": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@10": 1.0,
+        "hit@k": 1.0,
+        "recall@k": 1.0,
+        "rr": 0.5
+      },
+      "generation": {
+        "answer": "Up to 6 unused PTO days may be carried over into the following year, and these carried-over days expire on March 31 [2].",
+        "model": "gemini-3.5-flash-lite",
+        "usage": {
+          "prompt_tokens": 1277,
+          "completion_tokens": 31
+        },
+        "cost_usd": 0.0004606,
+        "total_cost_usd": 0.0005210999999999999,
+        "ttft_ms": 13457.4,
+        "total_ms": 13496.1,
+        "has_citation": true,
+        "invalid_citations": [],
+        "correctness": "correct",
+        "correctness_score": 1.0,
+        "judge_overridden": false,
+        "refused": false,
+        "faithful": true,
+        "unsupported_claims": [],
+        "explanation": "The answer accurately reflects the information provided in the Employee Handbook excerpt.",
+        "judge_model": "gemini-3.1-flash-lite",
+        "judge_usage": {
+          "prompt_tokens": 1546,
+          "completion_tokens": 43
+        }
+      }
+    }
+  ]
+}

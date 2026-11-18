@@ -65,3 +65,4 @@ async def init_db() -> None:
         await conn.execute(text(
             "CREATE INDEX IF NOT EXISTS ix_chunks_content_tsv ON chunks USING gin (content_tsv)"
         ))
+        await conn.execute(text("ALTER TABLE documents ADD COLUMN IF NOT EXISTS full_text text"))

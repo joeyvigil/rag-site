@@ -20,6 +20,7 @@ from app.config import settings
 JUDGE_PROMPT = """You are grading an AI assistant's answer to a question about a company's internal documents.
 
 You are given:
+- EARLIER CONVERSATION (optional): previous turns, for follow-up questions
 - QUESTION: what the user asked
 - REFERENCE: the correct answer, written by a human. "NOT IN DOCUMENTS" means the documents do not contain the answer.
 - EXCERPTS: the document excerpts the assistant was shown
@@ -37,7 +38,7 @@ Grade three things:
 
 2. refused: true if the answer says it could not find (some or all of) the requested information.
 
-3. faithful (compare ANSWER to EXCERPTS, ignoring REFERENCE): true if every factual claim in the answer is supported by the excerpts. Simple arithmetic on numbers from the excerpts counts as supported. A refusal is faithful. List any unsupported claims.
+3. faithful (compare ANSWER to EXCERPTS, ignoring REFERENCE): true if every factual claim in the answer is supported by the excerpts (or restates the earlier conversation). Simple arithmetic on numbers from the excerpts counts as supported. A refusal is faithful. List any unsupported claims.
 
 Respond with JSON only:
 {"correctness": "correct" | "partial" | "incorrect", "refused": true | false, "faithful": true | false, "unsupported_claims": ["..."], "explanation": "one short sentence"}"""
@@ -56,11 +57,15 @@ class Judge:
         )
 
     async def grade(
-        self, question: str, reference: str, excerpts: list[str], answer: str, *, answerable: bool
+        self, question: str, reference: str, excerpts: list[str], answer: str, *,
+        answerable: bool, history: list[dict] | None = None,
     ) -> dict:
         excerpt_text = "\n\n".join(f"[{i}] {e}" for i, e in enumerate(excerpts, start=1)) or "(none)"
+        convo = ""
+        if history:  # follow-up questions only make sense with the earlier turns
+            convo = "EARLIER CONVERSATION:\n" + "\n".join(f"{m['role']}: {m['content']}" for m in history) + "\n\n"
         user = (
-            f"QUESTION:\n{question}\n\nREFERENCE:\n{reference}\n\n"
+            f"{convo}QUESTION:\n{question}\n\nREFERENCE:\n{reference}\n\n"
             f"EXCERPTS:\n{excerpt_text}\n\nANSWER:\n{answer}"
         )
         resp = await self.client.chat.completions.create(

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { streamChat, type ChatMessage, type Source, type Timings } from "../api";
+import { streamChat, type AnswerMode, type ChatMessage, type Source, type Timings } from "../api";
 
 type Turn = {
   role: "user" | "assistant";
@@ -34,6 +34,7 @@ export default function Chat() {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState<AnswerMode>("rag");
   const bottomRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -65,7 +66,7 @@ export default function Chat() {
     abortRef.current = controller;
     try {
       await streamChat(
-        { question, history },
+        { question, history, answer_mode: mode },
         {
           onSources: (sources) => updateLast((t) => ({ ...t, sources })),
           onToken: (text) => updateLast((t) => ({ ...t, content: t.content + text })),
@@ -116,9 +117,13 @@ export default function Chat() {
                   {t.timings && (
                     <span className="muted">
                       {" "}
-                      · retrieval {t.timings.retrieval_ms} ms · first token {t.timings.first_token_ms ?? "–"} ms ·
-                      total {t.timings.total_ms} ms · {t.timings.model}
+                      · {t.timings.mode ?? "rag"}
+                      {t.timings.agent_steps ? ` (${t.timings.agent_steps} steps)` : ""} · prep {t.timings.retrieval_ms} ms ·
+                      first token {t.timings.first_token_ms ?? "–"} ms · total {t.timings.total_ms} ms · {t.timings.model}
                     </span>
+                  )}
+                  {t.timings?.search_query && t.timings.search_query !== turns[i - 1]?.content && (
+                    <div className="muted small">searched for: “{t.timings.search_query}”</div>
                   )}
                 </summary>
                 <ol>
@@ -147,6 +152,16 @@ export default function Chat() {
           placeholder="Ask about your documents…  (Enter to send, Shift+Enter for newline)"
           rows={2}
         />
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value as AnswerMode)}
+          disabled={busy}
+          title="How the answer is found. RAG: one search (fast). Agent: the model searches and reads documents itself (most accurate, slower). Long context: whole documents in the prompt (no search, costly)."
+        >
+          <option value="rag">RAG</option>
+          <option value="agent">Agent</option>
+          <option value="long_context">Long context</option>
+        </select>
         {busy ? (
           <button type="button" onClick={() => abortRef.current?.abort()}>
             Stop

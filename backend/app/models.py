@@ -49,6 +49,10 @@ class Document(Base):
     error: Mapped[str | None] = mapped_column(Text)
     num_chunks: Mapped[int] = mapped_column(Integer, default=0)
     num_pages: Mapped[int | None] = mapped_column(Integer)
+    # The whole extracted text (with [Page n] markers), used by long-context
+    # answering and the agent's read_document tool. deferred=True: not loaded
+    # unless asked for, since it can be large.
+    full_text: Mapped[str | None] = mapped_column(Text, deferred=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -92,6 +96,19 @@ class Chunk(Base):
             postgresql_with={"m": 16, "ef_construction": 64},
             postgresql_ops={"embedding": "vector_cosine_ops"},
         ),
+    )
+
+
+class LLMCache(Base):
+    """Cache for deterministic-ish LLM outputs computed at ingest time
+    (contextual chunk descriptions), keyed by a hash of model + prompt."""
+
+    __tablename__ = "llm_cache"
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    value: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
     )
 
 

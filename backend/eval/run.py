@@ -33,11 +33,13 @@ from sqlalchemy import func, select
 
 from app.config import settings
 from app.db import SessionLocal, init_db
-from app.embeddings import embed_query
 from app.llm import stream_chat
 from app.models import Chunk, Document, DocumentStatus, User
 from app.parsing import parse_document
-from app.rag import build_messages, search
+from app.llm import QuotaExhausted, is_daily_quota_error
+from app.pipeline import prepare_answer
+from app.rag import ContextTooLarge
+from app.schemas import ChatMessage
 from app.storage import storage
 from eval import metrics
 from eval.build_corpus import CORPUS_DIR
@@ -80,10 +82,10 @@ def validate_dataset(questions: list[dict], corpus: dict[str, str]) -> list[str]
         if q["id"] in seen_ids:
             problems.append(f"{q['id']}: duplicate id")
         seen_ids.add(q["id"])
-        if q["category"] == "unanswerable" and q["evidence"]:
+        if q["category"] == "unanswerable" and (q["evidence"] or q.get("answerable")):
             problems.append(f"{q['id']}: unanswerable questions must have no evidence")
-        if q["category"] != "unanswerable" and not q["evidence"]:
-            problems.append(f"{q['id']}: answerable question has no evidence")
+        if q["category"] != "unanswerable" and not is_answerable(q):
+            problems.append(f"{q['id']}: answerable question needs evidence (or \"answerable\": true)")
         for ev in q["evidence"]:
             if not any(metrics.normalize(ev) in d for d in norm_docs.values()):
                 problems.append(f"{q['id']}: evidence not found in corpus: {ev!r}")
@@ -100,6 +102,7 @@ def ingest_config(corpus: dict[str, str]) -> dict:
         "chunk_size": settings.chunk_size,
         "chunk_overlap": settings.chunk_overlap,
         "csv_header_in_chunks": settings.csv_header_in_chunks,
+        "chunk_context": settings.chunk_context,
         "embedding_provider": settings.embedding_provider,
         "embedding_model": settings.embedding_model,
         "embedding_dim": settings.embedding_dim,
@@ -124,7 +127,9 @@ async def ensure_ingested(config: dict) -> tuple[uuid.UUID, int]:
 
         docs = list(await s.scalars(select(Document).where(Document.user_id == user.id)))
         ready = {d.filename for d in docs if d.status == DocumentStatus.READY}
-        if ready != {f.name for f in files} or len(docs) != len(files):
+        missing_text = await s.scalar(select(func.count()).select_from(Document).where(
+            Document.user_id == user.id, Document.full_text.is_(None)))
+        if ready != {f.name for f in files} or len(docs) != len(files) or missing_text:
             print(f"Ingesting {len(files)} corpus files for config {config_hash} …")
             for d in docs:
                 await storage.delete(d.storage_key)
@@ -174,34 +179,68 @@ class RateLimiter:
             self._next = max(now, self._next) + self.interval
 
 
+def is_answerable(q: dict) -> bool:
+    return q.get("answerable", bool(q["evidence"]))
+
+
+async def _with_retries(fn, attempts: int = 4):
+    """Retry a whole step (on the SAME model) when the free tier is overloaded."""
+    for attempt in range(attempts):
+        try:
+            return await fn()
+        except ContextTooLarge:
+            raise
+        except Exception as e:
+            if is_daily_quota_error(e) or isinstance(e, QuotaExhausted):
+                raise QuotaExhausted(str(e)[:300]) from e
+            if attempt == attempts - 1:
+                raise
+            await asyncio.sleep(5 * (attempt + 1) ** 2)
+
+
 async def run_question(q: dict, user_id: uuid.UUID, args, judge: Judge | None, limiter: RateLimiter) -> dict:
     rec: dict = {k: q[k] for k in ("id", "category", "question", "reference", "evidence")}
+    history = [ChatMessage(**m) for m in q.get("history", [])]
+    if history:
+        rec["history"] = q["history"]
 
-    # --- Retrieval
-    if args.reranker == "llm":
-        await limiter.wait()  # the LLM reranker is an API call too
-    t0 = time.perf_counter()
-    search_meta: dict = {}
-    async with SessionLocal() as s:
-        qvec = await embed_query(s, q["question"]) if args.retrieval_mode != "keyword" else None
-        chunks = await search(
-            s, user_id, q["question"], qvec, max(RETRIEVE_N, args.top_k),
-            mode=args.retrieval_mode, reranker=args.reranker, meta=search_meta,
-        )
-        await s.commit()
-    retrieval_ms = (time.perf_counter() - t0) * 1000
-    context = chunks[: args.top_k]
+    # --- Preparation: the exact production pipeline (retrieval / agent loop / long context)
+    async def prepare():
+        if args.answer_mode == "agent" or args.reranker == "llm" or (args.query_rewrite == "on" and history):
+            await limiter.wait()  # these make LLM calls during preparation
+        async with SessionLocal() as s:
+            return await prepare_answer(
+                s, user_id, q["question"], history,
+                mode=args.answer_mode, k=args.top_k, retrieve_n=RETRIEVE_N,
+                retrieval_mode=args.retrieval_mode, reranker=args.reranker,
+                query_rewrite=args.query_rewrite == "on",
+            )
 
-    rec["retrieval_ms"] = round(retrieval_ms, 1)
-    if "rerank_usage" in search_meta:
-        ru = search_meta["rerank_usage"]
-        rec["rerank_usage"] = {**ru, "cost_usd": cost_usd(ru["model"], ru["prompt_tokens"], ru["completion_tokens"])}
+    try:
+        prep = await _with_retries(prepare)
+    except QuotaExhausted:
+        raise
+    except Exception as e:
+        rec["error"] = f"prepare: {type(e).__name__}: {e}"[:300]
+        return rec
+
+    rec["prep_ms"] = round(prep.prep_ms, 1)
+    rec["retrieval_ms"] = rec["prep_ms"]
+    rec["extra_usage"] = [
+        {**u, "cost_usd": cost_usd(u["model"], u["prompt_tokens"], u["completion_tokens"])} for u in prep.extra_usage
+    ]
+    if prep.search_query and prep.search_query != q["question"]:
+        rec["search_query"] = prep.search_query
+    if prep.agent:
+        rec["agent"] = {"steps": prep.agent["steps"], "tool_calls": prep.agent["tool_calls"]}
+
+    ranked = prep.retrieved if prep.mode == "rag" else prep.sources
     rec["retrieved"] = [
         {"filename": c.filename, "page": c.page, "chunk_index": c.chunk_index, "score": round(c.score, 4)}
-        for c in chunks
+        for c in ranked
     ]
-    if q["evidence"]:
-        ranks = metrics.evidence_ranks(q["evidence"], [c.content for c in chunks])
+    if q["evidence"] and prep.mode == "rag":
+        ranks = metrics.evidence_ranks(q["evidence"], [c.content for c in prep.retrieved])
         rec["retrieval"] = {
             "ranks": ranks,
             "hit@1": metrics.hit_at_k(ranks, 1),
@@ -212,69 +251,74 @@ async def run_question(q: dict, user_id: uuid.UUID, args, judge: Judge | None, l
             "recall@k": metrics.recall_at_k(ranks, args.top_k),
             "rr": metrics.reciprocal_rank(ranks),
         }
+    elif q["evidence"] and prep.mode == "agent":
+        # No single ranked list: measure whether the agent ever SAW each evidence string.
+        ranks = metrics.evidence_ranks(q["evidence"], [c.content for c in prep.sources])
+        rec["evidence_seen"] = metrics.recall_at_k(ranks, len(prep.sources) or 1)
     if args.retrieval_only:
         return rec
 
-    # --- Generation (same prompt as production)
-    messages = build_messages(q["question"], [], context)
-    answer, meta, gen_error = "", {}, None
+    # --- Generation
+    answer, meta = "", {}
     ttft_ms = total_ms = None
-    if not context:
+    if prep.answer is not None:  # agent: already answered during preparation
+        answer = prep.answer
+        meta = {"model": prep.agent["model"], "usage": prep.agent["usage"]}
+        ttft_ms = total_ms = prep.prep_ms
+    elif not prep.messages:
         answer = "I couldn't find anything relevant."
     else:
-        for attempt in range(4):
-            meta, parts, first = {}, [], None
+        async def generate():
+            m, parts, first = {}, [], None
             await limiter.wait()
             start = time.perf_counter()
-            try:
-                async for fragment in stream_chat(messages, meta=meta, models=[args.model]):
-                    if first is None:
-                        first = time.perf_counter()
-                    parts.append(fragment)
-                end = time.perf_counter()
-                answer = "".join(parts)
-                # End-to-end, as a user would experience it: retrieval + generation.
-                ttft_ms = retrieval_ms + ((first or end) - start) * 1000
-                total_ms = retrieval_ms + (end - start) * 1000
-                gen_error = None
-                break
-            except Exception as e:  # overloaded / rate limited: back off and retry the SAME model
-                gen_error = f"{type(e).__name__}: {e}"[:300]
-                await asyncio.sleep(5 * (attempt + 1) ** 2)
-    if gen_error:
-        rec["error"] = gen_error
-        return rec
+            async for fragment in stream_chat(prep.messages, meta=m, models=[args.model]):
+                if first is None:
+                    first = time.perf_counter()
+                parts.append(fragment)
+            end = time.perf_counter()
+            # End-to-end, as a user would experience it: preparation + generation.
+            return "".join(parts), m, prep.prep_ms + ((first or end) - start) * 1000, prep.prep_ms + (end - start) * 1000
+
+        try:
+            answer, meta, ttft_ms, total_ms = await _with_retries(generate)
+        except QuotaExhausted:
+            raise
+        except Exception as e:
+            rec["error"] = f"generate: {type(e).__name__}: {e}"[:300]
+            return rec
 
     usage = meta.get("usage") or {"prompt_tokens": 0, "completion_tokens": 0}
     model_used = meta.get("model", args.model)
+    gen_cost = cost_usd(model_used, usage["prompt_tokens"], usage["completion_tokens"])
+    extra_costs = [u["cost_usd"] for u in rec["extra_usage"]]
     rec["generation"] = {
         "answer": answer,
         "model": model_used,
         "usage": usage,
-        "cost_usd": cost_usd(model_used, usage["prompt_tokens"], usage["completion_tokens"]),
+        "cost_usd": gen_cost,
+        # Total = answer generation + helper calls (query rewrite, LLM rerank).
+        "total_cost_usd": None if gen_cost is None or None in extra_costs else gen_cost + sum(extra_costs),
         "ttft_ms": round(ttft_ms, 1) if ttft_ms is not None else None,
         "total_ms": round(total_ms, 1) if total_ms is not None else None,
-        **metrics.citation_check(answer, len(context)),
+        **metrics.citation_check(answer, len(prep.sources)),
     }
 
     # --- Judge
     if judge:
-        for attempt in range(3):
+        excerpts = [c.content for c in prep.sources]
+
+        async def grade():
             await limiter.wait()
-            try:
-                rec["generation"].update(
-                    await judge.grade(
-                        q["question"], q["reference"], [c.content for c in context], answer,
-                        answerable=bool(q["evidence"]),
-                    )
-                )
-                break
-            except Exception as e:
-                rec["judge_error"] = f"{type(e).__name__}: {e}"[:300]
-                await asyncio.sleep(5 * (attempt + 1) ** 2)
-        else:
-            return rec
-        rec.pop("judge_error", None)
+            return await judge.grade(q["question"], q["reference"], excerpts, answer,
+                                     answerable=is_answerable(q), history=q.get("history"))
+
+        try:
+            rec["generation"].update(await _with_retries(grade, attempts=3))
+        except QuotaExhausted:
+            raise
+        except Exception as e:
+            rec["judge_error"] = f"{type(e).__name__}: {e}"[:300]
     return rec
 
 
@@ -285,11 +329,12 @@ def _r(x: float | None, digits: int = 3) -> float | None:
 
 
 def summarize(records: list[dict]) -> dict:
-    answerable = [r for r in records if r["evidence"]]
+    answerable = [r for r in records if r["evidence"]]  # has evidence -> retrieval metrics
     retrieval_recs = [r["retrieval"] for r in answerable if "retrieval" in r]
     summary: dict = {
         "n_questions": len(records),
-        "n_answerable": len(answerable),
+        "n_answerable": sum(1 for r in records if r["category"] != "unanswerable"),
+        "n_with_evidence": len(answerable),
         "errors": sum(1 for r in records if "error" in r or "judge_error" in r),
         "retrieval": {},
         "generation": {},
@@ -299,6 +344,9 @@ def summarize(records: list[dict]) -> dict:
     for key in ("hit@1", "hit@3", "hit@5", "hit@10", "hit@k", "recall@k"):
         summary["retrieval"][key] = _r(metrics.mean([x[key] for x in retrieval_recs]))
     summary["retrieval"]["mrr"] = _r(metrics.mean([x["rr"] for x in retrieval_recs]))
+    seen = [r["evidence_seen"] for r in answerable if "evidence_seen" in r]
+    if seen:
+        summary["retrieval"]["agent_evidence_seen"] = _r(metrics.mean(seen))
     summary["retrieval"]["recall@k_ci95"] = metrics.bootstrap_ci([x["recall@k"] for x in retrieval_recs])
     summary["retrieval"]["retrieval_ms_p50"] = _r(metrics.percentile([r["retrieval_ms"] for r in records], 50), 1)
     summary["retrieval"]["retrieval_ms_p95"] = _r(metrics.percentile([r["retrieval_ms"] for r in records], 95), 1)
@@ -314,12 +362,12 @@ def summarize(records: list[dict]) -> dict:
             g["correctness"] = _r(metrics.mean(scores))
             g["correctness_ci95"] = metrics.bootstrap_ci(scores)
             g["faithfulness"] = _r(metrics.mean([float(r["generation"]["faithful"]) for r in judged]))
-            ans_j = [r for r in judged if r["evidence"]]
-            unans_j = [r for r in judged if not r["evidence"]]
+            ans_j = [r for r in judged if r["category"] != "unanswerable"]
+            unans_j = [r for r in judged if r["category"] == "unanswerable"]
             g["correctness_answerable"] = _r(metrics.mean([r["generation"]["correctness_score"] for r in ans_j]))
             g["false_refusal_rate"] = _r(metrics.mean([float(r["generation"]["refused"]) for r in ans_j]))
             g["correct_refusal_rate"] = _r(metrics.mean([r["generation"]["correctness_score"] for r in unans_j]))
-        answered_ans = [r for r in gens if r["evidence"] and not r["generation"].get("refused")]
+        answered_ans = [r for r in gens if r["category"] != "unanswerable" and not r["generation"].get("refused")]
         g["citation_rate"] = _r(metrics.mean([float(r["generation"]["has_citation"]) for r in answered_ans]))
         g["invalid_citations"] = sum(len(r["generation"]["invalid_citations"]) for r in gens)
         ttft = [r["generation"]["ttft_ms"] for r in gens if r["generation"]["ttft_ms"] is not None]
@@ -331,13 +379,17 @@ def summarize(records: list[dict]) -> dict:
         g["prompt_tokens_mean"] = _r(metrics.mean([r["generation"]["usage"]["prompt_tokens"] for r in gens]), 0)
         g["completion_tokens_mean"] = _r(metrics.mean([r["generation"]["usage"]["completion_tokens"] for r in gens]), 0)
         # Total cost per query = generation + LLM reranking (if used).
-        costs = [r["generation"]["cost_usd"] for r in gens]
-        rerank_costs = [r.get("rerank_usage", {}).get("cost_usd", 0.0) for r in gens]
-        if all(c is not None for c in costs + rerank_costs):
-            g["cost_per_1k_queries_usd"] = _r(metrics.mean([a + b for a, b in zip(costs, rerank_costs)]) * 1000, 4)
-        reranks = [r["rerank_usage"] for r in gens if "rerank_usage" in r]
-        if reranks:
-            g["rerank_prompt_tokens_mean"] = _r(metrics.mean([x["prompt_tokens"] for x in reranks]), 0)
+        # Cost per query = answer generation + helper calls (rewrite, rerank).
+        costs = [r["generation"]["total_cost_usd"] for r in gens]
+        if all(c is not None for c in costs):
+            g["cost_per_1k_queries_usd"] = _r(metrics.mean(costs) * 1000, 4)
+        helper = [u for r in gens for u in r.get("extra_usage", [])]
+        if helper:
+            g["helper_calls_per_query"] = _r(len(helper) / len(gens), 2)
+        agent = [r["agent"] for r in gens if "agent" in r]
+        if agent:
+            g["agent_steps_mean"] = _r(metrics.mean([a["steps"] for a in agent]), 2)
+            g["agent_tool_calls_mean"] = _r(metrics.mean([len(a["tool_calls"]) for a in agent]), 2)
         g["models_used"] = sorted({r["generation"]["model"] for r in gens})
 
     for cat in sorted({r["category"] for r in records}):
@@ -367,7 +419,7 @@ def print_summary(summary: dict, config: dict) -> None:
     print("\n" + "=" * 64)
     print(f"Config: {json.dumps(config)}")
     print(f"Questions: {summary['n_questions']} ({summary['n_answerable']} answerable), errors: {summary['errors']}")
-    print("\nRetrieval (answerable questions)")
+    print(f"\nRetrieval ({summary['n_with_evidence']} questions with evidence strings)")
     for k, v in summary["retrieval"].items():
         print(f"  {k:24} {fmt(v)}")
     if summary["generation"]:
@@ -394,6 +446,9 @@ async def main(args) -> None:
     if args.csv_header is not None:
         settings.csv_header_in_chunks = args.csv_header == "on"
     settings.rerank_candidates = args.rerank_candidates
+    if args.chunk_context:
+        settings.chunk_context = args.chunk_context
+    settings.llm_model = args.model  # agent + query rewriting use the same model as answering
 
     questions = load_dataset()
     corpus = parsed_corpus()
@@ -409,7 +464,8 @@ async def main(args) -> None:
         wanted = set(args.ids.split(","))
         questions = [q for q in questions if q["id"] in wanted]
     if args.category:
-        questions = [q for q in questions if q["category"] == args.category]
+        wanted_cats = set(args.category.split(","))
+        questions = [q for q in questions if q["category"] in wanted_cats]
     if args.limit:
         questions = questions[: args.limit]
 
@@ -441,12 +497,19 @@ async def main(args) -> None:
         return rec
 
     started = time.perf_counter()
-    records = await asyncio.gather(*(one(q) for q in questions))
+    try:
+        records = await asyncio.gather(*(one(q) for q in questions))
+    except QuotaExhausted as e:
+        print(f"\nSTOPPED: a daily API quota is exhausted ({e}).\n"
+              "No results saved. Free-tier quotas reset at midnight Pacific time.")
+        raise SystemExit(2) from None
     records.sort(key=lambda r: r["id"])
 
     run_config = {
         **config,
         "top_k": args.top_k,
+        "answer_mode": args.answer_mode,
+        "query_rewrite": args.query_rewrite == "on",
         "retrieval_mode": args.retrieval_mode,
         "reranker": args.reranker,
         "rerank_candidates": args.rerank_candidates if args.reranker != "none" else None,
@@ -492,6 +555,9 @@ def parse_args():
     p.add_argument("--top-k", type=int, default=settings.retrieval_top_k, help="chunks given to the LLM")
     p.add_argument("--chunk-size", type=int, help="override CHUNK_SIZE (triggers re-ingestion)")
     p.add_argument("--chunk-overlap", type=int, help="override CHUNK_OVERLAP (triggers re-ingestion)")
+    p.add_argument("--answer-mode", choices=["rag", "agent", "long_context"], default=settings.answer_mode)
+    p.add_argument("--query-rewrite", choices=["on", "off"], default="on" if settings.query_rewrite else "off")
+    p.add_argument("--chunk-context", choices=["none", "title", "llm"], help="override CHUNK_CONTEXT (re-ingests)")
     p.add_argument("--retrieval-mode", choices=["vector", "keyword", "hybrid"], default=settings.retrieval_mode)
     p.add_argument("--reranker", choices=["none", "cross_encoder", "llm"], default=settings.reranker)
     p.add_argument("--rerank-candidates", type=int, default=settings.rerank_candidates,
@@ -500,7 +566,7 @@ def parse_args():
     p.add_argument("--model", default=settings.llm_model, help="answer model (no fallbacks during eval)")
     p.add_argument("--judge-model", help="judge model (default: JUDGE_MODEL env or the answer model)")
     p.add_argument("--ids", help="comma-separated question ids, e.g. q01,q22")
-    p.add_argument("--category", help="only run one category")
+    p.add_argument("--category", help="only these categories (comma-separated)")
     p.add_argument("--limit", type=int, help="only run the first N questions")
     p.add_argument("--concurrency", type=int, default=2, help="questions in flight at once")
     p.add_argument("--rpm", type=float, default=12, help="max LLM requests per minute (answer + judge)")

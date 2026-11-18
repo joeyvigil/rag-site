@@ -10,6 +10,7 @@ import asyncio
 import logging
 import re
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
 
 from openai import AsyncOpenAI
 
@@ -19,6 +20,29 @@ log = logging.getLogger(__name__)
 
 class LLMError(RuntimeError):
     pass
+
+
+class QuotaExhausted(LLMError):
+    """A DAILY quota is used up. Retrying is pointless until it resets
+    (free tier: midnight Pacific), so callers should stop, not back off."""
+
+
+def is_daily_quota_error(e: BaseException | None) -> bool:
+    """True if `e` (or any exception it was raised from) is a DAILY quota 429.
+
+    Gemini's 429 body names the violated quota, e.g.
+    "GenerateRequestsPerDayPerProjectPerModel-FreeTier". Per-minute limits
+    say "PerMinute" and ARE worth retrying. The details live in the original
+    SDK exception's body, so we follow the __cause__/__context__ chain: a
+    wrapper like LLMError("All models failed") has lost them otherwise.
+    """
+    seen = 0
+    while e is not None and seen < 10:
+        if isinstance(e, QuotaExhausted) or "PerDay" in f"{e} {getattr(e, 'body', None)}":
+            return True
+        e = e.__cause__ or e.__context__
+        seen += 1
+    return False
 
 
 _client: AsyncOpenAI | None = None
@@ -38,6 +62,50 @@ def _get_client() -> AsyncOpenAI:
             timeout=settings.llm_timeout_seconds,
         )
     return _client
+
+
+@dataclass
+class Completion:
+    text: str
+    model: str
+    usage: dict  # {"prompt_tokens": int, "completion_tokens": int}
+
+
+async def complete(
+    messages: list[dict],
+    *,
+    model: str | None = None,
+    json_mode: bool = False,
+    temperature: float = 0.0,
+    attempts: int = 5,
+) -> Completion:
+    """Non-streaming call for helper tasks (query rewriting, chunk context).
+
+    Retries the same model with exponential backoff: helper calls are often
+    made in bursts (one per chunk at ingest), which is exactly when free-tier
+    rate limits (HTTP 429) hit.
+    """
+    model = model or settings.llm_model
+    kwargs: dict = {"model": model, "messages": messages, "temperature": temperature}
+    if json_mode:
+        kwargs["response_format"] = {"type": "json_object"}
+    for attempt in range(attempts):
+        try:
+            resp = await _get_client().chat.completions.create(**kwargs)
+            usage = {
+                "prompt_tokens": resp.usage.prompt_tokens if resp.usage else 0,
+                "completion_tokens": resp.usage.completion_tokens if resp.usage else 0,
+            }
+            return Completion(resp.choices[0].message.content or "", model, usage)
+        except Exception as e:
+            if is_daily_quota_error(e):
+                raise QuotaExhausted(f"Daily quota exhausted for {model}") from e
+            if attempt == attempts - 1:
+                raise
+            delay = min(60, 2 ** (attempt + 1))
+            log.warning("LLM call failed (%s); retrying in %ss", e, delay)
+            await asyncio.sleep(delay)
+    raise AssertionError("unreachable")
 
 
 async def stream_chat(
@@ -101,7 +169,7 @@ async def stream_chat(
                 raise
             log.warning("model %s failed (%s); trying next fallback", model, e)
             last_error = e
-    raise LLMError(f"All models failed ({', '.join(models)}). Last error: {last_error}")
+    raise LLMError(f"All models failed ({', '.join(models)}). Last error: {last_error}") from last_error
 
 
 async def _fake_stream(messages: list[dict[str, str]]) -> AsyncIterator[str]:

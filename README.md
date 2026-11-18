@@ -65,7 +65,10 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 | `backend/app/chunking.py` | Recursive chunker |
 | `backend/app/embeddings.py` | Gemini / fake embeddings + cache + retries |
 | `backend/app/llm.py` | OpenAI-compatible streaming chat (Gemini, Groq, …) |
-| `backend/app/rag.py` | Retrieval pipeline (vector, keyword, RRF) + prompt construction |
+| `backend/app/rag.py` | Retrieval (vector, keyword, RRF), query rewriting, whole-document loading, prompt construction |
+| `backend/app/pipeline.py` | `prepare_answer`: the three answer modes (rag / agent / long_context), shared by chat and eval |
+| `backend/app/agent.py` | Agentic RAG: tool-calling loop with search / list / read tools |
+| `backend/app/contextualize.py` | Contextual chunks (`none` / `title` / `llm`) at ingest |
 | `backend/app/reranking.py` | Cross-encoder (local ONNX) and LLM rerankers |
 | `backend/app/ocr.py` | OCR: Gemini vision or Tesseract |
 | `backend/app/worker.py` | Ingestion job |
@@ -74,7 +77,7 @@ creates `pending` rows and enqueues a job, then returns immediately. The worker 
 
 ## Evaluation
 
-A fictional-company corpus (`backend/eval/corpus/`) and 42 hand-written questions
+A fictional-company corpus (`backend/eval/corpus/`) and 57 hand-written questions
 (`backend/eval/dataset.jsonl`) measure retrieval, answer quality, latency and cost.
 Commands run inside the `api` container:
 
@@ -84,6 +87,8 @@ docker compose exec api python -m eval.run --retrieval-only --label quick # retr
 docker compose exec api python -m eval.run --label baseline               # + answers + LLM judge (~7 min)
 docker compose exec api python -m eval.run --retrieval-only --chunk-size 600 --label chunk600
 docker compose exec api python -m eval.run --retrieval-only --retrieval-mode vector --reranker cross_encoder --label ce
+docker compose exec api python -m eval.run --answer-mode agent --concurrency 1 --rpm 10 --label agent
+docker compose exec api python -m eval.run --retrieval-only --chunk-context llm --label ctx-llm
 docker compose exec api python -m eval.compare                            # table of all runs
 docker compose exec api python -m eval.ocr_eval                           # Gemini vs Tesseract OCR
 ```
@@ -98,6 +103,18 @@ and the results.
 | **Phase 3 default (hybrid + CSV headers)** | **0.976** | **1.000** | $0.74 |
 | Phase 3 + LLM reranker | 0.988 | 1.000 | $2.60 |
 
+Phase 4 added 15 harder questions (follow-ups, cross-document synthesis, counting), 57 total:
+
+| Answer mode | Correctness | p50 latency | $/1k queries |
+|---|---|---|---|
+| RAG, no query rewriting | 0.833 | 6.8 s | $0.81 |
+| **RAG + query rewriting (default)** | **≈0.90** (follow-ups 3/7 → 7/7) | 6.8 s | ~$0.82 |
+| Long context (no retrieval) | 0.939 | 6.8 s | $9.93 |
+| Agent (tool-calling loop) | **0.974** | 16.4 s | $3.06 |
+
+(The API was slow that day; compare latencies within the table, not with Phase 3. No mode
+could reliably count rows in a 500-row CSV: that needs a SQL/code tool.)
+
 ## Design decisions worth explaining in an interview
 
 - **Background ingestion queue:** parsing and embedding are slow and rate-limited. Doing them inside the HTTP request would tie up API capacity and time out on large files. Worker capacity scales separately from the API.
@@ -107,6 +124,7 @@ and the results.
 - **Embedding cache:** content-addressed (`sha256(provider|model|dim|task|text)`), so re-uploads and repeated questions cost nothing.
 - **Tenant isolation:** `user_id` is copied onto every chunk and every query filters on it. Other users' documents return 404 rather than 403, so document IDs can't be probed.
 - **Hybrid search + RRF:** embeddings miss exact IDs; keywords miss paraphrases. Rank fusion merges them without comparing incomparable scores.
+- **Answer modes:** RAG, agent and long-context share one pipeline, so they're compared on identical questions; the user picks per question.
 - **Measure before shipping:** the reranker doubled rank-1 accuracy but barely moved answer correctness, at 3.5× the cost, so it's off by default.
 - **Prompt injection:** document text is untrusted. Excerpts are wrapped in tags and the system prompt tells the model to ignore instructions inside them.
 - **Provider-agnostic LLM layer:** any OpenAI-compatible endpoint works. That makes the planned model comparison a config change.
@@ -114,7 +132,8 @@ and the results.
 
 ## Known limitations (intentional; later phases fix them)
 
-- Follow-up questions ("what about the second one?") retrieve poorly, because there is no query rewriting yet.
+- Counting/aggregation questions over big tables fail in every mode (needs a text-to-SQL tool).
+- Agent mode is the most accurate but slow (p95 ~55 s), so it's opt-in per question.
 - Chunks never cross page boundaries, so very short pages produce tiny chunks.
 - Keyword ranking is `ts_rank_cd`, not true BM25 (no IDF).
 - OCR was evaluated on synthetic scans only.
@@ -126,5 +145,5 @@ and the results.
 1. ✅ Phase 1: naive RAG MVP
 2. ✅ Phase 2: golden Q&A dataset + evaluation harness (hit@k, recall@k, MRR, correctness, faithfulness, latency, cost)
 3. ✅ Phase 3: hybrid search (Postgres FTS + vectors, RRF), rerankers (cross-encoder, LLM), CSV-aware chunking, OCR (Gemini vision / Tesseract), all measured
-4. Query rewriting, contextual retrieval, agentic RAG, long-context baseline
+4. ✅ Phase 4: harder benchmark, query rewriting, contextual chunks, agentic RAG, long-context baseline, all measured
 5. Load testing (Locust/k6 with the fake LLM), caching, rate limits, observability

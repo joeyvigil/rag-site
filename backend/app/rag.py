@@ -202,6 +202,68 @@ def rrf_fuse(result_lists: list[list[RetrievedChunk]], k: int = 60) -> list[Retr
     return [replace(chunks[cid], score=scores[cid]) for cid in ranked]
 
 
+# --------------------------------------------------------------------------
+# Query rewriting (Phase 4)
+# --------------------------------------------------------------------------
+
+REWRITE_PROMPT = """You turn the user's latest message into a standalone search query for a document search engine.
+Use the conversation to resolve references like "it", "that", "those", "they", or "and X?".
+Keep names, IDs, codes and numbers exactly. Output only the query, nothing else."""
+
+
+async def rewrite_query(question: str, history: list[ChatMessage]):
+    """Follow-ups like "What is its top risk?" retrieve poorly: the question
+    alone never mentions the project. Rewrite it as "What is Project Osprey's
+    top risk?" before searching. Only called when there is history, so
+    first questions pay no extra LLM call. Returns an llm.Completion."""
+    from app.llm import complete
+
+    convo = "\n".join(f"{m.role}: {m.content}" for m in history[-settings.max_history_messages :])
+    return await complete([
+        {"role": "system", "content": REWRITE_PROMPT},
+        {"role": "user", "content": f"Conversation:\n{convo}\n\nLatest message: {question}"},
+    ])
+
+
+# --------------------------------------------------------------------------
+# Long-context answering (Phase 4 baseline: no retrieval at all)
+# --------------------------------------------------------------------------
+
+class ContextTooLarge(ValueError):
+    pass
+
+
+async def load_whole_documents(
+    session: AsyncSession, user_id: uuid.UUID, document_ids: list[uuid.UUID] | None = None
+) -> list[RetrievedChunk]:
+    """Every ready document as ONE "chunk" holding its full text.
+
+    Reusing RetrievedChunk means build_messages, citations, the SSE sources
+    event and the frontend all work unchanged: long-context answering is just
+    RAG where k = all documents and each chunk is an entire document.
+    """
+    stmt = (
+        select(Document.id, Document.filename, Document.full_text)
+        .where(Document.user_id == user_id, Document.status == DocumentStatus.READY)
+        .order_by(Document.filename)
+    )
+    if document_ids:
+        stmt = stmt.where(Document.id.in_(document_ids))
+    rows = (await session.execute(stmt)).all()
+    docs = [
+        RetrievedChunk(chunk_id=-(i + 1), document_id=r.id, filename=r.filename, page=None,
+                       chunk_index=0, content=r.full_text or "", score=1.0)
+        for i, r in enumerate(rows)
+    ]
+    total = sum(len(d.content) for d in docs)
+    if total > settings.long_context_max_chars:
+        raise ContextTooLarge(
+            f"Documents total {total:,} characters, above LONG_CONTEXT_MAX_CHARS "
+            f"({settings.long_context_max_chars:,}). Use RAG for collections this large."
+        )
+    return docs
+
+
 SYSTEM_PROMPT = """You are a helpful assistant that answers questions about the user's uploaded documents.
 
 Rules:

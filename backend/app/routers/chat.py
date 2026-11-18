@@ -9,15 +9,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db import get_session
-from app.embeddings import EmbeddingError, embed_query
+from app.embeddings import EmbeddingError
 from app.llm import stream_chat
 from app.models import User
-from app.rag import build_messages, search
+from app.pipeline import prepare_answer
+from app.rag import ContextTooLarge
 from app.schemas import ChatRequest, SourceOut
 from app.security import get_current_user
 
 log = logging.getLogger(__name__)
 router = APIRouter(tags=["chat"])
+
+NO_SOURCES_MESSAGE = "I couldn't find anything relevant. Upload some documents and wait until they show as ready."
 
 
 def _sse(event: str, data: object) -> str:
@@ -34,23 +37,22 @@ async def chat(
     """Answer a question about the user's documents, streamed as SSE.
 
     Events: `sources` (once, first) -> `token` (many) -> `done` | `error`.
+    The strategy (RAG / agent / long-context) comes from ANSWER_MODE.
     """
     started = time.perf_counter()
 
-    # --- Retrieval (before streaming starts, so failures return a clean HTTP error)
+    # --- Preparation: retrieval, or the whole agent loop. Done before streaming
+    # starts, so failures return a clean HTTP error.
     try:
-        needs_vec = settings.retrieval_mode != "keyword"
-        query_vec = await embed_query(session, body.question) if needs_vec else None
-        chunks = await search(
-            session, user.id, body.question, query_vec, settings.retrieval_top_k, body.document_ids
-        )
-        await session.commit()  # persist the query embedding in the cache
+        prep = await prepare_answer(session, user.id, body.question, body.history, document_ids=body.document_ids,
+                                     mode=body.answer_mode)
     except EmbeddingError as e:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e)) from e
+    except ContextTooLarge as e:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, str(e)) from e
     except Exception as e:
-        log.exception("retrieval failed")
+        log.exception("answer preparation failed")
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"Retrieval failed: {e}") from e
-    retrieval_ms = (time.perf_counter() - started) * 1000
 
     sources = [
         SourceOut(
@@ -62,21 +64,24 @@ async def chat(
             score=round(c.score, 4),
             snippet=c.content[:500],
         ).model_dump(mode="json")
-        for i, c in enumerate(chunks, start=1)
+        for i, c in enumerate(prep.sources, start=1)
     ]
-    messages = build_messages(body.question, body.history, chunks)
 
     async def event_stream() -> AsyncIterator[str]:
         yield _sse("sources", sources)
         first_token_ms: float | None = None
         meta: dict = {}  # filled by stream_chat: model actually used + token usage
 
-        if not chunks:
+        if prep.answer is not None:  # agent: the answer was produced during preparation
+            meta = {"model": prep.agent["model"], "usage": prep.agent["usage"]}
+            first_token_ms = (time.perf_counter() - started) * 1000
+            yield _sse("token", {"text": prep.answer})
+        elif not prep.messages:
             # Don't spend an LLM call when there's nothing to ground the answer in.
-            yield _sse("token", {"text": "I couldn't find anything relevant. Upload some documents and wait until they show as ready."})
+            yield _sse("token", {"text": NO_SOURCES_MESSAGE})
         else:
             try:
-                async for fragment in stream_chat(messages, meta=meta):
+                async for fragment in stream_chat(prep.messages, meta=meta):
                     if first_token_ms is None:
                         first_token_ms = (time.perf_counter() - started) * 1000
                     yield _sse("token", {"text": fragment})
@@ -87,16 +92,19 @@ async def chat(
 
         total_ms = (time.perf_counter() - started) * 1000
         log.info(
-            "chat user=%s model=%s chunks=%d retrieval=%.0fms first_token=%sms total=%.0fms usage=%s",
-            user.id, meta.get("model"), len(chunks), retrieval_ms,
-            f"{first_token_ms:.0f}" if first_token_ms else "-", total_ms, meta.get("usage"),
+            "chat user=%s mode=%s model=%s sources=%d query=%r prep=%.0fms first_token=%sms total=%.0fms usage=%s extra=%s",
+            user.id, prep.mode, meta.get("model"), len(prep.sources), prep.search_query, prep.prep_ms,
+            f"{first_token_ms:.0f}" if first_token_ms else "-", total_ms, meta.get("usage"), prep.extra_usage,
         )
         yield _sse("done", {
-            "retrieval_ms": round(retrieval_ms),
+            "mode": prep.mode,
+            "retrieval_ms": round(prep.prep_ms),
             "first_token_ms": round(first_token_ms) if first_token_ms else None,
             "total_ms": round(total_ms),
             "model": meta.get("model", "none"),
             "usage": meta.get("usage"),
+            "search_query": prep.search_query,
+            "agent_steps": prep.agent["steps"] if prep.agent else None,
         })
 
     return StreamingResponse(

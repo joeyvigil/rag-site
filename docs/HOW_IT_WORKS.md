@@ -8,7 +8,7 @@ It is updated at the end of every phase, so it always describes the code as it i
 > reading it. Then open the linked code and trace it. The "Interview angle" boxes are
 > the questions you should be able to answer without notes.
 
-**Current state:** Phase 3 (hybrid search, reranking, CSV-aware chunking, OCR, all measured). See [Phase log](#11-phase-log).
+**Current state:** Phase 4 (query rewriting, contextual chunks, agentic RAG, long-context baseline, harder benchmark, all measured). See [Phase log](#11-phase-log).
 
 ---
 
@@ -22,7 +22,9 @@ It is updated at the end of every phase, so it always describes the code as it i
    - 5.1 Parsing · 5.2 Chunking · 5.3 Embeddings · 5.4 Vector search & HNSW ·
      5.5 Prompting · 5.6 Generation & streaming · 5.7 Auth & multi-tenancy ·
      5.8 Async architecture & the job queue · 5.9 Data model ·
-     5.10 Hybrid search & RRF · 5.11 Reranking · 5.12 OCR
+     5.10 Hybrid search & RRF · 5.11 Reranking · 5.12 OCR ·
+     5.13 Beyond plain RAG: three answer modes · 5.14 Query rewriting ·
+     5.15 Contextual chunks · 5.16 Agentic RAG · 5.17 Long-context baseline
 6. [Evaluation: measuring a RAG system](#6-evaluation)
 7. [Scaling: what breaks first and how to fix it](#7-scaling-what-breaks-first-and-how-to-fix-it)
 8. [Known limitations (and which phase fixes them)](#8-known-limitations-and-which-phase-fixes-them)
@@ -664,6 +666,131 @@ Pages without a text layer go through `ocr_document`: PDF pages are rendered to 
   stamps) separate the two much more, usually in the vision model's favor. Privacy is
   the other axis: Gemini sees your page images; Tesseract never leaves the machine.
 
+### 5.13 Beyond plain RAG: three answer modes (`backend/app/pipeline.py:35`)
+
+"RAG" is one point in a design space. The question is always: *how does the right text
+get in front of the model?* Phase 4 adds two other answers and runs all three through
+the same entry point, `prepare_answer`, used by both chat and the eval harness (so the
+eval measures exactly what users get):
+
+| `ANSWER_MODE` | How text reaches the model | LLM calls / question | Good at | Bad at |
+|---|---|---|---|---|
+| `rag` (default) | One search, top-6 chunks | 1 (+1 if rewriting) | Fast, cheap, scales to any corpus size | Questions that need many scattered pieces |
+| `agent` | The model calls search/read tools in a loop | 2–7 | Multi-part questions; deciding *what* to look up | Slow, costlier, less predictable |
+| `long_context` | Every selected document, whole | 1 (huge prompt) | No retrieval misses, small corpora | Cost grows with corpus size; context limits |
+
+Pick the mode per question (the selector next to *Send*, i.e. `answer_mode` in the
+`/api/chat` body) or set the server default with `ANSWER_MODE` in `.env`.
+
+### 5.14 Query rewriting (`backend/app/rag.py:214`)
+
+**Problem:** in a conversation, "What is its top risk?" is meaningless to a search
+engine: "its" refers to something three messages back. Retrieval used only the latest
+message, so follow-ups retrieved garbage and the model answered "I couldn't find
+information about Project Osprey".
+
+**Fix:** when there is history, one cheap LLM call rewrites the follow-up into a
+standalone search query ("What is the top risk for Project Osprey?") *before*
+retrieval. The **original** question still goes to the answering model along with the
+history; only the search uses the rewrite. The chat UI shows "searched for: …" so you
+can see what the rewriter did.
+
+- Skipped when there's no history (zero extra cost for first questions).
+- Cost: one extra small LLM call before the search, on follow-ups only (it added ~6 s
+  at p50 on our measurement day, when the API was slow for every call).
+- Alternatives: HyDE (generate a fake answer and embed *that*), multi-query (several
+  rewrites, fuse the results with RRF), step-back prompting (search for a broader
+  question). Rewriting for conversation is the one that fixes a real failure here.
+
+**Measured:** follow-up correctness **3/7 → 7/7**; retrieval hit@6 on follow-ups 0.43 → 1.00.
+
+### 5.15 Contextual chunks (`backend/app/contextualize.py:48`)
+
+**Problem:** a chunk like "The testing budget is $250,000, with $140,000 spent" doesn't
+say *which project*. Its embedding and its keywords lack the most important word.
+
+**Fix (Anthropic's "Contextual Retrieval", 2024):** before embedding, prepend a short
+context to each chunk. `CHUNK_CONTEXT` has three settings:
+
+- `none`: the chunk as-is.
+- `title`: prepend `[filename, page N]`. Free.
+- `llm`: ask the LLM, given the whole document and the chunk, for 1–2 sentences
+  situating the chunk ("This is from the Project Osprey status report, budget section").
+  The document goes **first** in the prompt so providers with prompt caching reuse it
+  across all of that document's chunks. Results are cached in `llm_cache`, so re-ingests
+  are free. Cost: one LLM call per chunk at ingest (79 for our corpus), none at query time.
+
+The context is stored as part of the chunk text, so it helps vector *and* keyword
+search, and the answering model sees it too.
+
+**Measured** (retrieval only, 57 questions, rewrite on):
+
+| | hit@6 | hit@1 | MRR |
+|---|---|---|---|
+| none | **0.979** | 0.438 | 0.656 |
+| title | 0.958 | 0.479 | 0.673 |
+| llm | 0.958 | **0.562** | **0.712** |
+
+`llm` context clearly improves *ranking* (hit@1 +12 points) but not hit@6, which is
+what drove answer quality in Phase 3 (§6.8). `title` actually **hurt exact-ID lookups**
+(hit@6 1.00 → 0.71 on that category): the same filename prefix on every catalog chunk
+added identical words to all of them, diluting the SKU match. **Default stays `none`.**
+Turn on `llm` if you shrink `k` or the corpus grows enough that rank matters.
+
+### 5.16 Agentic RAG (`backend/app/agent.py:110`)
+
+Instead of the code deciding "search once, top 6", the **model** decides what to do,
+using **tool calling** (function calling). We describe three tools in JSON Schema:
+
+- `search_documents(query)`: hybrid search, returns numbered excerpts.
+- `list_documents()`: filenames and sizes.
+- `read_document(filename)`: the full text of one document (capped at 40k chars).
+
+The loop (the **ReAct** pattern: reason → act → observe, repeated):
+
+```
+messages = [system, history, question]
+for step in range(AGENT_MAX_STEPS):        # 6
+    reply = LLM(messages, tools)
+    if reply has no tool calls: return reply   # final answer
+    for call in reply.tool_calls:
+        result = run_tool(call)                # always scoped to this user's docs
+        messages += [reply, tool_result(call.id, result)]
+force a final answer without tools             # never loop forever
+```
+
+Details that matter:
+
+- **Stable citations across steps:** `_Sources` numbers each chunk the first time any
+  tool returns it and reuses that number later, so `[3]` means the same thing in step 1
+  and step 4.
+- **Tenant isolation still holds:** tools take only a query or filename; `user_id` comes
+  from the authenticated request, never from the model. *Never let the model choose
+  whose data to read.*
+- **Gemini "thought signatures":** the assistant message must be sent back exactly
+  (`model_dump(exclude_none=True)`), or the next call fails.
+- **No streaming of intermediate steps:** the final answer arrives as one chunk; the UI
+  shows the step count.
+
+**Measured:** best correctness of any mode (**0.974**), and the only one to get the
+cross-document questions right reliably, but p50 latency 16 s (p95 55 s) and ~4× the
+cost of RAG. Average 2.7 LLM calls and 1.7 tool calls per question.
+
+### 5.17 Long-context baseline (`backend/app/rag.py:236`)
+
+The "no retrieval" baseline: put *every* selected document in the prompt (as one
+"source" per document, so citations still work). Uses `documents.full_text`, saved at
+ingest with `[Page n]` markers. Refuses with HTTP 413 above `LONG_CONTEXT_MAX_CHARS`
+(400k, ~100k tokens).
+
+Every RAG system should be compared against this: if your corpus fits in the context
+window, is retrieval even helping? Here the whole corpus is ~33k tokens per question.
+
+**Measured:** correctness 0.939, *without any retrieval*. It fixed every follow-up and
+synthesis question plain RAG missed, but cost **$9.93 per 1k queries, 12× RAG**, because
+every question re-sends the whole corpus. (Prompt caching would cut that sharply; the
+Gemini free tier doesn't expose it through this endpoint.) And it still miscounted.
+
 ---
 
 ## 6. Evaluation
@@ -871,6 +998,49 @@ Every change was measured alone (an **ablation**), with the CSV fix applied firs
 5. **We're near the ceiling of this benchmark.** To keep measuring progress, Phase 4
    needs harder questions (follow-ups, cross-document synthesis) or a bigger corpus.
 
+### 6.9 Phase 4 results: rewriting, agents and long context
+
+**A harder benchmark first.** Phase 3 saturated the 42 questions (0.976), so 15 were added:
+7 multi-turn **follow-ups** (with `history`), 5 cross-document **synthesis** questions
+("compare the testing budgets of Falcon and Osprey"), and 3 **aggregation** questions
+("how many products are in the Sensors category?", answer computed from the CSV).
+Plain RAG dropped to 0.833 on the new set of 57: the benchmark has headroom again.
+
+Same model (gemini-3.5-flash-lite), same judge (gemini-3.1-flash-lite), 57 questions:
+
+| Mode | Correctness | follow-up | synthesis | aggregation | p50 | p95 | tokens in | $/1k q |
+|---|---|---|---|---|---|---|---|---|
+| RAG, no rewrite | 0.833 | 3/7 | 2.5/5 | 1/3 | 6.8 s* | 9.9 s | 2.2k | $0.81 |
+| RAG + rewrite (default) | ≈0.904† | **7/7** | 2.5/5 | 1/3 | 6.8 s (+6 s on follow-ups) | | 2.2k | ~$0.82 |
+| Long context | 0.939 | 7/7 | **5/5** | 1/3 | 6.8 s | 10 s | **32.7k** | **$9.93** |
+| **Agent** | **0.974** | 7/7 | 4.5/5 | **2/3** | 16.4 s | 55 s | 9.5k | $3.06 |
+
+\* The API was ~5× slower on this day than in Phase 3 (p50 1.35 s then) for the same
+model and config; compare latencies **within a day**, not across days.
+† Rewrite only changes follow-ups, so it was run on those 7 alone (to save free-tier
+quota) and combined with the no-rewrite run for the rest.
+
+What we learned:
+
+1. **Query rewriting is the cheapest big win:** it fixes every follow-up for one small
+   extra call. **On by default.**
+2. **The agent is the most accurate, at a price.** It wins by deciding to look things up
+   more than once ("Falcon budget", then "Osprey budget"), which is exactly where
+   one-shot top-6 retrieval fails (s02, s03: the second project's chunk was never
+   retrieved). But it costs ~4× RAG with 2.4× the median latency and a 55 s tail.
+   **Default stays `rag`; `agent` is opt-in per request.** A production system would
+   **route**: a cheap classifier sends simple questions to RAG and multi-part ones to the agent.
+3. **Long context is a strong baseline** (0.939 with no retrieval at all) but 12× the cost
+   and it doesn't scale past the context window. For a small fixed corpus with prompt
+   caching it can be the right answer.
+4. **No mode can count.** Aggregation: "how many products are in the Sensors category?"
+   (answer 86 of 500 rows). RAG said 21 (it saw only 6 chunks), long context said 30,
+   and the agent read the *entire* catalog and still said 48, then burned its remaining
+   steps re-searching. **LLMs are not calculators;** the fix is a different tool, not
+   better retrieval: text-to-SQL or a code interpreter over tabular files.
+5. **Contextual chunks improved ranking, not answers** (see 5.15). Same lesson as the
+   reranker in Phase 3.
+
 ---
 
 ## 7. Scaling: what breaks first and how to fix it
@@ -904,12 +1074,15 @@ Think about each tier separately. Roughly in the order they'd hurt:
 | Keyword search uses `ts_rank_cd`, not BM25 | No IDF: rare terms (IDs) aren't weighted above common words | ParadeDB `pg_search` or a dedicated BM25 index |
 | Reranker off by default | Rank 1 is often wrong (hit@1 0.47 with hybrid) | Turn on (`RERANKER=llm`) if `k` is reduced or the corpus grows |
 | Cross-encoder is slow on CPU (~3 s/query) | Unusable for interactive chat on this laptop | GPU inference, a smaller model, or fewer candidates |
-| Retrieval uses only the latest message | "What about its budget?" retrieves poorly | Query rewriting with history (4) |
-| Chunks lack document context | "It increased 5%": what's "it"? | Contextual retrieval / parent-child chunks (4) |
+| Aggregation questions ("how many…") fail in every mode | LLMs can't count hundreds of rows reliably | Text-to-SQL / code-interpreter tool for tables |
+| Agent mode is slow (p95 55 s) and ~4× the cost | Unusable as a default | Route only multi-part questions to it; stream intermediate steps |
+| Long-context mode re-sends the whole corpus | 12× the cost of RAG | Prompt caching (paid tiers) |
+| Contextual chunks (`llm`) cost one LLM call per chunk at ingest | Hits free-tier quotas on big uploads | Batch API, or only for long documents |
 | OCR tested only on synthetic scans | Real-world accuracy unknown (tables, handwriting) | Add real scanned documents to the eval |
 | CSVs with quoted multi-line fields | Header/row split assumes one row per line | Parse with the `csv` module |
 | Judge = same model as answerer | Self-preference bias in correctness scores | Use a different-provider judge when available |
-| Small, now-saturated golden set (42 questions) | CIs are ±4–8 points and correctness is ~98%, so it can't show further gains | Harder questions (follow-ups, synthesis), bigger corpus (4) |
+| Small golden set (57 questions, 3–7 per new category) | One question is 14–33 points within a category | More questions per category, a second corpus |
+| Free-tier quota (500 requests/day/model) | A full agent eval uses ~40% of a day's quota | Budget runs; paid tier for real experiments |
 | Commit → enqueue gap | API crash can strand a doc in `pending` | Transactional outbox / sweeper job |
 | `create_all` instead of migrations | Schema changes need manual work | Alembic |
 | JWT in localStorage, no revocation | XSS exposure; can't force logout | httpOnly cookie + refresh tokens |
@@ -1044,11 +1217,43 @@ Tesseract broke 1 of 13 key facts while Gemini kept all 13, but Tesseract was ~8
 free and private. We default to Gemini with automatic fallback to Tesseract. Evaluate
 OCR with "evidence survival", not just character error rate.
 
+**Q: How do you handle follow-up questions in RAG?**
+Rewrite the follow-up into a standalone query using the conversation history, then
+retrieve with that; keep the original question plus history for the answer. Measured:
+follow-ups went from 3/7 to 7/7 correct, for one small extra call only when there's history.
+
+**Q: What is agentic RAG, and when would you use it?**
+The model gets retrieval as tools (search, list, read) and decides what to call, in a
+loop, until it can answer (ReAct). Use it for multi-part or cross-document questions
+where one search can't find everything. Ours scored best (0.974 vs ~0.90) but at 2.4×
+median latency, a 55 s p95 and ~4× cost, so it's opt-in; in production, route to it.
+
+**Q: How do you keep an agent safe and bounded?**
+Cap the steps (6) and force a final answer; scope every tool to the authenticated
+user in code (the model never supplies a user ID); make tools read-only; log every
+tool call; cap the size of tool results. Treat tool output like documents: untrusted.
+
+**Q: Why not just put everything in the context window?**
+We measured it: 0.939 correctness, no retrieval misses, but 12× the cost because every
+question re-sends ~33k tokens, and it stops working once the corpus outgrows the
+window. Long context + prompt caching is reasonable for small, static corpora; RAG
+wins on cost and scale. Always run it as a baseline.
+
+**Q: What is contextual retrieval?**
+Prepending an LLM-written 1–2 sentence context to each chunk before embedding and
+indexing, so a chunk that says "the budget is $250k" also says which project. Ours
+improved hit@1 by 12 points but not hit@6 or answer quality, so it's off by default.
+Note the cost is at ingest (one call per chunk), not per query.
+
+**Q: A user asks "how many tickets mention VPN?" What happens?**
+RAG fails by design: it sees 6 chunks of a 400-row file. Long context and agents can
+read the whole file but still miscount (ours said 30 and 48 where the answer was 86).
+Aggregation needs computation: a text-to-SQL or code tool over the table.
+
 **Q: What would you improve next?** (Always have an answer!)
-Phase 3 brought the benchmark near its ceiling (correctness 0.976), so first make the
-benchmark harder: multi-turn follow-ups and cross-document synthesis questions. Then
-add query rewriting for follow-ups, contextual chunk headers, and compare against a
-long-context baseline (no retrieval at all), each measured the same way.
+A text-to-SQL tool for aggregation questions (the one category no mode solves), a
+router that sends only multi-part questions to the agent, then Phase 5: load testing
+with a fake LLM, caching and observability.
 
 ---
 
@@ -1056,9 +1261,11 @@ long-context baseline (no retrieval at all), each measured the same way.
 
 | Term | Meaning |
 |---|---|
+| **Agentic RAG** | The LLM calls retrieval tools in a loop and decides what to look up |
 | **ANN** | Approximate Nearest Neighbor: fast, slightly imperfect vector search |
 | **BM25** | Classic keyword-relevance ranking (term frequency, rarity, document length) |
 | **Chunk** | A piece of a document small enough to embed and retrieve on its own |
+| **Contextual retrieval** | Prepending an LLM-written context sentence to each chunk before indexing |
 | **Cosine similarity** | Similarity of two vectors by angle, from −1 to 1 |
 | **Ablation** | Changing one component at a time to measure its individual effect |
 | **Bi-encoder** | Model that embeds query and document separately (what embeddings are) |
@@ -1073,16 +1280,20 @@ long-context baseline (no retrieval at all), each measured the same way.
 | **GIN index** | Generalized Inverted Index: Postgres's word → rows index for full-text search |
 | **Hybrid search** | Combining keyword (BM25) and vector search results |
 | **Idempotent** | Running an operation twice has the same effect as running it once |
+| **Long-context baseline** | Answering with whole documents in the prompt, no retrieval |
 | **LLM-as-judge** | Using an LLM with a rubric to grade another LLM's output |
 | **p50 / p95** | The median / the value 95% of requests are faster than (tail latency) |
 | **Listwise reranking** | Asking an LLM to order a whole list of passages at once |
 | **Matryoshka embeddings** | Embeddings whose prefixes are also valid (smaller) embeddings |
 | **OCR** | Optical Character Recognition: turning images of text into text |
 | **MRR** | Mean Reciprocal Rank: how high the first correct result ranks, on average |
+| **Query rewriting** | Turning a follow-up into a standalone search query using the chat history |
+| **ReAct** | Reason + Act: the loop of thinking, calling a tool, observing the result |
 | **Recall@k** | Fraction of questions where a correct chunk appears in the top k |
 | **RRF** | Reciprocal Rank Fusion: merges ranked lists by summing 1/(k + rank) |
 | **SSE** | Server-Sent Events: one-way HTTP streaming from server to browser |
 | **tsvector / tsquery** | Postgres's preprocessed document / query types for full-text search |
+| **Tool / function calling** | The model returns a structured request to run a named function with JSON arguments |
 | **TTFT** | Time To First Token: the latency users actually feel |
 | **Top-k** | The number of chunks retrieved per question (6 here) |
 
@@ -1174,3 +1385,37 @@ and repeating CSV headers. New defaults: `RETRIEVAL_MODE=hybrid`, `RERANKER=none
 **Next:** Phase 4: harder benchmark (follow-ups, synthesis), query rewriting,
 contextual retrieval, agentic RAG, and a long-context baseline.
 
+### Phase 4: Beyond plain RAG ✅
+
+**Built:** 15 harder questions (follow-ups, synthesis, aggregation); query rewriting;
+contextual chunks (`none` / `title` / `llm`, cached); an agentic mode with three tools;
+a long-context baseline; one `prepare_answer` pipeline shared by chat and eval;
+`--answer-mode`, `--query-rewrite` and `--chunk-context` eval flags; per-mode cost
+including helper calls; fail-fast on daily quota.
+
+**Result:** query rewriting on by default (follow-ups 3/7 → 7/7). Agent mode is the most
+accurate (0.974) but opt-in because of cost and latency. Long context: 0.939 at 12× cost.
+Contextual chunks and the reranker share a lesson: better ranking, same answers.
+
+**What broke and what we learned:**
+
+1. **Ran out of free quota mid-experiment.** Gemini's free tier is 500 requests/day *per
+   model*; the agent eval alone uses ~200. *Lesson: budget experiments like money,
+   and split answering and judging across models (separate buckets).*
+2. **I assumed the quota had reset because one call succeeded.** It hadn't; the next
+   run failed. *Lesson: verify with the API's own answer (the 429 body names the quota
+   and the retry delay), not a single lucky request.*
+3. **The fail-fast didn't fail fast.** A wrapper exception (`LLMError("All models
+   failed")`) dropped the SDK error's body, which was the only place the word "PerDay"
+   appeared, so the eval kept retrying a dead quota. Fix: `raise … from e` and walk
+   the `__cause__` chain. A regression test covers it. *Lesson: wrapping exceptions
+   without chaining destroys the information callers need.*
+4. **A careless edit replaced a function body with a placeholder.** Caught by the tests
+   at once. *Lesson: this is why the unit tests exist.*
+5. **The agent read all 500 rows and still miscounted.** Giving the model *more* text
+   doesn't fix a task it can't do. Use the right tool (SQL/code).
+6. **Latency varies day to day for the same model** (p50 1.35 s → 6.8 s). *Lesson:
+   only compare latencies measured in the same session.*
+
+**Next:** Phase 5: load testing (Locust/k6 with the fake LLM), caching, rate limits and
+observability.

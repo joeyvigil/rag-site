@@ -137,13 +137,15 @@ async def _provider_embed(texts: list[str], task: TaskType) -> list[list[float]]
 
 def _is_retryable(exc: BaseException) -> bool:
     if isinstance(exc, httpx.HTTPStatusError):
+        if "PerDay" in exc.response.text:  # daily quota: retrying won't help until it resets
+            return False
         return exc.response.status_code in _RETRYABLE_STATUS
     return isinstance(exc, httpx.TransportError)
 
 
 @retry(
     retry=retry_if_exception(_is_retryable),
-    wait=wait_exponential_jitter(initial=2, max=60),
+    wait=wait_exponential_jitter(multiplier=2, max=60),
     stop=stop_after_attempt(6),
     reraise=True,
     before_sleep=lambda rs: log.warning(

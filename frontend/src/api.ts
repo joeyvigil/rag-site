@@ -26,10 +26,13 @@ export type Source = {
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
 export type Timings = {
+  mode?: string;
   retrieval_ms: number;
   first_token_ms: number | null;
   total_ms: number;
   model: string;
+  search_query?: string | null;
+  agent_steps?: number | null;
 };
 
 // ---------------------------------------------------------------- token
@@ -117,8 +120,10 @@ type ChatHandlers = {
  * POST /api/chat and parse the Server-Sent Events stream by hand.
  * (The browser's EventSource only supports GET without custom headers.)
  */
+export type AnswerMode = "rag" | "agent" | "long_context";
+
 export async function streamChat(
-  body: { question: string; history: ChatMessage[] },
+  body: { question: string; history: ChatMessage[]; answer_mode?: AnswerMode },
   handlers: ChatHandlers,
   signal?: AbortSignal,
 ): Promise<void> {

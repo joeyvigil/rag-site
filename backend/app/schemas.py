@@ -60,6 +60,8 @@ class ChatRequest(BaseModel):
     history: list[ChatMessage] = Field(default_factory=list, max_length=20)
     # Optionally restrict the search to specific documents.
     document_ids: list[uuid.UUID] | None = None
+    # Override ANSWER_MODE for this question (None = server default).
+    answer_mode: Literal["rag", "agent", "long_context"] | None = None
 
 
 class SourceOut(BaseModel):
